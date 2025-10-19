@@ -1,0 +1,8 @@
+<h2>Utility List</h2>
+<div *ngFor="let utility of utilities">
+  <p>{{ utility.utilityType }} - {{ utility.providerName }}</p>
+  <button (click)="editUtility(utility)">Edit</button>
+  <button (click)="deleteUtility(utility.utilityId)">Delete</button>
+</div>
+<button (click)="addUtility()">Add New Utility</button>
+

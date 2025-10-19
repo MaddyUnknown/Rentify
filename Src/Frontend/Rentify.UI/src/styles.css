@@ -1,0 +1,30 @@
+:root {
+    /* Color variable */
+    --pimary-color: #2563EB;
+
+    --text-color : #0F172A;
+    --text-muted: #6B7280;
+    --background: #F9FAFB;
+
+    --panel-background: #FFFFFF;
+
+    /* Timing variable */
+    --base-animation-time: 0.2s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%; /* 10px by default */
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    font-size: 1.6rem;
+    color: var(--text-color);
+    background-color: var(--background);
+}
