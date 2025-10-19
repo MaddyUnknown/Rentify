@@ -1,0 +1,16 @@
+:host {
+    position: relative;
+    display: flex;
+}
+
+app-header {
+    width: 26rem;
+    padding: 2.8rem;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+router-outlet {
+    position: relative;
+}

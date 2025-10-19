@@ -1,0 +1,13 @@
+<h2>Unit Form</h2>
+<form (ngSubmit)="saveUnit()">
+  <label for="name">Name</label>
+  <input id="name" [(ngModel)]="unit.name" name="name">
+  <br>
+  <label for="description">Description</label>
+  <input id="description" [(ngModel)]="unit.description" name="description">
+  <br>
+  <label for="propertyId">Property ID</label>
+  <input id="propertyId" [(ngModel)]="unit.propertyId" name="propertyId">
+  <br>
+  <button type="submit">Save</button>
+</form>
