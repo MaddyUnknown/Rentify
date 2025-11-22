@@ -1,19 +1,32 @@
+import { Location } from './location.model';
+
+export interface PropertyDetails {
+  name: string;
+  streetName: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  description?: string;
+}
+
+export interface PropertyImageMetadata {
+  fileName: string;
+  thumbnailUrl: string;
+  imageUrl: string;
+}
+
 export interface Property {
+  id: number;
+  generalDetails: PropertyDetails;
+  imageMetadataList: PropertyImageMetadata[];
+  location?: Location;
+}
+
+export interface PropertySummary {
   propertyId: number;
   name: string;
-  address: string;
   description?: string;
-}
-
-export interface CreateProperty {
-  name: string;
   address: string;
-  description?: string;
+  numberOfUnits: number;
+  numberOfUtility: number;
 }
-
-export interface UpdateProperty {
-  name: string;
-  address: string;
-  description?: string;
-}
-

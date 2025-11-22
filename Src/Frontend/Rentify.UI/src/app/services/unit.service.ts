@@ -31,4 +31,3 @@ export class UnitService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
-

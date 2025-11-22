@@ -1,30 +1,65 @@
 :root {
-    /* Color variable */
-    --pimary-color: #2563EB;
+  /* Color variable */
+  --primary-color: #0066cc;
+  --primary-color--shade-5: #003366;
+  --primary-color--tint-1: #1a75d1;
+  --primary-color--tint-3: #4d94db;
 
-    --text-color : #0F172A;
-    --text-muted: #6B7280;
-    --background: #F9FAFB;
+  --text-color: #0b1220;
+  --text-color--tint-3: #545963;
+  --text-color--tint-4: #6d7179;
+  --text-color--tint-5: #858990;
+  --text-color--muted: #667085;
 
-    --panel-background: #FFFFFF;
+  --danger-color: #ef4444;
+  --danger-color--shade-5: #782222;
+  --danger-color--tint-1: #f15757;
+  --danger-color--tint-3: #f47c7c;
 
-    /* Timing variable */
-    --base-animation-time: 0.2s;
+  --background-color: #ffffff;
+  --background-color--muted: #f4f7fa;
+
+  --border-color: #e8ecf1;
+
+  /* Timing variable */
+  --base-animation-time: 0.2s;
+
+  /* Font used */
+  --font-family: 'Quicksand', sans-serif;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html {
-    font-size: 62.5%; /* 10px by default */
-    font-family: "Inter", sans-serif;
+  font-size: 62.5%; /* 10px by default */
+  font-family: var(--font-family);
 }
 
 body {
-    font-size: 1.6rem;
-    color: var(--text-color);
-    background-color: var(--background);
+  font-size: 1.6rem;
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+/* Icon Styles */
+lucide-icon {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+}
+
+.app-panel__icon {
+  width: 1.8rem;
+}
+
+.app-button__icon {
+  width: 1.4rem;
+}
+
+.app-button__icon--inline {
+  width: 1.5rem;
 }

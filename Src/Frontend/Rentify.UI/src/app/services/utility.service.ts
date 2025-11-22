@@ -31,4 +31,3 @@ export class UtilityService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
-

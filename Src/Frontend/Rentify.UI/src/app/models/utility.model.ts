@@ -25,4 +25,3 @@ export interface UpdateUtility {
   billingCycleStartDate: Date;
   propertyId: number;
 }
-

@@ -1,8 +1,0 @@
-<h2>Property List</h2>
-<div *ngFor="let property of properties">
-  <p>{{ property.name }} - {{ property.address }}</p>
-  <button (click)="editProperty(property)">Edit</button>
-  <button (click)="deleteProperty(property.propertyId)">Delete</button>
-</div>
-<button (click)="addProperty()">Add New Property</button>
-

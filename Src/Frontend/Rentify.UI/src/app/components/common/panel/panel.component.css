@@ -1,0 +1,39 @@
+.app-panel {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 1fr;
+  row-gap: 1.8rem;
+  column-gap: 0.8rem;
+  align-items: start;
+
+  padding: 1.2rem;
+
+  border-radius: 0.8rem;
+  border: 0.1rem solid var(--border-color);
+
+  background-color: var(--background-color);
+}
+
+.app-panel .app-panel__icon,
+.app-panel h3,
+.app-panel [appPanelButtons] {
+  align-self: center;
+}
+
+.app-panel .app-panel__icon {
+  height: 3.2rem;
+}
+
+.app-panel h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.app-panel [appPanelButtons] {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.app-panel [appPanelDesc] {
+  grid-column: 1 / -1;
+}

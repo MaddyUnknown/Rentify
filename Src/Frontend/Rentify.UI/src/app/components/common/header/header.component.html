@@ -1,0 +1,43 @@
+<h1 class="app-header__brand">
+  <img class="app-header__brand__icon" src="img/rentify-logo.svg" alt="Rentify Icon" />
+  <div class="app-header__brand__text">
+    <div class="app-header__brand__title">Rentify</div>
+    <div class="app-header__brand__alt">Rent & Utility Manager</div>
+  </div>
+</h1>
+<nav class="app-header__nav">
+  <div #navHighlight class="app-header__nav--hightlight"></div>
+  <ul class="app-header__nav__list">
+    <!-- <li data-navName="index" #navItem><a routerLink="/">Dashboard</a></li> -->
+    <li data-nav-name="properties" #navItem>
+      <a routerLink="/properties">
+        <lucide-icon [img]="ICONS.House"></lucide-icon>
+        Properties
+      </a>
+    </li>
+    <li data-nav-name="units" #navItem>
+      <a routerLink="/units">
+        <lucide-icon [img]="ICONS.MapPinPlus"></lucide-icon>
+        Units
+      </a>
+    </li>
+    <li data-nav-name="tenants" #navItem>
+      <a routerLink="/tenants">
+        <lucide-icon [img]="ICONS.Users"></lucide-icon>
+        Tenants
+      </a>
+    </li>
+    <li data-nav-name="contracts" #navItem>
+      <a routerLink="/contracts">
+        <lucide-icon [img]="ICONS.FileText"></lucide-icon>
+        Contracts
+      </a>
+    </li>
+    <li data-nav-name="billing" #navItem>
+      <a routerLink="/billing">
+        <lucide-icon [img]="ICONS.ReceiptText"></lucide-icon>
+        Billing
+      </a>
+    </li>
+  </ul>
+</nav>

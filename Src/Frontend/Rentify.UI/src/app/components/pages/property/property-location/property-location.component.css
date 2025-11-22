@@ -1,0 +1,14 @@
+app-panel {
+  height: 100%;
+}
+
+button[appButton] {
+  width: 11ch;
+}
+
+#map-container {
+  width: 100%;
+  height: 32.8rem;
+
+  border-radius: 0.8rem;
+}
