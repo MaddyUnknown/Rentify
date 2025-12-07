@@ -6,17 +6,18 @@ import { PanelComponent } from '../../../../shared/components/panel/panel.compon
 import { GeoLocationService } from '../../../../core/services/geolocation.service';
 import { Location } from '../../../../core/models/location.model';
 import { EnvironmentConfigService } from '../../../../core/services/environment-config.service';
+import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'section[appPropertyLocation]',
   templateUrl: './property-location.component.html',
   styleUrls: ['./property-location.component.css'],
-  imports: [PanelComponent],
+  imports: [PanelComponent, SkeletonLoaderComponent],
   standalone: true,
 })
 export class PropertyLocationComponent implements OnChanges, AfterViewInit {
   readonly ICONS = { Map };
-  readonly MAP_SELECTOR = 'map-container';
+  readonly MAP_SELECTOR = 'map';
   readonly LEAFLY_PROVIDER_URL = 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
   readonly LEAFLY_PROVIDER_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>';
@@ -24,6 +25,7 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
   private map?: L.Map;
 
   @Input({ alias: 'appPropertyLocation', required: false }) location?: Location;
+  @Input({ required: false }) loading: boolean = false;
 
   constructor(
     private geolocationService: GeoLocationService,

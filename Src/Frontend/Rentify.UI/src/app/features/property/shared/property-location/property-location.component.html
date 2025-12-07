@@ -1,3 +1,8 @@
 <app-panel [icon]="ICONS.Map" title="Property Map">
-  <div id="map-container" appPanelDesc></div>
+  <div [style.position]="'relative'" appPanelDesc>
+    <div id="map" class="map-container"></div>
+    @if (loading) {
+      <app-skeleton-loader type="box" class="map-container"></app-skeleton-loader>
+    }
+  </div>
 </app-panel>

@@ -11,13 +11,22 @@ import { EditState } from '../../../../shared/models/edit-state.model';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
 import { FormsModule } from '@angular/forms';
 import { UnitService } from '../../../../core/services/unit.service';
+import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'section[appPropertyUnits]',
   templateUrl: './property-units.component.html',
   styleUrls: ['./property-units.component.css'],
   standalone: true,
-  imports: [ButtonComponent, FormComponent, PanelComponent, TableComponent, TableColumnDirective, FormsModule],
+  imports: [
+    ButtonComponent,
+    FormComponent,
+    PanelComponent,
+    TableComponent,
+    TableColumnDirective,
+    FormsModule,
+    SkeletonLoaderComponent,
+  ],
 })
 export class PropertyUnitsComponent implements OnChanges {
   readonly ICONS = { CircleX, Blocks, Plus, Save, SquarePen, Trash2 };
@@ -33,6 +42,7 @@ export class PropertyUnitsComponent implements OnChanges {
 
   @Input({ required: true }) propertyId!: number;
   @Input({ alias: 'appPropertyUnits', required: false }) units?: PropertyUnit[];
+  @Input({ required: false }) loading: boolean = false;
 
   constructor(private unitService: UnitService) {}
 
@@ -67,6 +77,7 @@ export class PropertyUnitsComponent implements OnChanges {
     return this.TABLE_DATA_TYPE;
   }
 
+  //#region Validators
   private isUnitValid(unit: PropertyUnit): {
     isValid: boolean;
     propertyHasError: { [K in keyof PropertyUnit]?: boolean };
@@ -91,6 +102,7 @@ export class PropertyUnitsComponent implements OnChanges {
       return false;
     }
   }
+  //#endregion
 
   //#region Event handlers
   onAddRowClick() {
@@ -137,6 +149,7 @@ export class PropertyUnitsComponent implements OnChanges {
         // (Close clicked) Toggle to view mode
         row.data = row.previousData ?? row.data;
         row.previousData = undefined;
+        row.isInvalid = {};
         row.mode.toggle();
       }
     }
@@ -239,8 +252,8 @@ export class PropertyUnitsComponent implements OnChanges {
     }
 
     this.unitService.deleteUnit(data.id).subscribe({
-      next: () => {
-        this.unitRows = this.unitRows.filter((r) => r.data.id !== data.id);
+      next: (deletedUnit) => {
+        this.unitRows = this.unitRows.filter((r) => r.data.id !== deletedUnit.id);
       },
       error: (err) => console.error(err),
     });

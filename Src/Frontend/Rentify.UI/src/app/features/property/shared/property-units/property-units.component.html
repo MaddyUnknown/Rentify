@@ -1,91 +1,128 @@
 <app-panel [icon]="ICONS.Blocks" title="Property Units">
   <div appPanelButtons class="app-property-units__btns">
-    <button appButton [input]="{ icon: ICONS.Plus, label: 'Add' }" (click)="onAddRowClick()"></button>
+    <button
+      appButton
+      [disabled]="loading"
+      [input]="{ icon: ICONS.Plus, label: 'Add' }"
+      (click)="onAddRowClick()"
+    ></button>
   </div>
-  <table appPanelDesc appTable [data]="unitRows" class="app-property-units__table">
-    <ng-template appTableColumn="Id" [type]="tableDataType" let-row>
-      @if (!row.isNew) {
-        <!-- <div>{{ row.data.id }}</div> -->
-        <div appForm class="app-table__body__id-wrapper" [isReadOnly]="true">
-          <input [attr.name]="'unit-id'" [type]="'text'" [(ngModel)]="row.data.id" />
+  @if (loading) {
+    <table appPanelDesc appTable [data]="[1, 2]" class="app-property-units__table">
+      <ng-template appTableColumn="Id" [type]="1" let-row>
+        <app-skeleton-loader type="input"></app-skeleton-loader>
+      </ng-template>
+
+      <ng-template appTableColumn="Name" [type]="1" let-row>
+        <app-skeleton-loader type="input"></app-skeleton-loader>
+      </ng-template>
+
+      <ng-template appTableColumn="Type" [type]="1" let-row>
+        <app-skeleton-loader type="input"></app-skeleton-loader>
+      </ng-template>
+
+      <ng-template appTableColumn="Size (sqft)" [type]="1" let-row>
+        <app-skeleton-loader type="input"></app-skeleton-loader>
+      </ng-template>
+
+      <ng-template appTableColumn="Status" [columnAlignment]="'center'" [type]="tableDataType" let-row>
+        <app-skeleton-loader type="input"></app-skeleton-loader>
+      </ng-template>
+
+      <ng-template appTableColumn="Actions" [columnAlignment]="'right'" [type]="tableDataType" let-row>
+        <div class="app-property-units__table_item_action">
+          <app-skeleton-loader type="box" class="app-property-units__table_item_action--loading"></app-skeleton-loader>
+          <app-skeleton-loader type="box" class="app-property-units__table_item_action--loading"></app-skeleton-loader>
         </div>
-      }
-    </ng-template>
+      </ng-template>
+    </table>
+  } @else {
+    <table appPanelDesc appTable [data]="unitRows" class="app-property-units__table">
+      <ng-template appTableColumn="Id" [type]="tableDataType" let-row>
+        @if (!row.isNew) {
+          <div appForm class="app-table__body__id-wrapper" [isReadOnly]="true">
+            <input [attr.name]="'unit-id'" [type]="'text'" [(ngModel)]="row.data.id" />
+          </div>
+        }
+      </ng-template>
 
-    <ng-template appTableColumn="Name" [type]="tableDataType" let-row>
-      <div appForm class="app-table__body__name-wrapper" [isReadOnly]="row.mode.isView">
-        <input
-          [attr.invalid]="row.isInvalid?.name ? '' : null"
-          [attr.name]="'unit-name'"
-          [type]="'text'"
-          [(ngModel)]="row.data.name"
-          (ngModelChange)="onInputChange(row.data.id, 'name')"
-          [attr.shake]="row.doShake?.name ? '' : null"
-          (animationend)="row.doShake = row.doShake ?? {}; row.doShake.name = false"
-        />
-      </div>
-    </ng-template>
-
-    <ng-template appTableColumn="Type" [type]="tableDataType" let-row>
-      <div appForm class="app-table__body__type-wrapper" [isReadOnly]="row.mode.isView">
-        <input
-          [attr.invalid]="row.isInvalid?.type ? '' : null"
-          [attr.name]="'unit-type'"
-          [type]="'text'"
-          [(ngModel)]="row.data.type"
-          (ngModelChange)="onInputChange(row.data.id, 'type')"
-          [attr.shake]="row.doShake?.type ? '' : null"
-          (animationend)="row.doShake = row.doShake ?? {}; row.doShake.type = false"
-        />
-      </div>
-    </ng-template>
-
-    <ng-template appTableColumn="Size (sqft)" [type]="tableDataType" let-row>
-      <div appForm class="app-table__body__size-wrapper" [isReadOnly]="row.mode.isView">
-        <input
-          [attr.invalid]="row.isInvalid?.size ? '' : null"
-          [attr.name]="'unit-size'"
-          [type]="'number'"
-          [(ngModel)]="row.data.size"
-          (ngModelChange)="onInputChange(row.data.id, 'size')"
-          [attr.shake]="row.doShake?.size ? '' : null"
-          (animationend)="row.doShake = row.doShake ?? {}; row.doShake.size = false"
-        />
-      </div>
-    </ng-template>
-
-    <ng-template appTableColumn="Status" [columnAlignment]="'center'" [type]="tableDataType" let-row>
-      @if (!row.isNew) {
-        <div>
-          @if (row.data.status === 'vacant') {
-          } @else if (row.data.status === 'vacant') {}
-          <span
-            [class]="'app-property-units__table_item_status app-property-units__table_item_status--' + row.data.status"
-            >{{ row.data.status }}</span
-          >
+      <ng-template appTableColumn="Name" [type]="tableDataType" let-row>
+        <div appForm class="app-table__body__name-wrapper" [isReadOnly]="row.mode.isView">
+          <input
+            [attr.invalid]="row.isInvalid?.name ? '' : null"
+            [attr.name]="'unit-name'"
+            [type]="'text'"
+            [(ngModel)]="row.data.name"
+            (ngModelChange)="onInputChange(row.data.id, 'name')"
+            [attr.shake]="row.doShake?.name ? '' : null"
+            (animationend)="row.doShake = row.doShake ?? {}; row.doShake.name = false"
+          />
         </div>
-      }
-    </ng-template>
+      </ng-template>
 
-    <ng-template appTableColumn="Actions" [columnAlignment]="'right'" [type]="tableDataType" let-row>
-      <div class="app-property-units__table_item_action">
-        <button
-          type="inline"
-          color="text"
-          appButton
-          [input]="row.mode.isView ? { icon: ICONS.SquarePen } : { icon: ICONS.Save }"
-          [disabled]="row.isActionDisabled"
-          (click)="onAddEditClick(row)"
-        ></button>
-        <button
-          type="inline"
-          color="danger"
-          appButton
-          [input]="row.mode.isView ? { icon: ICONS.Trash2 } : { icon: ICONS.CircleX }"
-          [disabled]="row.isActionDisabled"
-          (click)="onRemoveCloseClick(row)"
-        ></button>
-      </div>
-    </ng-template>
-  </table>
+      <ng-template appTableColumn="Type" [type]="tableDataType" let-row>
+        <div appForm class="app-table__body__type-wrapper" [isReadOnly]="row.mode.isView">
+          <input
+            [attr.invalid]="row.isInvalid?.type ? '' : null"
+            [attr.name]="'unit-type'"
+            [type]="'text'"
+            [(ngModel)]="row.data.type"
+            (ngModelChange)="onInputChange(row.data.id, 'type')"
+            [attr.shake]="row.doShake?.type ? '' : null"
+            (animationend)="row.doShake = row.doShake ?? {}; row.doShake.type = false"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template appTableColumn="Size (sqft)" [type]="tableDataType" let-row>
+        <div appForm class="app-table__body__size-wrapper" [isReadOnly]="row.mode.isView">
+          <input
+            [attr.invalid]="row.isInvalid?.size ? '' : null"
+            [attr.name]="'unit-size'"
+            [type]="'number'"
+            [(ngModel)]="row.data.size"
+            (ngModelChange)="onInputChange(row.data.id, 'size')"
+            [attr.shake]="row.doShake?.size ? '' : null"
+            (animationend)="row.doShake = row.doShake ?? {}; row.doShake.size = false"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template appTableColumn="Status" [columnAlignment]="'center'" [type]="tableDataType" let-row>
+        @if (!row.isNew) {
+          <div class="app-table__body__status-wrapper">
+            @if (row.data.status === 'vacant') {
+            } @else if (row.data.status === 'vacant') {}
+            <span
+              [class]="
+                'app-property-units__table_item_status app-property-units__table_item_status--' + row.data.status
+              "
+              >{{ row.data.status }}</span
+            >
+          </div>
+        }
+      </ng-template>
+
+      <ng-template appTableColumn="Actions" [columnAlignment]="'right'" [type]="tableDataType" let-row>
+        <div class="app-property-units__table_item_action">
+          <button
+            type="inline"
+            color="text"
+            appButton
+            [input]="row.mode.isView ? { icon: ICONS.SquarePen } : { icon: ICONS.Save }"
+            [disabled]="row.isActionDisabled"
+            (click)="onAddEditClick(row)"
+          ></button>
+          <button
+            type="inline"
+            color="danger"
+            appButton
+            [input]="row.mode.isView ? { icon: ICONS.Trash2 } : { icon: ICONS.CircleX }"
+            [disabled]="row.isActionDisabled"
+            (click)="onRemoveCloseClick(row)"
+          ></button>
+        </div>
+      </ng-template>
+    </table>
+  }
 </app-panel>

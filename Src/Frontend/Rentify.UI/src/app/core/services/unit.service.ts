@@ -59,9 +59,10 @@ export class UnitService {
           return;
         }
 
+        const deletedUnit = data.units[id];
         data.units.splice(id, 1);
 
-        observer.next(data.units[id]);
+        observer.next(deletedUnit);
         observer.complete();
       }, data.apiLatency);
     });

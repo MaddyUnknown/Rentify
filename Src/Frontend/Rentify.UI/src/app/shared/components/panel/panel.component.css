@@ -18,6 +18,7 @@
 .app-panel h3,
 .app-panel [appPanelButtons] {
   align-self: center;
+  text-wrap: nowrap;
 }
 
 .app-panel .app-panel__icon {

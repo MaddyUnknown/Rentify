@@ -3,16 +3,18 @@ import { PanelComponent } from '../../../../shared/components/panel/panel.compon
 import { Images, Plus } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { PropertyImageMetadata } from '../../../../core/models/property.model';
+import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'section[appPropertyMedia]',
   templateUrl: './property-media.component.html',
   styleUrls: ['./property-media.component.css'],
   standalone: true,
-  imports: [ButtonComponent, PanelComponent],
+  imports: [ButtonComponent, PanelComponent, SkeletonLoaderComponent],
 })
 export class PropertyMediaComponent {
   readonly ICONS = { Images, Plus };
 
   @Input({ alias: 'appPropertyMedia' }) imageList?: PropertyImageMetadata[];
+  @Input({ required: false }) loading: boolean = false;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Property } from '../models/property.model';
+import { Property, PropertyDetails, UpdatePropertyDetails } from '../models/property.model';
 import { data } from './mock-data/data';
 
 @Injectable({
@@ -10,7 +10,7 @@ import { data } from './mock-data/data';
 export class PropertyService {
   constructor(private http: HttpClient) {}
 
-  getPropertyDetailsById(propertyId: number): Observable<Property> {
+  getPropertyById(propertyId: number): Observable<Property> {
     return new Observable<Property>((observer) => {
       setTimeout(() => {
         const property = data.properties.find((p) => p.id === propertyId);
@@ -42,6 +42,43 @@ export class PropertyService {
           location: property.location ? { ...property.location } : undefined,
           units: unitList,
         });
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
+  updateProperty(property: UpdatePropertyDetails): Observable<PropertyDetails> {
+    return new Observable<PropertyDetails>((observer) => {
+      setTimeout(() => {
+        const id = data.properties.findIndex((u) => u.id === property.id);
+
+        if (id === -1) {
+          observer.error('Property not found');
+          return;
+        }
+
+        data.properties[id] = { ...data.properties[id], ...property };
+
+        observer.next(data.properties[id]);
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
+  deleteProperty(propertyId: number): Observable<PropertyDetails> {
+    return new Observable<PropertyDetails>((observer) => {
+      setTimeout(() => {
+        const id = data.properties.findIndex((u) => u.id === propertyId);
+
+        if (id === -1) {
+          observer.error('Property not found');
+          return;
+        }
+
+        const deletedProperty = data.properties[id];
+        data.properties.splice(id, 1);
+
+        observer.next(deletedProperty);
         observer.complete();
       }, data.apiLatency);
     });

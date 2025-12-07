@@ -18,6 +18,16 @@ export interface PropertyDetails {
   description: string;
 }
 
+export interface UpdatePropertyDetails {
+  id: number;
+  name: string;
+  streetName: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  description: string;
+}
+
 export interface PropertyImageMetadata {
   fileName: string;
   thumbnailUrl: string;

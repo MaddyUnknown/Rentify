@@ -1,12 +1,21 @@
 <app-panel [icon]="ICONS.Images" title="Property Media">
   <div appPanelButtons class="app-property-media__btns">
-    <button appButton [input]="{ icon: ICONS.Plus, label: 'Add' }"></button>
+    <button [disabled]="loading" appButton [input]="{ icon: ICONS.Plus, label: 'Add' }"></button>
   </div>
-  <div class="app-property-media__galary" appPanelDesc>
-    @for (image of imageList ?? []; track image.fileName) {
-      <div class="app-property-media__galary_img">
-        <img [src]="image.thumbnailUrl" [alt]="image.fileName" />
-      </div>
-    }
-  </div>
+
+  @if (loading) {
+    <div class="app-property-media__galary" appPanelDesc>
+      @for (id of [1, 2]; track id) {
+        <app-skeleton-loader type="img" class="app-property-media__galary_img"> </app-skeleton-loader>
+      }
+    </div>
+  } @else {
+    <div class="app-property-media__galary" appPanelDesc>
+      @for (image of imageList ?? []; track image.fileName) {
+        <div class="app-property-media__galary_img">
+          <img [src]="image.thumbnailUrl" [alt]="image.fileName" />
+        </div>
+      }
+    </div>
+  }
 </app-panel>

@@ -1,5 +1,5 @@
 export const data = {
-  apiLatency: 20,
+  apiLatency: 2000,
   properties: [
     {
       id: 1,

@@ -19,6 +19,7 @@ export class PropertyMaintenanceComponent implements OnInit {
   readonly PROPERTY_ID_PARAM = 'id';
 
   propertyDetailsAgg: Property = {};
+  propertyLoading: boolean = true;
 
   constructor(
     private propertyService: PropertyService,
@@ -36,8 +37,9 @@ export class PropertyMaintenanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.propertyService.getPropertyDetailsById(this.propertyId).subscribe((propertyDetailsAgg) => {
+    this.propertyService.getPropertyById(this.propertyId).subscribe((propertyDetailsAgg) => {
       this.propertyDetailsAgg = propertyDetailsAgg ?? {};
+      this.propertyLoading = false;
     });
   }
 }
