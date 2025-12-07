@@ -1,0 +1,12 @@
+<app-panel [icon]="ICONS.Images" title="Property Media">
+  <div appPanelButtons class="app-property-media__btns">
+    <button appButton [input]="{ icon: ICONS.Plus, label: 'Add' }"></button>
+  </div>
+  <div class="app-property-media__galary" appPanelDesc>
+    @for (image of imageList ?? []; track image.fileName) {
+      <div class="app-property-media__galary_img">
+        <img [src]="image.thumbnailUrl" [alt]="image.fileName" />
+      </div>
+    }
+  </div>
+</app-panel>

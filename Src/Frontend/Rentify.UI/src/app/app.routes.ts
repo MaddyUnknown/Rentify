@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { PropertiesComponent } from './components/pages/properties/properties.component';
-import { UnitsComponent } from './components/pages/units/units.component';
-import { ContractsComponent } from './components/pages/contracts/contracts.component';
-import { BillingComponent } from './components/pages/billing/billing.component';
-import { TenantsComponent } from './components/pages/tenants/tenants.component';
-import { PropertyComponent } from './components/pages/property/property.component';
+import { BillingComponent } from './features/billing/billing.component';
+import { ContractsComponent } from './features/contracts/contracts.component';
+import { TenantsComponent } from './features/tenants/tenants.component';
+import { UnitsComponent } from './features/units/units.component';
+import { PropertyMaintenanceComponent } from './features/property/property-maintenance/property-maintenance.component';
+import { PropertySearchComponent } from './features/property/property-search/property-search.component';
 
 export const routes: Routes = [
   {
@@ -14,14 +14,14 @@ export const routes: Routes = [
   },
   {
     path: 'properties',
-    component: PropertiesComponent,
+    component: PropertySearchComponent,
     data: {
       navName: 'properties',
     },
   },
   {
     path: 'property/:id',
-    component: PropertyComponent,
+    component: PropertyMaintenanceComponent,
     data: {
       navName: 'properties',
     },

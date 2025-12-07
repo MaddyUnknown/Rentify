@@ -1,0 +1,9 @@
+@if (currentInput?.icon != undefined) {
+  <lucide-icon
+    [img]="currentInput?.icon"
+    class="{{ type == 'inline' ? 'app-button__icon--inline' : 'app-button__icon' }}"
+  ></lucide-icon>
+}
+@if (currentInput?.label != undefined) {
+  <span>{{ currentInput?.label }}</span>
+}

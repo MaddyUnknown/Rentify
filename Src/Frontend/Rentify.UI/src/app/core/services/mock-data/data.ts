@@ -1,0 +1,131 @@
+export const data = {
+  apiLatency: 20,
+  properties: [
+    {
+      id: 1,
+      name: 'Thakurpukur Nivas 1',
+      streetName: 'Bakrahat Road',
+      city: 'Kolkata',
+      state: 'West Bengal',
+      zipCode: '700023',
+      description:
+        '3 Floors property with 6 rentable units and multiple utility. Just 2 km away from Joka Metro status which available connectivity.',
+      location: {
+        latitude: 22.451619072283112,
+        longitude: 88.2892952762177,
+      },
+    },
+    {
+      id: 2,
+      name: 'Thakurpukur Nivas 2',
+      streetName: 'Kolagachia Road',
+      city: 'Kolkata',
+      state: 'West Bengal',
+      zipCode: '700023',
+      description:
+        '2 Floors property with 5 rentable units and multiple utility. Just 7 km away from Joka Metro status which available connectivity.',
+    },
+  ],
+  units: [
+    {
+      id: 1,
+      name: 'Flat 1A',
+      type: '2BHK',
+      size: 1000,
+      status: 'vacant',
+      propertyId: 1,
+    },
+    {
+      id: 2,
+      name: 'Flat 1B',
+      type: '2BHK',
+      size: 800,
+      status: 'occupied',
+      propertyId: 1,
+    },
+    {
+      id: 3,
+      name: 'Flat 1A',
+      type: '2BHK',
+      size: 1000,
+      status: 'occupied',
+      propertyId: 2,
+    },
+    {
+      id: 4,
+      name: 'Room R12',
+      type: 'Room',
+      size: 600,
+      status: 'occupied',
+      propertyId: 2,
+    },
+  ],
+  images: [
+    {
+      propertyId: 1,
+      fileName: 'photo1.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1560185127-6ed189bf02f4',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo2.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo3.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1507089947368-19c1da9775ae',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo4.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo5.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1600573472591-ee6c8e695237',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo6.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo7.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1599423300746-b62533397364',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo8.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1599423300746-b62533397364',
+    },
+    {
+      propertyId: 1,
+      fileName: 'photo9.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1600585154084-4e5fe7c39103',
+    },
+    {
+      propertyId: 2,
+      fileName: 'photo10.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c',
+    },
+    {
+      propertyId: 2,
+      fileName: 'photo11.png',
+      thumbnailUrl: '/img/thumbnails/thumbnail-image.png',
+      imageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb',
+    },
+  ],
+};

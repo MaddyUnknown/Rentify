@@ -1,0 +1,32 @@
+app-panel {
+  height: 100%;
+}
+
+button[appButton] {
+  width: 11ch;
+}
+
+.app-property-media__galary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.8rem;
+
+  max-height: 28.75rem;
+  overflow-y: auto;
+}
+
+.app-property-media__galary_img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--border-color);
+
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+
+.app-property-media__galary_img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
