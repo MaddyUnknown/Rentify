@@ -21,7 +21,13 @@ export class PropertyService {
 
         const imgList = data.images
           .filter((img) => img.propertyId === propertyId)
-          .map(({ fileName, imageUrl, thumbnailUrl }) => ({ fileName, imageUrl, thumbnailUrl }));
+          .map(({ id, name, imageUrl, thumbnailUrl, processingStatus }) => ({
+            id,
+            name,
+            imageUrl,
+            thumbnailUrl,
+            processingStatus,
+          }));
 
         if (!property) {
           observer.error('Property not found');

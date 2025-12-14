@@ -14,5 +14,5 @@ import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 })
 export class PanelComponent {
   @Input({ required: true }) icon!: LucideIconData;
-  @Input({ required: true }) title!: string;
+  @Input({ required: true }) heading!: string;
 }

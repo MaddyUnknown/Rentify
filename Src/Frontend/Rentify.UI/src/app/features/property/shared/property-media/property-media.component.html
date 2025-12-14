@@ -1,6 +1,14 @@
-<app-panel [icon]="ICONS.Images" title="Property Media">
+<app-panel [icon]="ICONS.Images" heading="Property Media">
   <div appPanelButtons class="app-property-media__btns">
-    <button [disabled]="loading" appButton [input]="{ icon: ICONS.Plus, label: 'Add' }"></button>
+    <button
+      [disabled]="loading"
+      type="normal"
+      color="primary"
+      appButton
+      [input]="{ icon: ICONS.Plus, label: 'Add' }"
+      (click)="onFileInputClick()"
+    ></button>
+    <input #fileInput type="file" accept="image/*" hidden multiple (change)="onFileSelected()" />
   </div>
 
   @if (loading) {
@@ -11,10 +19,32 @@
     </div>
   } @else {
     <div class="app-property-media__galary" appPanelDesc>
-      @for (image of imageList ?? []; track image.fileName) {
-        <div class="app-property-media__galary_img">
-          <img [src]="image.thumbnailUrl" [alt]="image.fileName" />
-        </div>
+      @for (file of images; track file.data.id) {
+        @if (file.data.processingStatus === 'uploading' || file.data.processingStatus === 'processing') {
+          <div class="app-property-media__galary_img">
+            <div class="app-property-media__galary_img__loading-overlay">
+              <app-spinner-loader class="app-property-media__galary_img__loading-animation"></app-spinner-loader>
+              <div>{{ file.data.processingStatus }}</div>
+            </div>
+            <img src="/img/thumbnails/placeholder-house.jpg" [alt]="file.data.name" />
+          </div>
+        } @else {
+          <div class="app-property-media__galary_img" [class.disabled]="file.isActionDisabled">
+            <div class="app-property-media__galary_img__action-overlay">
+              <button
+                appButton
+                color="danger"
+                type="normal"
+                iconClass="app-button__icon--inline"
+                class="app-property-media__galary_img__action__icon"
+                [input]="{ icon: ICONS.Trash2 }"
+                [disabled]="file.isActionDisabled"
+                (click)="onRemoveClick(file.data)"
+              ></button>
+            </div>
+            <img [src]="file.data.thumbnailUrl" [alt]="file.data.name" />
+          </div>
+        }
       }
     </div>
   }

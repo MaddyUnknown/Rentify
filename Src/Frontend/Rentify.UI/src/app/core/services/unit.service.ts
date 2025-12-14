@@ -12,6 +12,13 @@ export class UnitService {
   createUnit(unit: CreateUnit): Observable<Unit> {
     return new Observable<Unit>((observer) => {
       setTimeout(() => {
+        const property = data.properties.find((p) => p.id === unit.propertyId);
+
+        if (!property) {
+          observer.error('Property not found');
+          return;
+        }
+
         const nextId = data.units.reduce((maxId, unit) => Math.max(maxId, unit.id), 0) + 1;
 
         const newData = {

@@ -7,7 +7,7 @@ import { CreateUnit, PropertyUnit, UpdateUnit } from '../../../../core/models/un
 import { TableColumnDirective } from '../../../../shared/components/table/table-column.directive';
 import { createTypeObject } from '../../../../shared/utils/type-untils';
 import { FormComponent } from '../../../../shared/components/form/form.component';
-import { EditState } from '../../../../shared/models/edit-state.model';
+import { UIEditState } from '../../../../shared/models/edit-ui-state.model';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
 import { FormsModule } from '@angular/forms';
 import { UnitService } from '../../../../core/services/unit.service';
@@ -31,14 +31,14 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
 export class PropertyUnitsComponent implements OnChanges {
   readonly ICONS = { CircleX, Blocks, Plus, Save, SquarePen, Trash2 };
   private tempRowID = -1;
-  private readonly TABLE_DATA_TYPE = createTypeObject<EditState<PropertyUnit>>();
+  private readonly TABLE_DATA_TYPE = createTypeObject<UIEditState<PropertyUnit>>();
   private readonly VALIDATORS: { [K in keyof PropertyUnit]?: (value: any) => boolean } = {
     name: (value: string) => value.length > 0,
     type: (value: string) => value.length > 0,
     size: (value: number) => value > 0,
   };
 
-  unitRows: EditState<PropertyUnit>[] = [];
+  unitRows: UIEditState<PropertyUnit>[] = [];
 
   @Input({ required: true }) propertyId!: number;
   @Input({ alias: 'appPropertyUnits', required: false }) units?: PropertyUnit[];
@@ -113,7 +113,7 @@ export class PropertyUnitsComponent implements OnChanges {
     });
   }
 
-  onAddEditClick(row: EditState<PropertyUnit>) {
+  onAddEditClick(row: UIEditState<PropertyUnit>) {
     if (row.mode.isView) {
       // (Edit clicked) Toggle to edit mode
       row.previousData = structuredClone(row.data);
@@ -137,7 +137,7 @@ export class PropertyUnitsComponent implements OnChanges {
     }
   }
 
-  onRemoveCloseClick(row: EditState<PropertyUnit>) {
+  onRemoveCloseClick(row: UIEditState<PropertyUnit>) {
     if (row.mode.isView) {
       // (Delete clicked) Remove unit
       this.removeUnits(row.data);
@@ -182,7 +182,7 @@ export class PropertyUnitsComponent implements OnChanges {
 
     this.unitService.createUnit(createUnit).subscribe({
       next: (unit) => {
-        const newRow: EditState<PropertyUnit> = {
+        const newRow: UIEditState<PropertyUnit> = {
           data: {
             id: unit.id,
             name: unit.name,
@@ -222,7 +222,7 @@ export class PropertyUnitsComponent implements OnChanges {
 
     this.unitService.updateUnit(updateUnit).subscribe({
       next: (unit) => {
-        const updatedRow: EditState<PropertyUnit> = {
+        const updatedRow: UIEditState<PropertyUnit> = {
           data: {
             id: unit.id,
             name: unit.name,

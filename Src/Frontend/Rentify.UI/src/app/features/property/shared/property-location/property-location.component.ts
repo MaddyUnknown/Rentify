@@ -37,8 +37,10 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
       return;
     }
 
-    this.addLocationMarker(changes['location'].currentValue);
-    this.panMap(changes['location'].currentValue);
+    if (changes['location']) {
+      this.addLocationMarker(changes['location'].currentValue);
+      this.panMap(changes['location'].currentValue);
+    }
   }
 
   ngAfterViewInit(): void {

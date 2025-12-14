@@ -1,7 +1,15 @@
 @if (currentInput?.icon != undefined) {
   <lucide-icon
     [img]="currentInput?.icon"
-    class="{{ type == 'inline' ? 'app-button__icon--inline' : 'app-button__icon' }}"
+    [class]="
+      iconClass !== undefined
+        ? iconClass
+        : type === 'inline'
+          ? 'app-button__icon--inline'
+          : type === 'normal'
+            ? 'app-button__icon'
+            : ''
+    "
   ></lucide-icon>
 }
 @if (currentInput?.label != undefined) {

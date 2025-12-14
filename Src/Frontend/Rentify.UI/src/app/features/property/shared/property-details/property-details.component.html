@@ -1,7 +1,9 @@
-<app-panel [icon]="ICONS.InfoIcon" title="Property Details">
+<app-panel [icon]="ICONS.InfoIcon" heading="Property Details">
   <div appPanelButtons class="app-property-details__btns">
     <button
       appButton
+      type="normal"
+      color="primary"
       [input]="
         propertyDetails.mode.isEdit ? { icon: ICONS.Save, label: 'Save' } : { icon: ICONS.SquarePen, label: 'Edit' }
       "
@@ -10,6 +12,7 @@
     ></button>
     <button
       appButton
+      type="normal"
       color="danger"
       [input]="
         propertyDetails.mode.isEdit ? { icon: ICONS.CircleX, label: 'Close' } : { icon: ICONS.Trash2, label: 'Delete' }

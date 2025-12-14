@@ -17,7 +17,12 @@
   --danger-color--tint-3: #f47c7c;
 
   --background-color: #ffffff;
+  --background-color-shade-3: #b3b3b3;
+  --background-color-shade-5: #808080;
   --background-color--muted: #f4f7fa;
+
+  --background-color--overlay: rgba(0, 0, 0, 0.8);
+  --background-color--overlay-shade-3: rgba(77, 77, 77, 0.8);
 
   --border-color: #e8ecf1;
 
@@ -62,6 +67,10 @@ lucide-icon {
 
 .app-button__icon--inline {
   width: 1.5rem;
+}
+
+.app-button-action__icon {
+  width: 3.2rem;
 }
 
 /* Leaflet Style */

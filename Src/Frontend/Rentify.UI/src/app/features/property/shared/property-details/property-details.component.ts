@@ -6,7 +6,7 @@ import { FormComponent } from '../../../../shared/components/form/form.component
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
 import { PropertyDetails, UpdatePropertyDetails } from '../../../../core/models/property.model';
-import { EditState } from '../../../../shared/models/edit-state.model';
+import { UIEditState } from '../../../../shared/models/edit-ui-state.model';
 import { PropertyService } from '../../../../core/services/property.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 
@@ -27,7 +27,7 @@ export class PropertyDetailsComponent implements OnChanges {
     zipCode: (value: string) => value.length > 0,
   };
 
-  propertyDetails: EditState<PropertyDetails> = {
+  propertyDetails: UIEditState<PropertyDetails> = {
     data: this.emptyPropertyDetails,
     mode: EditMode.from('view'),
   };
@@ -155,7 +155,7 @@ export class PropertyDetailsComponent implements OnChanges {
 
     this.propertyService.updateProperty(updatePropertyDetails).subscribe({
       next: (propertyDetails) => {
-        const updatedData: EditState<PropertyDetails> = {
+        const updatedData: UIEditState<PropertyDetails> = {
           data: {
             name: propertyDetails.name,
             streetName: propertyDetails.streetName,

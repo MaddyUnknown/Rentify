@@ -23,10 +23,13 @@ export class ButtonComponent implements OnChanges {
   readonly CONTENT_TRANSITION_TIME = 200;
 
   @Input({ required: false })
-  type: 'normal' | 'inline' = 'normal';
+  type: 'normal' | 'inline' | 'none' = 'none';
 
   @Input({ required: false })
-  color: 'primary' | 'danger' | 'text' = 'primary';
+  color: 'primary' | 'danger' | 'text' | 'none' = 'none';
+
+  @Input({ required: false })
+  iconClass?: string;
 
   @Input({ required: false }) input?: ButtonComponentInput;
 
@@ -52,6 +55,7 @@ export class ButtonComponent implements OnChanges {
         break;
       case 'text':
         data.colorClass = 'app-button--text';
+        break;
     }
 
     return 'app-button ' + data.typeClass + ' ' + data.colorClass;

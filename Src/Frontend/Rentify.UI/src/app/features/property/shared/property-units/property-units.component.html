@@ -1,7 +1,9 @@
-<app-panel [icon]="ICONS.Blocks" title="Property Units">
+<app-panel [icon]="ICONS.Blocks" heading="Property Units">
   <div appPanelButtons class="app-property-units__btns">
     <button
       appButton
+      type="normal"
+      color="primary"
       [disabled]="loading"
       [input]="{ icon: ICONS.Plus, label: 'Add' }"
       (click)="onAddRowClick()"
