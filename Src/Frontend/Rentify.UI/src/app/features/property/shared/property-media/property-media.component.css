@@ -10,6 +10,7 @@ app-panel {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  grid-auto-rows: max-content;
   gap: 0.8rem;
 
   max-height: 28.75rem;
@@ -19,8 +20,8 @@ app-panel {
 .app-property-media__galary_img {
   position: relative;
   width: 100%;
-  height: 100%;
   aspect-ratio: 1 / 1;
+
   background-color: var(--background-color-shade-3);
 
   border-radius: 0.8rem;
