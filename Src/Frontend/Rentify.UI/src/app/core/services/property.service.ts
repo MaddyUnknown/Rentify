@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Property, PropertyDetails, UpdatePropertyDetails } from '../models/property.model';
 import { data } from './mock-data/data';
+import { Location, UpdateLocation } from '../models/location.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,7 +57,7 @@ export class PropertyService {
   updateProperty(property: UpdatePropertyDetails): Observable<PropertyDetails> {
     return new Observable<PropertyDetails>((observer) => {
       setTimeout(() => {
-        const id = data.properties.findIndex((u) => u.id === property.id);
+        const id = data.properties.findIndex((p) => p.id === property.id);
 
         if (id === -1) {
           observer.error('Property not found');
@@ -87,6 +88,43 @@ export class PropertyService {
         observer.next(deletedProperty);
         observer.complete();
       }, data.apiLatency);
+    });
+  }
+
+  updatePropertyLocation(location: UpdateLocation) {
+    return new Observable<Location>((observer) => {
+      setTimeout(() => {
+        const id = data.properties.findIndex((p) => p.id === location.propertyId);
+
+        if (id === -1) {
+          observer.error('Property not found');
+          return;
+        }
+
+        data.properties[id].location = { latitude: location.latitude, longitude: location.longitude };
+
+        observer.next(data.properties[id].location);
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
+  deletePropertyLocation(propertyId: number) {
+    return new Observable<Location | undefined>((observer) => {
+      setTimeout(() => {
+        const id = data.properties.findIndex((p) => p.id === propertyId);
+
+        if (id === -1) {
+          observer.error('Property not found');
+          return;
+        }
+
+        const deletedLocation = data.properties[id].location;
+        data.properties[id].location = undefined;
+
+        observer.next(deletedLocation);
+        observer.complete();
+      });
     });
   }
 }

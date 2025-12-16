@@ -1,4 +1,40 @@
 <app-panel [icon]="ICONS.Map" heading="Property Map">
+  <div appPanelButtons class="app-property-units__btns">
+    @if (this.locationDetails.data) {
+      <button
+        appButton
+        type="normal"
+        color="primary"
+        [disabled]="loading || this.locationDetails.isActionDisabled || this.locationDetails.mode.isEdit"
+        [input]="{ icon: ICONS.MapPin, label: 'Locate' }"
+        (click)="onLocateClick()"
+      ></button>
+    }
+    <button
+      appButton
+      type="normal"
+      color="primary"
+      [disabled]="loading || this.locationDetails.isActionDisabled"
+      [input]="
+        this.locationDetails.mode.isEdit
+          ? { icon: ICONS.Save, label: 'Save' }
+          : { icon: ICONS.SquarePen, label: 'Edit' }
+      "
+      (click)="onEditSaveClick()"
+    ></button>
+    <button
+      appButton
+      type="normal"
+      color="danger"
+      [disabled]="loading || this.locationDetails.isActionDisabled"
+      [input]="
+        this.locationDetails.mode.isEdit
+          ? { icon: ICONS.CircleX, label: 'Close' }
+          : { icon: ICONS.MapPinOff, label: 'Clear' }
+      "
+      (click)="onCloseClearClick()"
+    ></button>
+  </div>
   <div [style.position]="'relative'" appPanelDesc>
     <div id="map" class="map-container"></div>
     @if (loading) {
