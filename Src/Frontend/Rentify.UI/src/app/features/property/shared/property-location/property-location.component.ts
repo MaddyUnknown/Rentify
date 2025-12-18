@@ -3,7 +3,7 @@ import { CircleX, Map, MapPin, MapPinOff, Save, SquarePen } from 'lucide-angular
 import * as L from 'leaflet';
 
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
-import { GeoLocationService } from '../../../../core/services/geolocation.service';
+import { GeoLocationService } from '../../../../shared/services/geolocation.service';
 import { Location, UpdateLocation } from '../../../../core/models/location.model';
 import { EnvironmentConfigService } from '../../../../core/services/environment-config.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';

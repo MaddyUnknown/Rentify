@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { Location } from '../models/location.model';
+import { Location } from '../../core/models/location.model';
 import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
