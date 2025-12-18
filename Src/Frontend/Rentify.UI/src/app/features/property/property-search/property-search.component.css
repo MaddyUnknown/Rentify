@@ -1,0 +1,53 @@
+.app-properties__container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1.6rem;
+
+  padding: 1.6rem;
+}
+
+.app-properties__card {
+  display: flex;
+  flex-direction: column;
+
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  background-color: var(--background-color);
+}
+
+.app-properties__card__img {
+  width: 100%;
+  height: 20rem;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.app-properties__card > main {
+  margin-bottom: 1.2rem;
+  padding: 0 1.2rem;
+}
+
+.app-properties__card__title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.app-properties__card__address {
+  margin-bottom: 1.2rem;
+
+  font-size: 1.6rem;
+}
+
+.app-properties__card > footer {
+  margin-bottom: 1.2rem;
+
+  padding: 0 1.2rem;
+}
+
+.app-properties__card__units {
+  display: inline-block;
+  padding-right: 1.2rem;
+}

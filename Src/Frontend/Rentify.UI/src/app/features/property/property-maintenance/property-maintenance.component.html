@@ -1,0 +1,25 @@
+<!-- Create cards out of these sections -->
+<section
+  [appPropertyDetails]="propertyDetailsAgg.generalDetails"
+  [propertyId]="propertyId"
+  [loading]="propertyLoading"
+  class="app-property__details"
+></section>
+<section
+  [appPropertyMedia]="propertyDetailsAgg.imageMetadataList"
+  [propertyId]="propertyId"
+  [loading]="propertyLoading"
+  class="app-property__media"
+></section>
+<section
+  [appPropertyUnits]="propertyDetailsAgg.units"
+  [propertyId]="propertyId"
+  [loading]="propertyLoading"
+  class="app-property__units"
+></section>
+<section
+  [appPropertyLocation]="propertyDetailsAgg.location"
+  [propertyId]="propertyId"
+  [loading]="propertyLoading"
+  class="app-property__location"
+></section>

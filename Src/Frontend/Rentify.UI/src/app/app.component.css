@@ -1,16 +1,35 @@
 :host {
-    position: relative;
-    display: flex;
+  position: relative;
+  display: flex;
+
+  margin-left: 50%;
+  transform: translateX(-50%);
+
+  width: 100%;
+  max-width: 140rem;
 }
 
-app-header {
-    width: 26rem;
-    padding: 2.8rem;
-    height: 100vh;
-    position: sticky;
-    top: 0;
+header {
+  position: sticky;
+  top: 0;
+
+  padding: 2.8rem 1.2rem;
+  width: 30%;
+  flex-shrink: 0;
+  max-width: 28rem;
+  height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  border-left: 0.1rem solid var(--border-color);
 }
 
-router-outlet {
-    position: relative;
+.site-main {
+  flex-grow: 1;
+
+  padding: 2.8rem 1.2rem;
+
+  background-color: var(--background-color--muted);
+
+  border: 0.1rem solid var(--border-color);
 }

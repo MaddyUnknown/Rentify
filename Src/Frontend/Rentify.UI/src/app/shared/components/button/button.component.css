@@ -1,0 +1,94 @@
+.app-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+
+  font-family: var(--font-family);
+  font-size: 1.4rem;
+  font-weight: 500;
+
+  border: none;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  transition:
+    background-color calc(var(--base-animation-time) / 2) ease-in,
+    color var(--base-animation-time) ease-out;
+}
+
+.app-button.app-button--transparent {
+  color: transparent !important;
+}
+
+.app-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Color CSS */
+
+.app-button.app-button--primary {
+  --background-color--button: var(--primary-color);
+  --text-color--button: var(--background-color);
+  --background-color--button--hover: var(--primary-color--shade-5);
+  --background-color--button--active: var(--primary-color--tint-1);
+  --background-color--button--disabled: var(--primary-color--tint-3);
+}
+
+.app-button.app-button--danger {
+  --background-color--button: var(--danger-color);
+  --text-color--button: var(--background-color);
+  --background-color--button--hover: var(--danger-color--shade-5);
+  --background-color--button--active: var(--danger-color--tint-1);
+  --background-color--button--disabled: var(--danger-color--tint-3);
+}
+
+.app-button--text {
+  --background-color--button: var(--text-color--tint-3);
+  --text-color--button: var(--background-color);
+  --background-color--button--hover: var(--text-color);
+  --background-color--button--active: var(--text-color--tint-4);
+  --background-color--button--disabled: var(--text-color--tint-5);
+}
+
+.app-button.app-button--normal {
+  background-color: var(--background-color--button);
+  color: var(--text-color--button);
+
+  padding: 0.4rem 1rem;
+
+  border-radius: 0.8rem;
+}
+
+/* Type CSS */
+
+.app-button.app-button--normal:hover {
+  background-color: var(--background-color--button--hover);
+}
+
+.app-button.app-button--normal:active {
+  background-color: var(--background-color--button--active);
+}
+
+.app-button.app-button--normal:disabled {
+  background-color: var(--background-color--button--disabled);
+}
+
+.app-button.app-button--inline {
+  color: var(--background-color--button);
+  background-color: transparent;
+}
+
+.app-button.app-button--inline:hover {
+  color: var(--background-color--button--hover);
+}
+
+.app-button.app-button--inline:active {
+  color: var(--background-color--button--active);
+}
+
+.app-button.app-button--inline:disabled {
+  color: var(--background-color--button--disabled);
+}

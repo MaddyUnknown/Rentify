@@ -1,0 +1,12 @@
+app-panel {
+  height: 100%;
+}
+
+button[appButton] {
+  width: 11ch;
+}
+
+/* Shadow loader style */
+.app-property-details__shadow-text-box {
+  height: 9.8rem;
+}

@@ -1,0 +1,36 @@
+<header>
+  <h2>My Property</h2>
+  <button>Add New Property</button>
+</header>
+
+<section class="app-properties__container">
+  @for (property of properties; track property.propertyId) {
+    <article class="app-properties__card">
+      <header>
+        <div
+          class="app-properties__card__img"
+          [style.backgroundImage]="'url(' + 'https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg' + ')'"
+        ></div>
+      </header>
+      <main>
+        <h3 class="app-properties__card__title">{{ property.name }}</h3>
+        <p class="app-properties__card__address">{{ property.address }}</p>
+        <p class="app-properties__card__desc">{{ property.description }}</p>
+      </main>
+      <footer>
+        <div>
+          @if (property.numberOfUnits !== 0) {
+            <span class="app-properties__card__units">{{ property.numberOfUnits }} units</span>
+          }
+          @if (property.numberOfUtility !== 0) {
+            <span class="app-properties__card__utility">{{ property.numberOfUtility }} units</span>
+          }
+        </div>
+      </footer>
+    </article>
+  } @empty {
+    <div>No property found</div>
+  }
+</section>
+
+<!-- <app-property></app-property> -->
