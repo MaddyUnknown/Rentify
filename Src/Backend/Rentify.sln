@@ -1,15 +1,29 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.API", "Rentify.API\Rentify.API.csproj", "{9DBCC56D-9961-45F7-9993-453C909841D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Core", "Rentify.Core\Rentify.Core.csproj", "{B8E4F8A2-8B21-4C5F-9A3D-1E5F6B7C8D9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.DataAccess", "Rentify.DataAccess\Rentify.DataAccess.csproj", "{C9F5A3B4-9C32-4D6F-AB4E-2F6A7C8E9F0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Application", "Rentify.Service\Rentify.Application.csproj", "{A1B2C3D4-E5F6-4321-9876-5432109876AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Service", "Rentify.Service\Rentify.Service.csproj", "{A1B2C3D4-E5F6-4321-9876-5432109876AB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{A95A75BC-3580-48DE-AF06-77121839748E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Host", "Host", "{3EC877DC-18E9-493D-B4FD-492B9F5128E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{850C9BE4-72CD-46F2-AC2A-2DDCC1CFFC11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.DataAccess.Core", "Rentify.DataAccess.Core\Rentify.DataAccess.Core.csproj", "{3734823D-5DD4-492F-A2AC-ED7CEA2B3D80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.DataAccess.SqlServer", "Rentify.DataAccess.SqlServer\Rentify.DataAccess.SqlServer.csproj", "{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Storage.Core", "Rentify.Storage.Core\Rentify.Storage.Core.csproj", "{F6B13B40-2C43-4C94-A8FC-ADC80D62210F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Storage.LocalStorage", "Rentify.Storage.LocalStorage\Rentify.Storage.LocalStorage.csproj", "{1DF84855-447D-47B8-B1B0-0A45416F7A08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,7 +31,7 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-	{9DBCC56D-9961-45F7-9993-453C909841D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DBCC56D-9961-45F7-9993-453C909841D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9DBCC56D-9961-45F7-9993-453C909841D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DBCC56D-9961-45F7-9993-453C909841D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DBCC56D-9961-45F7-9993-453C909841D1}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -25,17 +39,38 @@ Global
 		{B8E4F8A2-8B21-4C5F-9A3D-1E5F6B7C8D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8E4F8A2-8B21-4C5F-9A3D-1E5F6B7C8D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8E4F8A2-8B21-4C5F-9A3D-1E5F6B7C8D9E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9F5A3B4-9C32-4D6F-AB4E-2F6A7C8E9F0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9F5A3B4-9C32-4D6F-AB4E-2F6A7C8E9F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-	{C9F5A3B4-9C32-4D6F-AB4E-2F6A7C8E9F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9F5A3B4-9C32-4D6F-AB4E-2F6A7C8E9F0A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1B2C3D4-E5F6-4321-9876-5432109876AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-E5F6-4321-9876-5432109876AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B2C3D4-E5F6-4321-9876-5432109876AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-E5F6-4321-9876-5432109876AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3734823D-5DD4-492F-A2AC-ED7CEA2B3D80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3734823D-5DD4-492F-A2AC-ED7CEA2B3D80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3734823D-5DD4-492F-A2AC-ED7CEA2B3D80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3734823D-5DD4-492F-A2AC-ED7CEA2B3D80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6B13B40-2C43-4C94-A8FC-ADC80D62210F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6B13B40-2C43-4C94-A8FC-ADC80D62210F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6B13B40-2C43-4C94-A8FC-ADC80D62210F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6B13B40-2C43-4C94-A8FC-ADC80D62210F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DBCC56D-9961-45F7-9993-453C909841D1} = {3EC877DC-18E9-493D-B4FD-492B9F5128E6}
+		{B8E4F8A2-8B21-4C5F-9A3D-1E5F6B7C8D9E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{A1B2C3D4-E5F6-4321-9876-5432109876AB} = {850C9BE4-72CD-46F2-AC2A-2DDCC1CFFC11}
+		{3734823D-5DD4-492F-A2AC-ED7CEA2B3D80} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC} = {A95A75BC-3580-48DE-AF06-77121839748E}
+		{F6B13B40-2C43-4C94-A8FC-ADC80D62210F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{1DF84855-447D-47B8-B1B0-0A45416F7A08} = {A95A75BC-3580-48DE-AF06-77121839748E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5466451-09C4-4DC7-B19D-56668F9BA705}

@@ -1,128 +1,69 @@
+using Rentify.Application.Constants;
+using Rentify.Application.DTOs;
+using Rentify.Application.DTOs.Unit;
+using Rentify.Application.Interfaces.Services;
+using Rentify.Application.Mappers;
 using Rentify.Core.Entities;
-using Rentify.DataAccess.UnitOfWork;
-using Rentify.Service.DTOs;
-using Rentify.Service.Interfaces;
+using Rentify.Core.Exceptions;
+using Rentify.DataAccess.Core.Repositories;
+using Rentify.DataAccess.Core.UnitOfWork;
 
-namespace Rentify.Service.Services;
+namespace Rentify.Application.Services;
 
 public class UnitService : IUnitService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IRepository<Property> _propertyCRUDRepo;
+    private readonly IRepository<Unit> _unitCRUDRepo;
 
-    public UnitService(IUnitOfWork unitOfWork)
+    public UnitService(IUnitOfWork unitOfWork, IRepository<Property> propertyCRUDRepo, IRepository<Unit> unitCRUDRepo)
     {
         _unitOfWork = unitOfWork;
+        _propertyCRUDRepo = propertyCRUDRepo;
+        _unitCRUDRepo = unitCRUDRepo;
     }
 
-    public async Task<IEnumerable<UnitDto>> GetAllUnitsAsync()
-    {
-        var units = await _unitOfWork.Units.GetAllAsync(nameof(Unit.Property));
-        return units.Select(u => new UnitDto
-        {
-            UnitId = u.UnitId,
-            Name = u.Name,
-            Description = u.Description,
-            PropertyId = u.PropertyId,
-            PropertyName = u.Property.Name
-        });
-    }
-
-    public async Task<IEnumerable<UnitDto>> GetUnitsByPropertyIdAsync(int propertyId)
-    {
-        var units = await _unitOfWork.Units.GetWhereAsync(u => u.PropertyId == propertyId, nameof(Unit.Property));
-        return units.Select(u => new UnitDto
-        {
-            UnitId = u.UnitId,
-            Name = u.Name,
-            Description = u.Description,
-            PropertyId = u.PropertyId,
-            PropertyName = u.Property.Name
-        });
-    }
-
-    public async Task<UnitDto?> GetUnitByIdAsync(int id)
-    {
-        var unit = await _unitOfWork.Units.GetFirstOrDefaultAsync(u => u.UnitId == id, nameof(Unit.Property));
-        if (unit == null)
-            return null;
-
-        return new UnitDto
-        {
-            UnitId = unit.UnitId,
-            Name = unit.Name,
-            Description = unit.Description,
-            PropertyId = unit.PropertyId,
-            PropertyName = unit.Property.Name
-        };
-    }
-
-    public async Task<UnitDto> CreateUnitAsync(CreateUnitDto createUnitDto)
+    public async Task<UnitDto> CreateUnitAsync(int propertyId, CreateUnitDto createUnitDto)
     {
         // Verify property exists
-        var property = await _unitOfWork.Properties.GetByIdAsync(createUnitDto.PropertyId);
-        if (property == null)
-            throw new ArgumentException("Property not found", nameof(createUnitDto.PropertyId));
+        var property = await _propertyCRUDRepo.GetByIdAsync(propertyId);
+        if (property == null) throw new AppValidationException(string.Format(PropertyConstants.PropertyNotFound, propertyId));
 
         var unit = new Unit
         {
             Name = createUnitDto.Name,
-            Description = createUnitDto.Description,
-            PropertyId = createUnitDto.PropertyId
+            Type = createUnitDto.Type,
+            Size = createUnitDto.Size,
+            PropertyId = propertyId,
         };
 
-        _unitOfWork.Units.Add(unit);
+        _unitCRUDRepo.Add(unit);
         await _unitOfWork.SaveChangesAsync();
 
-        return new UnitDto
-        {
-            UnitId = unit.UnitId,
-            Name = unit.Name,
-            Description = unit.Description,
-            PropertyId = unit.PropertyId,
-            PropertyName = property.Name
-        };
+        return UnitMapper.MapToUnitDto(unit);
     }
 
-    public async Task<UnitDto?> UpdateUnitAsync(int id, UpdateUnitDto updateUnitDto)
+    public async Task<UnitDto> UpdateUnitAsync(int id, int propertyId, UpdateUnitDto updateUnitDto)
     {
-        var unit = await _unitOfWork.Units.GetFirstOrDefaultAsync(u => u.UnitId == id, nameof(Unit.Property));
-        if (unit == null)
-            return null;
-
-        // Verify property exists if changing property
-        var property = unit.Property;
-
-        if (unit.PropertyId != updateUnitDto.PropertyId)
-        {
-            property = await _unitOfWork.Properties.GetByIdAsync(updateUnitDto.PropertyId);
-            if (property == null)
-                throw new ArgumentException("Property not found", nameof(updateUnitDto.PropertyId));
-        }
+        var unit = await _unitCRUDRepo.GetByIdAsync(id);
+        if (unit == null || propertyId != unit.PropertyId) throw new AppValidationException(string.Format(UnitConstants.UnitNotFound, id));
 
         unit.Name = updateUnitDto.Name;
-        unit.Description = updateUnitDto.Description;
-        unit.Property = property;
+        unit.Type = updateUnitDto.Type;
+        unit.Size = updateUnitDto.Size;
 
         await _unitOfWork.SaveChangesAsync();
 
-        return new UnitDto
-        {
-            UnitId = unit.UnitId,
-            Name = unit.Name,
-            Description = unit.Description,
-            PropertyId = unit.PropertyId,
-            PropertyName = property.Name
-        };
+        return UnitMapper.MapToUnitDto(unit);
     }
 
-    public async Task<bool> DeleteUnitAsync(int id)
+    public async Task<UnitDto> DeleteUnitAsync(int id, int propertyId)
     {
-        var unit = await _unitOfWork.Units.GetByIdAsync(id);
-        if (unit == null)
-            return false;
+        var unit = await _unitCRUDRepo.GetByIdAsync(id);
+        if (unit == null || propertyId != unit.PropertyId) throw new AppValidationException(string.Format(UnitConstants.UnitNotFound, id));
 
-        _unitOfWork.Units.Remove(unit);
+        _unitCRUDRepo.Remove(unit);
         await _unitOfWork.SaveChangesAsync();
-        return true;
+        return UnitMapper.MapToUnitDto(unit);
     }
 }
