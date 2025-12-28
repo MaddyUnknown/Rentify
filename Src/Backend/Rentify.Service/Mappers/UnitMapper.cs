@@ -20,7 +20,7 @@ namespace Rentify.Application.Mappers
                 Name = unit.Name,
                 Type = unit.Type,
                 Size = unit.Size,
-                Status = PropertyUnitStatus.Vacant
+                Status = UnitStatus.Vacant
             };
         }
     }

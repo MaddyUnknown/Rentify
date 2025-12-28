@@ -8,9 +8,9 @@ namespace Rentify.Core.Enums
 {
     public enum MediaFileVariantStatusEnum
     {
-        Processing = 3,
-        Processed = 4,
-        Failed = 5,
-        Retrying = 6
+        Unknown = 0,
+        Processing = 1,
+        Processed = 2,
+        Failed = 3
     }
 }

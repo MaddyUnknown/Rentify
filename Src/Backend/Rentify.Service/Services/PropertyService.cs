@@ -88,12 +88,12 @@ public class PropertyService : IPropertyService
         if (property == null) throw new AppValidationException(string.Format(PropertyConstants.PropertyNotFound, id));
 
 
-        Location? propertyLocation = (updatePropertyLocationDto?.Longitute == null ||  updatePropertyLocationDto.Latitute == null)
+        Location? propertyLocation = (updatePropertyLocationDto?.Longitude == null ||  updatePropertyLocationDto.Latitude == null)
             ? null
             : new Location
             {
-                Latitude = updatePropertyLocationDto.Latitute.Value,
-                Longitude = updatePropertyLocationDto.Longitute.Value,
+                Latitude = updatePropertyLocationDto.Latitude.Value,
+                Longitude = updatePropertyLocationDto.Longitude.Value,
             };
 
         property.PropertyLocation = propertyLocation;

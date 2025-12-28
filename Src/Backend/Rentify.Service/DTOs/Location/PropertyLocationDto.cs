@@ -9,7 +9,7 @@ namespace Rentify.Application.DTOs.Location
     public class PropertyLocationDto
     {
         public int PropertyId { get; set; }
-        public decimal? Latitute { get; set; }
-        public decimal? Longitute { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
     }
 }

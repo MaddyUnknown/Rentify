@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Application.Enums
 {
-    public enum PropertyUnitStatus
+    public enum UnitStatus
     {
         Unknown = 0,
         Vacant = 1,

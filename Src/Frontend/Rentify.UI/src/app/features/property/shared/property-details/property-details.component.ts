@@ -1,14 +1,16 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CircleX, InfoIcon, Save, SquarePen, Trash2 } from 'lucide-angular';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { FormComponent } from '../../../../shared/components/form/form.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
-import { PropertyDetails, UpdatePropertyDetails } from '../../../../core/models/property.model';
 import { UIEditState } from '../../../../shared/models/edit-ui-state.model';
-import { PropertyService } from '../../../../core/services/property.service';
+import { PropertyService } from '../../../../core/services/abstractions/property.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
+import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
+import { GetPropertyDetails } from '../../../../core/models/property/get-property-details.model';
+import { UpdatePropertyDetails } from '../../../../core/models/property/update-property-details.model';
 
 @Component({
   selector: 'section[appPropertyDetails]',
@@ -19,7 +21,7 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
 })
 export class PropertyDetailsComponent implements OnChanges {
   readonly ICONS = { CircleX, InfoIcon, Save, SquarePen, Trash2 };
-  private readonly VALIDATORS: { [K in keyof PropertyDetails]?: (value: any) => boolean } = {
+  private readonly VALIDATORS: { [K in keyof GetPropertyDetails]?: (value: any) => boolean } = {
     name: (value: string) => value.length > 0,
     streetName: (value: string) => value.length > 0,
     city: (value: string) => value.length > 0,
@@ -27,21 +29,21 @@ export class PropertyDetailsComponent implements OnChanges {
     zipCode: (value: string) => value.length > 0,
   };
 
-  propertyDetails: UIEditState<PropertyDetails> = {
+  propertyDetails: UIEditState<GetPropertyDetails> = {
     data: this.emptyPropertyDetails,
     mode: EditMode.from('view'),
   };
 
   @Input({ required: true }) propertyId!: number;
-  @Input({ alias: 'appPropertyDetails', required: false }) details?: PropertyDetails;
+  @Input({ alias: 'appPropertyDetails', required: false }) details?: GetPropertyDetails;
   @Input({ required: false }) loading: boolean = false;
 
-  constructor(private propertyService: PropertyService) {}
+  constructor(@Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService) {}
 
   //#region Lifecycle hooks
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['details']) {
-      const value: PropertyDetails = changes['details'].currentValue ?? this.emptyPropertyDetails;
+      const value: GetPropertyDetails = changes['details'].currentValue ?? this.emptyPropertyDetails;
 
       this.propertyDetails = {
         data: this.propertyDetails.mode.isView ? value : this.propertyDetails.data,
@@ -52,7 +54,7 @@ export class PropertyDetailsComponent implements OnChanges {
   }
   //#endregion
 
-  private get emptyPropertyDetails(): PropertyDetails {
+  private get emptyPropertyDetails(): GetPropertyDetails {
     return {
       name: '',
       streetName: '',
@@ -64,15 +66,15 @@ export class PropertyDetailsComponent implements OnChanges {
   }
 
   //#region Validators
-  private isUnitValid(unit: PropertyDetails): {
+  private isUnitValid(unit: GetPropertyDetails): {
     isValid: boolean;
-    propertyHasError: { [K in keyof PropertyDetails]?: boolean };
+    propertyHasError: { [K in keyof GetPropertyDetails]?: boolean };
   } {
     let isValid = true;
-    const propertyHasError: Partial<Record<keyof PropertyDetails, boolean>> = {};
+    const propertyHasError: Partial<Record<keyof GetPropertyDetails, boolean>> = {};
 
     for (const key in this.VALIDATORS) {
-      const k = key as keyof PropertyDetails;
+      const k = key as keyof GetPropertyDetails;
       propertyHasError[k] = !this.VALIDATORS[k]!(unit[k]);
       isValid = isValid && !propertyHasError[k];
     }
@@ -80,7 +82,7 @@ export class PropertyDetailsComponent implements OnChanges {
     return { isValid, propertyHasError };
   }
 
-  private isUnitPropertyValid(propertyName: keyof PropertyDetails, value: any): boolean {
+  private isUnitPropertyValid(propertyName: keyof GetPropertyDetails, value: any): boolean {
     const validator = this.VALIDATORS[propertyName];
     if (!validator || validator(value)) {
       return true;
@@ -103,9 +105,9 @@ export class PropertyDetailsComponent implements OnChanges {
       if (validation.isValid) {
         this.updateProperty(this.propertyDetails.data);
       } else {
-        const shake: Partial<Record<keyof PropertyDetails, boolean>> = {};
+        const shake: Partial<Record<keyof GetPropertyDetails, boolean>> = {};
         for (const key in validation.propertyHasError) {
-          const k = key as keyof PropertyDetails;
+          const k = key as keyof GetPropertyDetails;
           if (validation.propertyHasError[k]) {
             shake[k] = true;
           }
@@ -128,7 +130,7 @@ export class PropertyDetailsComponent implements OnChanges {
     }
   }
 
-  onInputChange(propertyName: keyof PropertyDetails) {
+  onInputChange(propertyName: keyof GetPropertyDetails) {
     this.propertyDetails.isInvalid = this.propertyDetails.isInvalid ?? {};
     this.propertyDetails.isInvalid[propertyName] = !this.isUnitPropertyValid(
       propertyName,
@@ -138,13 +140,12 @@ export class PropertyDetailsComponent implements OnChanges {
   //#endregion
 
   //#region Service Calls
-  private updateProperty(data: PropertyDetails) {
+  private updateProperty(data: GetPropertyDetails) {
     // Disable action
     this.propertyDetails.isActionDisabled = true;
 
     // Save new unit details
     const updatePropertyDetails: UpdatePropertyDetails = {
-      id: this.propertyId,
       name: data.name,
       streetName: data.streetName,
       city: data.city,
@@ -153,9 +154,9 @@ export class PropertyDetailsComponent implements OnChanges {
       description: data.description,
     };
 
-    this.propertyService.updateProperty(updatePropertyDetails).subscribe({
+    this.propertyService.updateProperty(this.propertyId, updatePropertyDetails).subscribe({
       next: (propertyDetails) => {
-        const updatedData: UIEditState<PropertyDetails> = {
+        const updatedData: UIEditState<GetPropertyDetails> = {
           data: {
             name: propertyDetails.name,
             streetName: propertyDetails.streetName,
@@ -174,7 +175,7 @@ export class PropertyDetailsComponent implements OnChanges {
     });
   }
 
-  private removeProperty(data: PropertyDetails) {
+  private removeProperty(data: GetPropertyDetails) {
     // Disable action - TO-Do
     this.propertyDetails.isActionDisabled = true;
     console.log('Delete: ', data);

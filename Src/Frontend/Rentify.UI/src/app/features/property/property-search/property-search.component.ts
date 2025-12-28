@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PropertySummary } from '../../../core/models/property.model';
+import { PropertySummary } from '../../../core/models/property/property-summary.model';
 
 @Component({
   selector: 'app-property-search',

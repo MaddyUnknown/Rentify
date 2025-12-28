@@ -1,17 +1,20 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Blocks, CircleX, Plus, Save, SquarePen, Trash2 } from 'lucide-angular';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
-import { CreateUnit, PropertyUnit, UpdateUnit } from '../../../../core/models/unit.model';
 import { TableColumnDirective } from '../../../../shared/components/table/table-column.directive';
 import { createTypeObject } from '../../../../shared/utils/type-untils';
 import { FormComponent } from '../../../../shared/components/form/form.component';
 import { UIEditState } from '../../../../shared/models/edit-ui-state.model';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
 import { FormsModule } from '@angular/forms';
-import { UnitService } from '../../../../core/services/unit.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
+import { Unit } from '../../../../core/models/unit/unit.model';
+import { PropertyService } from '../../../../core/services/abstractions/property.service';
+import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
+import { CreateUnit } from '../../../../core/models/unit/create-unit.model';
+import { UpdateUnit } from '../../../../core/models/unit/update-unit.model';
 
 @Component({
   selector: 'section[appPropertyUnits]',
@@ -31,25 +34,25 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
 export class PropertyUnitsComponent implements OnChanges {
   readonly ICONS = { CircleX, Blocks, Plus, Save, SquarePen, Trash2 };
   private tempRowID = -1;
-  private readonly TABLE_DATA_TYPE = createTypeObject<UIEditState<PropertyUnit>>();
-  private readonly VALIDATORS: { [K in keyof PropertyUnit]?: (value: any) => boolean } = {
+  private readonly TABLE_DATA_TYPE = createTypeObject<UIEditState<Unit>>();
+  private readonly VALIDATORS: { [K in keyof Unit]?: (value: any) => boolean } = {
     name: (value: string) => value.length > 0,
     type: (value: string) => value.length > 0,
     size: (value: number) => value > 0,
   };
 
-  unitRows: UIEditState<PropertyUnit>[] = [];
+  unitRows: UIEditState<Unit>[] = [];
 
   @Input({ required: true }) propertyId!: number;
-  @Input({ alias: 'appPropertyUnits', required: false }) units?: PropertyUnit[];
+  @Input({ alias: 'appPropertyUnits', required: false }) units?: Unit[];
   @Input({ required: false }) loading: boolean = false;
 
-  constructor(private unitService: UnitService) {}
+  constructor(@Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService) {}
 
   //#region Lifecycle hooks
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['units']) {
-      const value: PropertyUnit[] = changes['units'].currentValue ?? [];
+      const value: Unit[] = changes['units'].currentValue ?? [];
 
       const tempList = this.unitRows.filter((row) => row.isNew);
 
@@ -78,15 +81,15 @@ export class PropertyUnitsComponent implements OnChanges {
   }
 
   //#region Validators
-  private isUnitValid(unit: PropertyUnit): {
+  private isUnitValid(unit: Unit): {
     isValid: boolean;
-    propertyHasError: { [K in keyof PropertyUnit]?: boolean };
+    propertyHasError: { [K in keyof Unit]?: boolean };
   } {
     let isValid = true;
-    const propertyHasError: Partial<Record<keyof PropertyUnit, boolean>> = {};
+    const propertyHasError: Partial<Record<keyof Unit, boolean>> = {};
 
     for (const key in this.VALIDATORS) {
-      const k = key as keyof PropertyUnit;
+      const k = key as keyof Unit;
       propertyHasError[k] = !this.VALIDATORS[k]!(unit[k]);
       isValid = isValid && !propertyHasError[k];
     }
@@ -94,7 +97,7 @@ export class PropertyUnitsComponent implements OnChanges {
     return { isValid, propertyHasError };
   }
 
-  private isUnitPropertyValid(propertyName: keyof PropertyUnit, value: any): boolean {
+  private isUnitPropertyValid(propertyName: keyof Unit, value: any): boolean {
     const validator = this.VALIDATORS[propertyName];
     if (!validator || validator(value)) {
       return true;
@@ -107,13 +110,13 @@ export class PropertyUnitsComponent implements OnChanges {
   //#region Event handlers
   onAddRowClick() {
     this.unitRows.push({
-      data: { id: this.tempRowID--, name: '', type: '', size: 0, status: '' },
+      data: { id: this.tempRowID--, name: '', type: '', size: 0, status: 'vacant' },
       mode: EditMode.from('edit'),
       isNew: true,
     });
   }
 
-  onAddEditClick(row: UIEditState<PropertyUnit>) {
+  onAddEditClick(row: UIEditState<Unit>) {
     if (row.mode.isView) {
       // (Edit clicked) Toggle to edit mode
       row.previousData = structuredClone(row.data);
@@ -125,9 +128,9 @@ export class PropertyUnitsComponent implements OnChanges {
       if (validation.isValid) {
         row.isNew ? this.addUnits(row.data) : this.updateUnits(row.data);
       } else {
-        const shake: Partial<Record<keyof PropertyUnit, boolean>> = {};
+        const shake: Partial<Record<keyof Unit, boolean>> = {};
         for (const key in validation.propertyHasError) {
-          const k = key as keyof PropertyUnit;
+          const k = key as keyof Unit;
           if (validation.propertyHasError[k]) {
             shake[k] = true;
           }
@@ -137,7 +140,7 @@ export class PropertyUnitsComponent implements OnChanges {
     }
   }
 
-  onRemoveCloseClick(row: UIEditState<PropertyUnit>) {
+  onRemoveCloseClick(row: UIEditState<Unit>) {
     if (row.mode.isView) {
       // (Delete clicked) Remove unit
       this.removeUnits(row.data);
@@ -155,7 +158,7 @@ export class PropertyUnitsComponent implements OnChanges {
     }
   }
 
-  onInputChange(rowId: number, propertyName: keyof PropertyUnit) {
+  onInputChange(rowId: number, propertyName: keyof Unit) {
     const row = this.unitRows.find((r) => r.data.id === rowId);
     if (row) {
       row.isInvalid = row.isInvalid ?? {};
@@ -165,7 +168,7 @@ export class PropertyUnitsComponent implements OnChanges {
   //#endregion
 
   //#region Service Calls
-  private addUnits(data: PropertyUnit) {
+  private addUnits(data: Unit) {
     // Disable action
     const existingRowId = this.unitRows.findIndex((r) => r.data.id === data.id);
     if (existingRowId !== -1) {
@@ -177,12 +180,11 @@ export class PropertyUnitsComponent implements OnChanges {
       name: data.name,
       type: data.type,
       size: data.size,
-      propertyId: this.propertyId,
     };
 
-    this.unitService.createUnit(createUnit).subscribe({
+    this.propertyService.createUnit(this.propertyId, createUnit).subscribe({
       next: (unit) => {
-        const newRow: UIEditState<PropertyUnit> = {
+        const newRow: UIEditState<Unit> = {
           data: {
             id: unit.id,
             name: unit.name,
@@ -204,7 +206,7 @@ export class PropertyUnitsComponent implements OnChanges {
     });
   }
 
-  private updateUnits(data: PropertyUnit) {
+  private updateUnits(data: Unit) {
     // Disable action
     const existingRowId = this.unitRows.findIndex((r) => r.data.id === data.id);
     if (existingRowId !== -1) {
@@ -213,16 +215,14 @@ export class PropertyUnitsComponent implements OnChanges {
 
     // Save new unit details
     const updateUnit: UpdateUnit = {
-      id: data.id,
       name: data.name,
       type: data.type,
       size: data.size,
-      propertyId: this.propertyId,
     };
 
-    this.unitService.updateUnit(updateUnit).subscribe({
+    this.propertyService.updateUnit(this.propertyId, data.id, updateUnit).subscribe({
       next: (unit) => {
-        const updatedRow: UIEditState<PropertyUnit> = {
+        const updatedRow: UIEditState<Unit> = {
           data: {
             id: unit.id,
             name: unit.name,
@@ -244,14 +244,14 @@ export class PropertyUnitsComponent implements OnChanges {
     });
   }
 
-  private removeUnits(data: PropertyUnit) {
+  private removeUnits(data: Unit) {
     // Disable action
     const existingRowId = this.unitRows.findIndex((r) => r.data.id === data.id);
     if (existingRowId !== -1) {
       this.unitRows[existingRowId].isActionDisabled = true;
     }
 
-    this.unitService.deleteUnit(data.id).subscribe({
+    this.propertyService.deleteUnit(this.propertyId, data.id).subscribe({
       next: (deletedUnit) => {
         this.unitRows = this.unitRows.filter((r) => r.data.id !== deletedUnit.id);
       },

@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
-import { ImageFile } from '../../core/models/file.model';
+import { Inject, Injectable } from '@angular/core';
 import { concatMap, interval, Observable, Subject, Subscription } from 'rxjs';
-import { FileUploadService } from '../../core/services/file-upload.service';
+import { MediaService } from '../../core/services/abstractions/media.service';
+import { MEDIA_SERVICE_TOKEN } from '../../core/services/tokens/media';
+import { MediaFile } from '../../core/models/media-file/media-file.model';
 
 //TO-DO: Deal with situation where the file is not returned by te servier. Usualy mean that the data is not present.
 @Injectable({
   providedIn: 'root',
 })
 export class FileStatusPollingService {
-  private fileStatusObservables: Map<number, Subject<ImageFile>> = new Map();
+  private fileStatusObservables: Map<number, Subject<MediaFile>> = new Map();
   private pollerSub?: Subscription;
   private poller$ = interval(3000).pipe(
     concatMap(() => {
@@ -16,11 +17,11 @@ export class FileStatusPollingService {
     }),
   );
 
-  constructor(private fileUploadService: FileUploadService) {}
+  constructor(@Inject(MEDIA_SERVICE_TOKEN) private fileUploadService: MediaService) {}
 
-  getFileStatusObservable(fileId: number): Observable<ImageFile> {
+  getFileStatusObservable(fileId: number): Observable<MediaFile> {
     if (!this.fileStatusObservables.has(fileId)) {
-      this.fileStatusObservables.set(fileId, new Subject<ImageFile>());
+      this.fileStatusObservables.set(fileId, new Subject<MediaFile>());
     }
 
     this.startPolling();
@@ -32,10 +33,15 @@ export class FileStatusPollingService {
     return new Observable((observable) => {
       const fileIdList = [...this.fileStatusObservables.keys()];
 
-      this.fileUploadService.getFilesStatus(fileIdList).subscribe((files) => {
+      this.fileUploadService.getMediaFileStatus(fileIdList).subscribe((files) => {
         files.forEach((file) => {
-          if (file.processingStatus === 'processed') {
-            this.fileStatusObservables.get(file.id)?.next(file);
+          this.fileStatusObservables.get(file.id)?.next(file);
+
+          if (
+            file.processingStatus === 'processed' ||
+            file.processingStatus === 'failed' ||
+            file.processingStatus === 'deleted'
+          ) {
             this.fileStatusObservables.get(file.id)?.complete();
             this.fileStatusObservables.delete(file.id);
           }

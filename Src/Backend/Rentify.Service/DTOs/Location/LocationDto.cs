@@ -8,8 +8,8 @@ namespace Rentify.Application.DTOs.Location
 {
     public class LocationDto
     {
-        public decimal Latitute { get; set; }
-        public decimal Longitute { get; set; }
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
 
     }
 

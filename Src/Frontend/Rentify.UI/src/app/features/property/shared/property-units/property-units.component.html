@@ -93,8 +93,6 @@
       <ng-template appTableColumn="Status" [columnAlignment]="'center'" [type]="tableDataType" let-row>
         @if (!row.isNew) {
           <div class="app-table__body__status-wrapper">
-            @if (row.data.status === 'vacant') {
-            } @else if (row.data.status === 'vacant') {}
             <span
               [class]="
                 'app-property-units__table_item_status app-property-units__table_item_status--' + row.data.status

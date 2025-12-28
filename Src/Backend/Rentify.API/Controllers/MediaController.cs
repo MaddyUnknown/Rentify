@@ -25,7 +25,7 @@ namespace Rentify.API.Controllers
         /// Get property by ID
         /// </summary>
         [HttpPost("polling")]
-        public async Task<ActionResult<ResponseWrapper<IEnumerable<MediaFileDto>>>> GetPropertyAggregate(IEnumerable<int> mediaFileIds)
+        public async Task<ActionResult<ResponseWrapper<IEnumerable<MediaFileDto>>>> GetMediaFileStatus(IEnumerable<int> mediaFileIds)
         {
             try
             {

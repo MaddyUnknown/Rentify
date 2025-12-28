@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { Location } from '../../core/models/location.model';
 import { Injectable } from '@angular/core';
+import { Location } from '../../core/models/location/location.model';
 
 @Injectable({ providedIn: 'root' })
 export class GeoLocationService {

@@ -1,16 +1,19 @@
-import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CircleX, Map, MapPin, MapPinOff, Save, SquarePen } from 'lucide-angular';
 import * as L from 'leaflet';
 
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { GeoLocationService } from '../../../../shared/services/geolocation.service';
-import { Location, UpdateLocation } from '../../../../core/models/location.model';
-import { EnvironmentConfigService } from '../../../../core/services/environment-config.service';
+import { EnvironmentConfigService } from '../../../../core/services/abstractions/environment-config.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { UIEditState } from '../../../../shared/models/edit-ui-state.model';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
-import { PropertyService } from '../../../../core/services/property.service';
+import { PropertyService } from '../../../../core/services/abstractions/property.service';
+import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../../core/services/tokens/environement-config.token';
+import { Location } from '../../../../core/models/location/location.model';
+import { UpdatePropertyLocation } from '../../../../core/models/location/update-property-location.model';
 
 @Component({
   selector: 'section[appPropertyLocation]',
@@ -36,9 +39,9 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
   @Input({ required: false }) loading: boolean = false;
 
   constructor(
+    @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
     private geolocationService: GeoLocationService,
-    private propertyService: PropertyService,
-    private envConfigService: EnvironmentConfigService,
   ) {}
 
   //#region Lifecycle hooks
@@ -129,38 +132,46 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
     this.locationDetails.isActionDisabled = true;
 
     // Save new unit details
-    const updateLocation: UpdateLocation = {
-      propertyId: this.propertyId,
+    const updateLocation: UpdatePropertyLocation = {
       latitude: data.latitude,
       longitude: data.longitude,
     };
 
-    this.propertyService.updatePropertyLocation(updateLocation).subscribe({
+    this.propertyService.updatePropertyLocation(this.propertyId, updateLocation).subscribe({
       next: (location) => {
         const updatedData: UIEditState<Location | undefined> = {
-          data: { ...location },
+          data:
+            location.latitude && location.longitude
+              ? { latitude: location.latitude, longitude: location.longitude }
+              : undefined,
           mode: EditMode.from('view'),
         };
 
         //Update received property
         this.locationDetails = updatedData;
-        this.updateLocationMarker(location);
+        this.updateLocationMarker(this.locationDetails.data);
       },
       error: (err) => console.error(err),
     });
   }
 
   private deleteLocation(propertyId: number) {
-    this.propertyService.deletePropertyLocation(propertyId).subscribe({
+    // Disable action
+    this.locationDetails.isActionDisabled = true;
+
+    this.propertyService.updatePropertyLocation(propertyId, {}).subscribe({
       next: (location) => {
         const updatedData: UIEditState<Location | undefined> = {
-          data: undefined,
+          data:
+            location.latitude && location.longitude
+              ? { latitude: location.latitude, longitude: location.longitude }
+              : undefined,
           mode: EditMode.from('view'),
         };
 
         //Update received property
         this.locationDetails = updatedData;
-        this.updateLocationMarker(undefined);
+        this.updateLocationMarker(this.locationDetails.data);
       },
       error: (err) => console.error(err),
     });

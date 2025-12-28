@@ -27,8 +27,8 @@ namespace Rentify.Application.Mappers
                 ? null
                 : new LocationDto
                 {
-                    Latitute = property.PropertyLocation.Latitude,
-                    Longitute = property.PropertyLocation.Longitude,
+                    Latitude = property.PropertyLocation.Latitude,
+                    Longitude = property.PropertyLocation.Longitude,
                 };
 
             var unitDtos = units.Select(u => UnitMapper.MapToUnitDto(u));
@@ -65,8 +65,8 @@ namespace Rentify.Application.Mappers
             return new PropertyLocationDto
             {
                 PropertyId = property.Id,
-                Latitute = property.PropertyLocation?.Latitude,
-                Longitute = property.PropertyLocation?.Longitude,
+                Latitude = property.PropertyLocation?.Latitude,
+                Longitude = property.PropertyLocation?.Longitude,
             };
         }
     }

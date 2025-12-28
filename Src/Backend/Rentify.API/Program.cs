@@ -38,6 +38,13 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "Rentify API", Version = "v1" });
 });
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("dev", policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -54,6 +61,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+if(app.Environment.IsDevelopment())
+{
+    app.UseCors("dev");
+}
 
 app.MapControllers();
 
