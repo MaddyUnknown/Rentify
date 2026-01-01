@@ -8,13 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Mime-Detective" Version="25.8.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Rentify.Core\Rentify.Core.csproj" />
-    <ProjectReference Include="..\Rentify.DataAccess.Core\Rentify.DataAccess.Core.csproj" />
     <ProjectReference Include="..\Rentify.FileWorkflow.Core\Rentify.FileWorkflow.Core.csproj" />
-    <ProjectReference Include="..\Rentify.Storage.Core\Rentify.Storage.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,6 +25,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Storage.Core", "Ren
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.Storage.LocalStorage", "Rentify.Storage.LocalStorage\Rentify.Storage.LocalStorage.csproj", "{1DF84855-447D-47B8-B1B0-0A45416F7A08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.FileWorkflow.Core", "Rentify.FileWorkflow.Core\Rentify.FileWorkflow.Core.csproj", "{4FAA6559-8F19-4A77-AC04-0EAAD2BB8F7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rentify.FileWorkflow.Implementation", "Rentify.FileWorkflow.Implementation\Rentify.FileWorkflow.Implementation.csproj", "{E00BF9C0-A854-4256-9D01-C59411860652}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,14 @@ Global
 		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DF84855-447D-47B8-B1B0-0A45416F7A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FAA6559-8F19-4A77-AC04-0EAAD2BB8F7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FAA6559-8F19-4A77-AC04-0EAAD2BB8F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FAA6559-8F19-4A77-AC04-0EAAD2BB8F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FAA6559-8F19-4A77-AC04-0EAAD2BB8F7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E00BF9C0-A854-4256-9D01-C59411860652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E00BF9C0-A854-4256-9D01-C59411860652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E00BF9C0-A854-4256-9D01-C59411860652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E00BF9C0-A854-4256-9D01-C59411860652}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +83,8 @@ Global
 		{3CCFDC81-FF99-CE69-A877-82A2D9DF26EC} = {A95A75BC-3580-48DE-AF06-77121839748E}
 		{F6B13B40-2C43-4C94-A8FC-ADC80D62210F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{1DF84855-447D-47B8-B1B0-0A45416F7A08} = {A95A75BC-3580-48DE-AF06-77121839748E}
+		{4FAA6559-8F19-4A77-AC04-0EAAD2BB8F7D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E00BF9C0-A854-4256-9D01-C59411860652} = {A95A75BC-3580-48DE-AF06-77121839748E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5466451-09C4-4DC7-B19D-56668F9BA705}

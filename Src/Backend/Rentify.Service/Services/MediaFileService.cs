@@ -9,6 +9,7 @@ using Rentify.Core.Enums;
 using Rentify.Core.Exceptions;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
+using Rentify.FileWorkflow.Core.Inspectors;
 using Rentify.Storage.Core;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace Rentify.Application.Services
         private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
         private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
         private readonly IMediaFileRepository _mediaFileRepo;
+        private readonly IFileInspector _fileInspector;
         private readonly IFileStorageService _fileStorageService;
 
         public MediaFileService(
@@ -34,6 +36,7 @@ namespace Rentify.Application.Services
         IRepository<MediaFileLink> mediaFileLinkCRUDRepo,
         IRepository<MediaFile> mediaFileCRUDRepo,
         IMediaFileRepository mediaFileRepo,
+        IFileInspector fileInspector,
         IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
@@ -41,6 +44,7 @@ namespace Rentify.Application.Services
             _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
             _mediaFileCRUDRepo = mediaFileCRUDRepo;
             _mediaFileRepo = mediaFileRepo;
+            _fileInspector = fileInspector;
             _fileStorageService = fileStorageService;
         }
 
@@ -65,22 +69,25 @@ namespace Rentify.Application.Services
 
         public async Task<MediaFileDto> UploadMediaFileAsync(UploadMediaFileDto uploadMediaDto, CancellationToken ct)
         {
-            var validator = _mediaFileValidatorResolver.Resolve(uploadMediaDto.EntityType);
-            var errors = await validator.ValidateEntityAsync(uploadMediaDto.EntityId);
+            //TO-DO: Add max file length check - To be done with other request validation
+            var result = _fileInspector.Inspect(uploadMediaDto.MediaStream);
+            if (result.MimeType == null) throw new AppValidationException(MediaFileConstants.MediaTypeNotResolved);
 
+            var validator = _mediaFileValidatorResolver.Resolve(uploadMediaDto.EntityType);
+            var errors = await validator.ValidateEntityAsync(uploadMediaDto.EntityId, uploadMediaDto.FileName, result);
             if(errors.Count() > 0) throw new AppValidationException(errors);
 
-            var fileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile(uploadMediaDto.EntityType, uploadMediaDto.EntityId);
+            var generatedFileKeys = StorageKeyHelper.GenerateNewFileKeyForMediaFile(uploadMediaDto.EntityType, uploadMediaDto.EntityId);
 
             // Uploading file to storage
-            await _fileStorageService.WriteAsync(fileKey, uploadMediaDto.MediaStream, ct);
+            await _fileStorageService.WriteAsync(generatedFileKeys.FileKey, uploadMediaDto.MediaStream, ct);
 
             // DB operation for uploading
             var mediaFile = new MediaFile
             {
                 Name = uploadMediaDto.FileName,
-                ContentType = MediaFileConstants.ContentType.ImagePng,
-                FileKey = fileKey,
+                ContentType = result.MimeType,
+                FileKey = generatedFileKeys.FileKey,
                 Status = MediaFileStatusEnum.Uploaded
             };
 

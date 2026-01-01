@@ -46,18 +46,18 @@ app-panel {
   gap: 1rem;
 
   width: 100%;
-  height: 80%;
+  height: 90%;
 
   font-size: 1.4rem;
   font-weight: 700;
   text-transform: uppercase;
 
-  color: var(--background-color);
+  color: var(--text-color);
 }
 
 .app-property-media__galary_img__loading-animation {
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 .app-property-media__galary_img__action-overlay {

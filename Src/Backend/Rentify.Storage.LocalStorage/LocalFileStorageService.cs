@@ -19,11 +19,6 @@ namespace Rentify.Storage.LocalStorage
             _bufferSize = bufferSize;
         }
 
-        public Task<bool> ExistsAsync(string key)
-        {
-            var filePath = ResolvePath(key);
-            return Task.FromResult(File.Exists(filePath));
-        }
 
         public Task DeleteAsync(string key, CancellationToken ct)
         {
@@ -31,6 +26,25 @@ namespace Rentify.Storage.LocalStorage
 
             var filePath = ResolvePath(key);
             if (File.Exists(filePath)) File.Delete(filePath);
+
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> ExistsAsync(string key)
+        {
+            var filePath = ResolvePath(key);
+            return Task.FromResult(File.Exists(filePath));
+        }
+
+        public Task MoveAsync(string key, string newKey, CancellationToken ct)
+        {
+            var filePath = ResolvePath(key);
+            var newFilePath = ResolvePath(newKey);
+
+            if (!File.Exists(filePath)) throw new FileNotFoundException(string.Format(FileStorageConstant.FileNotFound, key), key);
+            if (File.Exists(newFilePath)) throw new InvalidOperationException(string.Format(FileStorageConstant.FileAlreadyExists, key));
+
+            File.Move(filePath, newFilePath);
 
             return Task.CompletedTask;
         }

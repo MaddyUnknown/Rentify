@@ -1,5 +1,6 @@
 using Rentify.Application.Extensions;
 using Rentify.DataAccess.SqlServer.Extensions;
+using Rentify.FileWorkflow.Core.Extensions;
 using Rentify.Storage.LocalStorage.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -27,6 +28,9 @@ builder.Services.AddLocalStorageServices(options =>
     options.RootFolder = builder.Configuration.GetValue<string>("Storage:RootFolder");
     options.StreamBufferSize = builder.Configuration.GetValue<int>("Storage:StreamBufferSize");
 });
+
+// Add file workflow services
+builder.Services.AddFileWorkflowServices();
 
 // Add application services
 builder.Services.AddApplicationServices();

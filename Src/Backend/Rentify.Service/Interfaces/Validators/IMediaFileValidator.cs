@@ -1,4 +1,6 @@
-﻿using Rentify.Core.Enums;
+﻿using Rentify.Application.DTOs.MediaFile;
+using Rentify.Core.Enums;
+using Rentify.FileWorkflow.Core.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,6 @@ namespace Rentify.Application.Interfaces.Validators
     {
         MediaFileEntityEnum EntityType { get; }
 
-        Task<IEnumerable<string>> ValidateEntityAsync(int entityId);
+        Task<IEnumerable<string>> ValidateEntityAsync(int entityId, string fileName, FileInspectionInfo fileInfo);
     }
 }
