@@ -20,7 +20,7 @@ namespace Rentify.Storage.LocalStorage
         }
 
 
-        public Task DeleteAsync(string key, CancellationToken ct)
+        public Task DeleteAsync(string key, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -36,8 +36,10 @@ namespace Rentify.Storage.LocalStorage
             return Task.FromResult(File.Exists(filePath));
         }
 
-        public Task MoveAsync(string key, string newKey, CancellationToken ct)
+        public Task MoveAsync(string key, string newKey, CancellationToken ct = default)
         {
+            ct.ThrowIfCancellationRequested();
+
             var filePath = ResolvePath(key);
             var newFilePath = ResolvePath(newKey);
 
@@ -49,7 +51,7 @@ namespace Rentify.Storage.LocalStorage
             return Task.CompletedTask;
         }
 
-        public Task<Stream> ReadAsync(string key, CancellationToken ct)
+        public Task<Stream> ReadAsync(string key, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -67,7 +69,7 @@ namespace Rentify.Storage.LocalStorage
             return Task.FromResult(stream);
         }
 
-        public async Task WriteAsync(string key, Stream content, CancellationToken ct)
+        public async Task WriteAsync(string key, Stream content, CancellationToken ct = default)
         {
             var filePath = ResolvePath(key);
             if (File.Exists(filePath)) throw new InvalidOperationException(string.Format(FileStorageConstant.FileAlreadyExists, key));

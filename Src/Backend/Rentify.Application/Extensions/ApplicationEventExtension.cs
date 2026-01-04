@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Application.Extensions
 {
-    public static class ApplicationExtension
+    public static class ApplicationEventExtension
     {
         public static void AddApplicationServices(this IServiceCollection serviceCollection)
         {

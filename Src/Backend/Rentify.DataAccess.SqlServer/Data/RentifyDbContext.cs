@@ -14,13 +14,16 @@ public class RentifyDbContext : DbContext
         _saveChangeInterceptor = saveChangesInterceptors;
     }
 
-    // DbSets for all entities
+    // DbSets for 'dbo' entities
     public DbSet<MediaFile> MediaFiles { get; set; }
     public DbSet<MediaFileLink> MediaFileLinks { get; set; }
     public DbSet<MediaFileVariant> MediaFileVariants { get; set; }
     public DbSet<Owner> Owners { get; set; }
     public DbSet<Property> Properties { get; set; }
     public DbSet<Unit> Units { get; set; }
+
+    // DbSets for 'event' entities
+    public DbSet<EventOutbox> EventOutboxEntries { get; set; }
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

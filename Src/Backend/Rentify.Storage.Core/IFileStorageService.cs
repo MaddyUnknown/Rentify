@@ -8,10 +8,10 @@ namespace Rentify.Storage.Core
 {
     public interface IFileStorageService
     {
-        Task DeleteAsync(string key, CancellationToken ct);
+        Task DeleteAsync(string key, CancellationToken ct = default);
         Task<bool> ExistsAsync(string key);
-        Task MoveAsync(string key, string newKey, CancellationToken ct);
-        Task<Stream> ReadAsync(string key, CancellationToken ct);
-        Task WriteAsync(string key, Stream content, CancellationToken ct);
+        Task MoveAsync(string key, string newKey, CancellationToken ct = default);
+        Task<Stream> ReadAsync(string key, CancellationToken ct = default);
+        Task WriteAsync(string key, Stream content, CancellationToken ct = default);
     }
 }
