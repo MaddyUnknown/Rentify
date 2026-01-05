@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Event.Hangfire.Options
 {
-    public class EventProcessingSetupOptions
+    public class EventProducerSetupOptions
     {
         public string? ConnectionString { get; set; }
     }
