@@ -1,5 +1,6 @@
 ﻿using Rentify.Application.Constants;
 using Rentify.Core.Events;
+using Rentify.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Rentify.Application.Utils
     {
         public static string GetEventObjectType<T>()
         {
-            return typeof(T).AssemblyQualifiedName ?? throw new InvalidOperationException(string.Format(EventOutboxConstants.NullEventObjectType, typeof(T)));
+            return typeof(T).AssemblyQualifiedName ?? throw new EventTypeException(string.Format(EventOutboxConstants.NullEventObjectType, typeof(T)));
         }
     }
 }

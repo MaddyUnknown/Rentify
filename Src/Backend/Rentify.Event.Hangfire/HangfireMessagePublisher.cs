@@ -11,9 +11,16 @@ namespace Rentify.Event.Hangfire
 {
     public class HangfireMessagePublisher: IMessagePublisher
     {
+        private IBackgroundJobClient _jobClient;
+
+        public HangfireMessagePublisher(IBackgroundJobClient backgroundJobClient)
+        {
+            _jobClient = backgroundJobClient;
+        }
+
         public Task PublishAsync<TMessage>(TMessage message) where TMessage : EventBase
         {
-            BackgroundJob.Enqueue<HangfireDispatcher<TMessage>>(d => d.DispatchAsync(message));
+            _jobClient.Enqueue<HangfireDispatcher<TMessage>>(d => d.DispatchAsync(message));
             return Task.CompletedTask;
         }
     }

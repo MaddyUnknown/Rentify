@@ -1,6 +1,7 @@
 ﻿using Rentify.Core.Abstractions.Events;
 using Rentify.Core.Entities;
 using Rentify.Core.Events;
+using Rentify.Core.Exceptions;
 using Rentify.Event.Application.Constants;
 using System;
 using System.Collections.Generic;
@@ -12,13 +13,13 @@ namespace Rentify.Event.Application.Event.Utils
 {
     public static class EventTypeHelper
     {
-        public static Type ResolveEventObjectType(int eventId, string eventObjectType)
+        public static Type ResolveEventObjectType(string eventObjectType)
         {
             Type eventType = Type.GetType(eventObjectType) 
-                ?? throw new InvalidOperationException(string.Format(EventOutboxConstants.EventObjectTypeNotFound, eventObjectType, eventId));
+                ?? throw new EventTypeException(string.Format(EventOutboxConstants.EventObjectTypeNotFound, eventObjectType));
             
             if (!typeof(EventBase).IsAssignableFrom(eventType)) 
-                throw new InvalidOperationException(string.Format(EventOutboxConstants.EventObjectNotOfBaseType, eventObjectType, nameof(EventBase), eventId));
+                throw new EventTypeException(string.Format(EventOutboxConstants.EventObjectNotOfBaseType, eventObjectType, nameof(EventBase)));
 
             return eventType;
         }

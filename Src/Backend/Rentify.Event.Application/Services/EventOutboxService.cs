@@ -1,6 +1,7 @@
 ﻿using Rentify.Core.Abstractions.Events;
 using Rentify.Core.Entities;
 using Rentify.Core.Events;
+using Rentify.Core.Exceptions;
 using Rentify.Core.Utils;
 using Rentify.Event.Application.Constants;
 using Rentify.Event.Application.Event.Utils;
@@ -31,7 +32,7 @@ namespace Rentify.Event.Application.Services
 
         public async Task PublishEventsAsync(EventOutbox eventOutbox)
         {
-            var eventObjectType = EventTypeHelper.ResolveEventObjectType(eventOutbox.Id, eventOutbox.EventObjectType);
+            var eventObjectType = EventTypeHelper.ResolveEventObjectType(eventOutbox.EventObjectType);
             var handler = _handlerCache.GetOrAdd(eventObjectType, CreatePublishEventHandler(eventObjectType));
             await handler(eventOutbox);
         }
@@ -40,7 +41,7 @@ namespace Rentify.Event.Application.Services
         private async Task PublishEventHandlerAsync<T>(EventOutbox eventOutbox) where T : EventBase
         {
             var data = JsonSerializerHelper.Deserialize<T>(eventOutbox.EventData);
-            if (data == null) throw new InvalidOperationException(string.Format(EventOutboxConstants.DeserializeEventOutboxPayloadError, eventOutbox.EventData, typeof(T), eventOutbox.Id));
+            if (data == null) throw new EventDataException(string.Format(EventOutboxConstants.DeserializeEventOutboxPayloadError, eventOutbox.EventData, typeof(T)));
 
             await _publisher.PublishAsync(data);
         }
