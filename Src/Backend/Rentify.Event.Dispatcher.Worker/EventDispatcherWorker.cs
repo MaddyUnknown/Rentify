@@ -1,9 +1,4 @@
-using Rentify.Core.Entities;
-using Rentify.DataAccess.Core.Repositories;
-using Rentify.Event.Application.Interfaces;
-using Rentify.Event.Application.Services;
-
-namespace Rentify.Dispatcher.Worker
+namespace Rentify.Event.Dispatcher.Worker
 {
     public class EventDispatcherWorker : BackgroundService
     {

@@ -2,7 +2,7 @@ using Rentify.DataAccess.SqlServer.Extensions;
 using Rentify.Event.Application.Extensions;
 using Rentify.Event.Hangfire.Extensions;
 
-namespace Rentify.Dispatcher.Worker
+namespace Rentify.Event.Dispatcher.Worker
 {
     public class Program
     {

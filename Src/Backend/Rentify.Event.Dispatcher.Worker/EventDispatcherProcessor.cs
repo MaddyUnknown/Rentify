@@ -1,6 +1,5 @@
 ﻿using Rentify.Core.Entities;
 using Rentify.Core.Exceptions;
-using Rentify.Core.Utils;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
 using Rentify.Event.Application.Interfaces;
@@ -10,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rentify.Dispatcher.Worker
+namespace Rentify.Event.Dispatcher.Worker
 {
     public class EventDispatcherProcessor
     {
