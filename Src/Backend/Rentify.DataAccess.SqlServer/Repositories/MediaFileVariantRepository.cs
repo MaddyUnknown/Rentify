@@ -21,9 +21,14 @@ namespace Rentify.DataAccess.SqlServer.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<MediaFileVariant>> GetMediaFileByMediaFileIdAsync(int mediaFileId)
+        public async Task<IEnumerable<MediaFileVariant>> GetAllByMediaFileIdAsync(int mediaFileId)
         {
             return await _context.MediaFileVariants.Where(m => m.MediaFileId == mediaFileId).ToListAsync();
+        }
+
+        public async Task<MediaFileVariant?> GetByMediaFileIdAndVariantTypeAsync(int mediaFileId, MediaFileVariantEnum variantType)
+        {
+            return await _context.MediaFileVariants.Where(m => m.MediaFileId == mediaFileId && m.VariantType == variantType).FirstOrDefaultAsync();
         }
     }
 }

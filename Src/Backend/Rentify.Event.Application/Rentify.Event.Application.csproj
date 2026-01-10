@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Rentify.DataAccess.Core\Rentify.DataAccess.Core.csproj" />
     <ProjectReference Include="..\Rentify.Event.Core\Rentify.Event.Core.csproj" />
+    <ProjectReference Include="..\Rentify.FileWorkflow.Core\Rentify.FileWorkflow.Core.csproj" />
     <ProjectReference Include="..\Rentify.Storage.Core\Rentify.Storage.Core.csproj" />
   </ItemGroup>
 

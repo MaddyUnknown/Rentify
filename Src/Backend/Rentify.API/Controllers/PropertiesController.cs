@@ -5,8 +5,10 @@ using Rentify.Application.DTOs.Location;
 using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Property;
 using Rentify.Application.DTOs.Unit;
+using Rentify.Application.Enums;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Core.Enums;
+using System.IO;
 
 namespace Rentify.API.Controllers;
 
@@ -107,6 +109,27 @@ public class PropertiesController : ApiControllerBase
 
 
     #region Property Media Endpoint
+
+    /// <summary>
+    /// Upload media file
+    /// </summary>
+    [HttpGet("{propertyId}/media/{mediaId}")]
+    public async Task<IActionResult> GetPropertyMediaStream(int propertyId, int mediaId, [FromQuery] MediaFileVariantDTOEnum? variantType, CancellationToken ct)
+    {
+        try
+        {
+            var mediaFileDto = new MediaFileStreamSearchDto { Id = mediaId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property, VariantType = variantType };
+            var result = await _mediaFileService.GetMediaFileStreamAsync(mediaFileDto, ct);
+
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return File(result.MediaStream,result.ContentType,result.FileName,enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching property media stram for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, mediaId);
+            return HandleException(ex);
+        }
+    }
 
     /// <summary>
     /// Upload media file

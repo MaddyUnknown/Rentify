@@ -1,5 +1,8 @@
-﻿using Rentify.Core.Abstractions.Events;
+﻿using Hangfire;
+using Hangfire.Server;
+using Rentify.Core.Abstractions.Events;
 using Rentify.Event.Core;
+using Rentify.Event.Hangfire.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +20,13 @@ namespace Rentify.Event.Hangfire
             _handler = handler;
         }
 
-        public Task DispatchAsync(TMessage message) => _handler.HandleAsync(message);
+        public async Task DispatchAsync(TMessage message, PerformContext context)
+        {
+            var currentRetryCount = context.GetJobParameter<int>("RetryCount");
+            var maxRetry = AutomaticRetryAttribute.DefaultRetryAttempts;
+
+            var messageContext = new HangfireMessageProcessingContext(currentRetryCount, maxRetry);
+            await _handler.HandleAsync(message, messageContext);
+        }
     }
 }

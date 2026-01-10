@@ -1,5 +1,6 @@
 ﻿using Rentify.Application.Constants;
 using Rentify.Application.DTOs.MediaFile;
+using Rentify.Application.Enums;
 using Rentify.Application.Interfaces.Resolvers;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Application.Mappers;
@@ -17,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +30,7 @@ namespace Rentify.Application.Services
         private readonly IMediaFileValidatorResolver _mediaFileValidatorResolver;
         private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
         private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
+        private readonly IMediaFileVariantRepository _mediaFileVariantRepo;
         private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
         private readonly IMediaFileRepository _mediaFileRepo;
         private readonly IFileInspector _fileInspector;
@@ -38,6 +41,7 @@ namespace Rentify.Application.Services
         IMediaFileValidatorResolver mediaFileValidatorResolver,
         IRepository<MediaFileLink> mediaFileLinkCRUDRepo,
         IRepository<MediaFile> mediaFileCRUDRepo,
+        IMediaFileVariantRepository mediaFileVariantRepo,
         IRepository<EventOutbox> eventOutboxCRUDRepo,
         IMediaFileRepository mediaFileRepo,
         IFileInspector fileInspector,
@@ -47,6 +51,7 @@ namespace Rentify.Application.Services
             _mediaFileValidatorResolver = mediaFileValidatorResolver;
             _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
             _mediaFileCRUDRepo = mediaFileCRUDRepo;
+            _mediaFileVariantRepo = mediaFileVariantRepo;
             _eventOutboxCRUDRepo = eventOutboxCRUDRepo;
             _mediaFileRepo = mediaFileRepo;
             _fileInspector = fileInspector;
@@ -81,6 +86,33 @@ namespace Rentify.Application.Services
         {
             var mediaFiles = await _mediaFileRepo.GetMediaFileByIdsAsync(ids);
             return mediaFiles.Select(f => MediaFileMapper.MapToMediaFileDtoForPolling(f)).ToList();
+        }
+
+        public async Task<MediaFileStreamDto> GetMediaFileStreamAsync(MediaFileStreamSearchDto mediaFileSearchDto, CancellationToken ct)
+        {
+            var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(mediaFileSearchDto.Id);
+            if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
+            if (mediaFile.MediaFileLink?.EntityType != mediaFileSearchDto.EntityType || mediaFile.MediaFileLink?.EntityId != mediaFileSearchDto.EntityId) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
+
+            if(mediaFileSearchDto.VariantType == null)
+            {
+                var fileStream = await _fileStorageService.ReadAsync(mediaFile.FileKey, ct);
+                return MediaFileMapper.MapToMediaFileStreamDto(mediaFile, fileStream);
+            }
+            else
+            {
+                var type = mediaFileSearchDto.VariantType switch
+                {
+                    MediaFileVariantDTOEnum.Thumbnail => MediaFileVariantEnum.Thumbnail,
+                    _ => MediaFileVariantEnum.None
+                };
+
+                var mediaFileVariant = await _mediaFileVariantRepo.GetByMediaFileIdAndVariantTypeAsync(mediaFileSearchDto.Id, type);
+                if (mediaFileVariant == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType.ToString()));
+
+                var fileStream = await _fileStorageService.ReadAsync(mediaFileVariant.FileKey, ct);
+                return MediaFileMapper.MapToMediaFileStreamDto(mediaFile, mediaFileVariant, fileStream);
+            }
         }
 
         public async Task<MediaFileDto> UploadMediaFileAsync(UploadMediaFileDto uploadMediaDto, CancellationToken ct)

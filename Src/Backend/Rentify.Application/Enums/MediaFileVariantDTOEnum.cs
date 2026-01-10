@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rentify.Core.Enums
+namespace Rentify.Application.Enums
 {
-    public enum MediaFileVariantStatusEnum
+    public enum MediaFileVariantDTOEnum
     {
-        Unknown = 0,
-        Processed = 1
+        Thumbnail = 1
     }
 }

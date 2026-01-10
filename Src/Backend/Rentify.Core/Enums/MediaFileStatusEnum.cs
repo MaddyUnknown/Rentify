@@ -10,9 +10,8 @@ namespace Rentify.Core.Enums
     {
         Unknown = 0,
         Uploaded = 1,
-        Processing = 2,
-        Processed = 3,
-        Failed = 4,
-        Deleted = 5
+        Processed = 2,
+        Failed = 3,
+        Deleted = 4
     }
 }

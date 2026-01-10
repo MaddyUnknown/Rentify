@@ -46,5 +46,25 @@ namespace Rentify.Application.Mappers
                 };
             }
         }
+
+        public static MediaFileStreamDto MapToMediaFileStreamDto(MediaFile file, Stream stream)
+        {
+            return new MediaFileStreamDto
+            {
+                MediaStream = stream,
+                ContentType = file.ContentType,
+                FileName = file.Name
+            };
+        }
+
+        public static MediaFileStreamDto MapToMediaFileStreamDto(MediaFile file, MediaFileVariant fileVariant, Stream stream)
+        {
+            return new MediaFileStreamDto
+            {
+                MediaStream = stream,
+                ContentType = fileVariant.ContentType,
+                FileName = $"{fileVariant.VariantType}_{file.Name}"
+            };
+        }
     }
 }

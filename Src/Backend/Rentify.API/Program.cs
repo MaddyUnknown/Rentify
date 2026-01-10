@@ -1,6 +1,6 @@
 using Rentify.Application.Extensions;
 using Rentify.DataAccess.SqlServer.Extensions;
-using Rentify.FileWorkflow.Core.Extensions;
+using Rentify.FileWorkflow.Implementation.Extensions;
 using Rentify.Storage.LocalStorage.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;

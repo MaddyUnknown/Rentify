@@ -1,4 +1,5 @@
 ﻿using Rentify.Core.Entities;
+using Rentify.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Rentify.DataAccess.Core.Repositories
 {
     public interface IMediaFileVariantRepository
     {
-        Task<IEnumerable<MediaFileVariant>> GetMediaFileByMediaFileIdAsync(int mediaFileId);
+        Task<IEnumerable<MediaFileVariant>> GetAllByMediaFileIdAsync(int mediaFileId);
+        Task<MediaFileVariant?> GetByMediaFileIdAndVariantTypeAsync(int mediaFileId, MediaFileVariantEnum variantType);
     }
 }

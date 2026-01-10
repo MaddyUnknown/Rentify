@@ -15,6 +15,7 @@
     <ProjectReference Include="..\Rentify.DataAccess.SqlServer\Rentify.DataAccess.SqlServer.csproj" />
     <ProjectReference Include="..\Rentify.Event.Application\Rentify.Event.Application.csproj" />
     <ProjectReference Include="..\Rentify.Event.Hangfire\Rentify.Event.Hangfire.csproj" />
+    <ProjectReference Include="..\Rentify.FileWorkflow.Implementation\Rentify.FileWorkflow.Implementation.csproj" />
     <ProjectReference Include="..\Rentify.Storage.LocalStorage\Rentify.Storage.LocalStorage.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.Server;
 using Rentify.Core.Abstractions.Events;
 using Rentify.Event.Core;
 using System;
@@ -20,7 +21,7 @@ namespace Rentify.Event.Hangfire
 
         public Task PublishAsync<TMessage>(TMessage message) where TMessage : EventBase
         {
-            _jobClient.Enqueue<HangfireDispatcher<TMessage>>(d => d.DispatchAsync(message));
+            _jobClient.Enqueue<HangfireDispatcher<TMessage>>(d => d.DispatchAsync(message, null!));
             return Task.CompletedTask;
         }
     }

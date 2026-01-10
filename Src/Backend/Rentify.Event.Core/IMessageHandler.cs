@@ -1,4 +1,5 @@
 ﻿using Rentify.Core.Abstractions.Events;
+using Rentify.Event.Core.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Rentify.Event.Core
 {
     public interface IMessageHandler<in TMessage> where TMessage : EventBase
     {
-        Task HandleAsync(TMessage message);
+        Task HandleAsync(TMessage message, IMessageProcessingContext context);
     }
 }
