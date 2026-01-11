@@ -8,6 +8,7 @@ import { MediaFile } from '../../models/media-file/media-file.model';
 import { Unit } from '../../models/unit/unit.model';
 import { CreateUnit } from '../../models/unit/create-unit.model';
 import { UpdateUnit } from '../../models/unit/update-unit.model';
+import { MediaFileVariantType } from '../../models/media-file/media-file-variant-type.model';
 
 export interface PropertyService {
   getPropertyAggregateById(propertyId: number): Observable<Property>;
@@ -21,4 +22,6 @@ export interface PropertyService {
   createUnit(propertyId: number, unit: CreateUnit): Observable<Unit>;
   updateUnit(propertyId: number, unitId: number, unit: UpdateUnit): Observable<Unit>;
   deleteUnit(propertyId: number, unitId: number): Observable<Unit>;
+
+  generatePropertyMediaUrl(propertyId: number, mediaId: number, variant: MediaFileVariantType): string;
 }

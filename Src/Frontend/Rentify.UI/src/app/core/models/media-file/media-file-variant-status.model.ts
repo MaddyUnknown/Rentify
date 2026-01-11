@@ -1,1 +1,1 @@
-export type MediaFileVariantStatus = 'processing' | 'processed' | 'failed';
+export type MediaFileVariantStatus = 'processed';

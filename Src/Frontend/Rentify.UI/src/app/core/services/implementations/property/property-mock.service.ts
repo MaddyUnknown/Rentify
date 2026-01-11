@@ -14,6 +14,7 @@ import { MediaFile } from '../../../models/media-file/media-file.model';
 import { MediaFileStatus } from '../../../models/media-file/media-file-status.model';
 import { MockFiles } from '../mock/data.model';
 import { Injectable } from '@angular/core';
+import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 
 @Injectable()
 export class PropertyMockService implements PropertyService {
@@ -170,14 +171,6 @@ export class PropertyMockService implements PropertyService {
         data.files.push(image);
 
         setTimeout(() => {
-          image.processingStatus = 'processing';
-          image.thumbnailType = file.type;
-          image.thumbnailProcessingStatus = 'processing';
-
-          console.log('processing');
-        }, data.apiLatency * 2);
-
-        setTimeout(() => {
           image.processingStatus = 'processed';
           image.thumbnailType = file.type;
           image.thumbnailProcessingStatus = 'processed';
@@ -311,5 +304,9 @@ export class PropertyMockService implements PropertyService {
         observer.complete();
       }, data.apiLatency);
     });
+  }
+
+  generatePropertyMediaUrl(propertyId: number, mediaId: number, variant: MediaFileVariantType): string {
+    return './img/thumbnails/thumbnail-image.png';
   }
 }

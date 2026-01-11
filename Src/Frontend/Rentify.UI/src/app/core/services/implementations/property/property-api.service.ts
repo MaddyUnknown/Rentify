@@ -15,6 +15,7 @@ import { EnvironmentConfigJsonService } from '../environement-config/environment
 import { Inject, Injectable } from '@angular/core';
 import { ResponseWrapper } from '../../../models/response/response-wrapper.model';
 import { processResponse } from '../../../utils/process-response.util';
+import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 
 @Injectable()
 export class PropertyApiService implements PropertyService {
@@ -90,5 +91,13 @@ export class PropertyApiService implements PropertyService {
         ResponseWrapper<Unit>
       >(this.environmentConfigService.apiBaseURL + `properties/${propertyId}/units/${unitId}`)
       .pipe(processResponse());
+  }
+
+  generatePropertyMediaUrl(propertyId: number, mediaId: number, variant: MediaFileVariantType): string {
+    return (
+      this.environmentConfigService.apiBaseURL +
+      `properties/${propertyId}/media/${mediaId}` +
+      (variant === undefined ? '' : `?variantType=${variant}`)
+    );
   }
 }

@@ -20,11 +20,7 @@
   } @else {
     <div class="app-property-media__galary" appPanelDesc>
       @for (file of images; track file.data.id) {
-        @if (
-          file.data.processingStatus === 'uploading' ||
-          file.data.processingStatus === 'uploaded' ||
-          file.data.processingStatus === 'processing'
-        ) {
+        @if (file.data.processingStatus === 'uploading' || file.data.processingStatus === 'uploaded') {
           <div class="app-property-media__galary_img">
             <div class="app-property-media__galary_img__loading-overlay">
               <app-spinner-loader class="app-property-media__galary_img__loading-animation"></app-spinner-loader>
@@ -48,7 +44,7 @@
               ></button>
             </div>
             <!-- //TO-DO: thumbnail URL -->
-            <img [src]="'./img/thumbnails/thumbnail-image.png'" [alt]="file.data.name" />
+            <img [src]="generatePropertyUrl(file.data, 'thumbnail')" [alt]="file.data.name" />
           </div>
         }
       }

@@ -14,6 +14,7 @@ import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/propert
 import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../../core/services/tokens/environement-config.token';
 import { Location } from '../../../../core/models/location/location.model';
 import { UpdatePropertyLocation } from '../../../../core/models/location/update-property-location.model';
+import { ApiError } from '../../../../core/exceptions/api-error';
 
 @Component({
   selector: 'section[appPropertyLocation]',
@@ -151,7 +152,15 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
         this.locationDetails = updatedData;
         this.updateLocationMarker(this.locationDetails.data);
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this.locationDetails.isActionDisabled = false;
+
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
 
@@ -173,7 +182,15 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
         this.locationDetails = updatedData;
         this.updateLocationMarker(this.locationDetails.data);
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this.locationDetails.isActionDisabled = false;
+
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
   //#endregion

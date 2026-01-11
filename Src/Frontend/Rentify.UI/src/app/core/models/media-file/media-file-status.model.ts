@@ -1,1 +1,1 @@
-export type MediaFileStatus = 'uploading' | 'uploaded' | 'processing' | 'processed' | 'failed' | 'deleted';
+export type MediaFileStatus = 'uploading' | 'uploaded' | 'processed' | 'failed' | 'deleted';

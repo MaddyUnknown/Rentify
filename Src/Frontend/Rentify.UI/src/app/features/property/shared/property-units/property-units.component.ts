@@ -15,6 +15,7 @@ import { PropertyService } from '../../../../core/services/abstractions/property
 import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
 import { CreateUnit } from '../../../../core/models/unit/create-unit.model';
 import { UpdateUnit } from '../../../../core/models/unit/update-unit.model';
+import { ApiError } from '../../../../core/exceptions/api-error';
 
 @Component({
   selector: 'section[appPropertyUnits]',
@@ -202,7 +203,18 @@ export class PropertyUnitsComponent implements OnChanges {
           this.unitRows[existingRowId] = newRow;
         }
       },
-      error: (error) => console.error(error),
+      error: (err) => {
+        const existingRowId = this.unitRows.findIndex((r) => r.data.id === data.id);
+        if (existingRowId !== -1) {
+          this.unitRows[existingRowId].isActionDisabled = false;
+        }
+
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
 
@@ -240,7 +252,18 @@ export class PropertyUnitsComponent implements OnChanges {
           this.unitRows[existingRowId] = updatedRow;
         }
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        const existingRowId = this.unitRows.findIndex((r) => r.data.id === data.id);
+        if (existingRowId !== -1) {
+          this.unitRows[existingRowId].isActionDisabled = false;
+        }
+
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
 
@@ -255,7 +278,18 @@ export class PropertyUnitsComponent implements OnChanges {
       next: (deletedUnit) => {
         this.unitRows = this.unitRows.filter((r) => r.data.id !== deletedUnit.id);
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        const existingRowId = this.unitRows.findIndex((r) => r.data.id === data.id);
+        if (existingRowId !== -1) {
+          this.unitRows[existingRowId].isActionDisabled = false;
+        }
+
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
   //#endregion

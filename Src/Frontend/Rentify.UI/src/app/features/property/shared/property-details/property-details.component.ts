@@ -11,6 +11,7 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
 import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
 import { GetPropertyDetails } from '../../../../core/models/property/get-property-details.model';
 import { UpdatePropertyDetails } from '../../../../core/models/property/update-property-details.model';
+import { ApiError } from '../../../../core/exceptions/api-error';
 
 @Component({
   selector: 'section[appPropertyDetails]',
@@ -171,7 +172,15 @@ export class PropertyDetailsComponent implements OnChanges {
         //Update received property
         this.propertyDetails = updatedData;
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this.propertyDetails.isActionDisabled = false;
+
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
 

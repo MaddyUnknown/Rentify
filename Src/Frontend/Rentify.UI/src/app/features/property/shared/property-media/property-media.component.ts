@@ -9,6 +9,8 @@ import { UIState } from '../../../../shared/models/ui-state.model';
 import { MediaFile } from '../../../../core/models/media-file/media-file.model';
 import { PropertyService } from '../../../../core/services/abstractions/property.service';
 import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
+import { MediaFileVariantType } from '../../../../core/models/media-file/media-file-variant-type.model';
+import { ApiError } from '../../../../core/exceptions/api-error';
 
 @Component({
   selector: 'section[appPropertyMedia]',
@@ -33,6 +35,10 @@ export class PropertyMediaComponent implements OnChanges {
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
     private fileStatusPollingService: FileStatusPollingService,
   ) {}
+
+  generatePropertyUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
+    return this.propertyService.generatePropertyMediaUrl(this.propertyId, mediaFile.id, variant);
+  }
 
   // #region Lifecycle hooks
   ngOnChanges(changes: SimpleChanges): void {
@@ -78,7 +84,14 @@ export class PropertyMediaComponent implements OnChanges {
             }
           });
         },
-        error: (err) => console.log(err),
+        error: (err) => {
+          this.images = this.images.filter((r) => r.data.id !== newFile.data.id);
+          if (err instanceof ApiError) {
+            console.log('API Error', err.Errors);
+          } else {
+            console.error(err);
+          }
+        },
       });
     }
   }
@@ -94,7 +107,13 @@ export class PropertyMediaComponent implements OnChanges {
       next: (deletedUnit) => {
         this.images = this.images.filter((r) => r.data.id !== deletedUnit.id);
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
   // #endregion
