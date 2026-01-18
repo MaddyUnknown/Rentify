@@ -1,0 +1,145 @@
+<app-panel [icon]="ICONS.Blocks" heading="Property Units">
+  <div appPanelButtons class="app-property-units__btns">
+    <button
+      appButton
+      type="normal"
+      color="primary"
+      [disabled]="loading"
+      [input]="{ icon: ICONS.Plus, label: 'Add' }"
+      (click)="onAddRowClick()"
+    ></button>
+  </div>
+  @if (loading) {
+    <table appPanelDesc class="app-table app-property-units__table">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Size (sqft)</th>
+          <th [style.text-align]="'center'">Status</th>
+          <th [style.text-align]="'right'">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (id of [1, 2]; track id) {
+          <tr>
+            <td>
+              <app-skeleton-loader type="input"></app-skeleton-loader>
+            </td>
+            <td>
+              <app-skeleton-loader type="input"></app-skeleton-loader>
+            </td>
+            <td>
+              <app-skeleton-loader type="input"></app-skeleton-loader>
+            </td>
+            <td>
+              <app-skeleton-loader type="input"></app-skeleton-loader>
+            </td>
+            <td>
+              <app-skeleton-loader type="input"></app-skeleton-loader>
+            </td>
+            <td>
+              <div class="app-property-units__table_item_action">
+                <app-skeleton-loader
+                  type="box"
+                  class="app-property-units__table_item_action--loading"
+                ></app-skeleton-loader>
+                <app-skeleton-loader
+                  type="box"
+                  class="app-property-units__table_item_action--loading"
+                ></app-skeleton-loader>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <table appPanelDesc class="app-table app-property-units__table">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Size (sqft)</th>
+          <th [style.text-align]="'center'">Status</th>
+          <th [style.text-align]="'right'">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of unitRowList$ | async; track $index) {
+          <tr>
+            <td>
+              @if (row.kind === 'existing') {
+                <div class="app-form">
+                  <input type="text" disabled [value]="$index + 1" />
+                </div>
+              }
+            </td>
+            <td>
+              <div class="app-form">
+                <input
+                  type="text"
+                  [formControl]="row.form.controls.name"
+                  [attr.invalid]="isInvalid(row.form.controls.name) ? '' : null"
+                />
+              </div>
+            </td>
+            <td>
+              <div class="app-form">
+                <input
+                  type="text"
+                  [formControl]="row.form.controls.type"
+                  [attr.invalid]="isInvalid(row.form.controls.type) ? '' : null"
+                />
+              </div>
+            </td>
+            <td>
+              <div class="app-form">
+                <input
+                  type="number"
+                  [formControl]="row.form.controls.size"
+                  [attr.invalid]="isInvalid(row.form.controls.size) ? '' : null"
+                />
+              </div>
+            </td>
+            <td>
+              @if (row.kind === 'existing') {
+                <div class="app-table__body__status-wrapper">
+                  <span
+                    [class]="
+                      'app-property-units__table_item_status app-property-units__table_item_status--' +
+                      row.form.controls.status.value
+                    "
+                    >{{ row.form.controls.status.value }}</span
+                  >
+                </div>
+              }
+            </td>
+            <td>
+              <div class="app-property-units__table_item_action">
+                <button
+                  type="inline"
+                  color="text"
+                  appButton
+                  [input]="row.kind === 'new' || row.mode.isEdit ? { icon: ICONS.Save } : { icon: ICONS.SquarePen }"
+                  [disabled]="row.disableActions"
+                  (click)="onAddEditClick(row)"
+                ></button>
+                <button
+                  type="inline"
+                  color="danger"
+                  appButton
+                  [input]="row.kind === 'new' || row.mode.isEdit ? { icon: ICONS.CircleX } : { icon: ICONS.Trash2 }"
+                  [disabled]="row.disableActions"
+                  (click)="onRemoveCloseClick(row)"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</app-panel>

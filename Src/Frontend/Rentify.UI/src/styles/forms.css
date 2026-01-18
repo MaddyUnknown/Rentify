@@ -1,0 +1,73 @@
+/* Form styling */
+.app-form .form-row {
+  display: flex;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.app-form .form-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 0.8rem;
+}
+
+.app-form label {
+  margin-bottom: 0.4rem;
+  margin-left: 0.5rem;
+
+  font-size: 1.2rem;
+  font-weight: 600;
+
+  color: var(--text-color--muted);
+}
+
+.app-form input,
+.app-form textarea,
+.app-form select {
+  width: 100%;
+  padding: 0.4rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+
+  font-family: var(--font-family);
+  font-size: 1.6rem;
+
+  color: var(--text-color);
+}
+
+.app-form textarea {
+  resize: none;
+  line-height: 2.2rem;
+}
+
+.app-form input[invalid],
+.app-form textarea[invalid],
+.app-form select[invalid] {
+  outline: none;
+  border: 1px solid var(--danger-color);
+}
+
+.app-form input[shake],
+.app-form textarea[shake],
+.app-form select[shake] {
+  animation: app-form--shake-animation var(--base-animation-time) ease;
+}
+
+.app-form input:disabled,
+.app-form textarea:disabled,
+.app-form select:disabled {
+  outline: none;
+  border: 1px solid transparent;
+  background-color: var(--background-color);
+}
+
+.app-form select:disabled {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+
+  pointer-events: none;
+}

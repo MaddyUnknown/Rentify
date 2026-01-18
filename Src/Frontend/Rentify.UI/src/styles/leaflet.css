@@ -1,0 +1,23 @@
+/* Leaflet Style */
+.leaflet-touch .leaflet-bar {
+  border: 0.1rem solid var(--text-color--tint-5);
+  border-radius: 0.4rem;
+}
+
+.leaflet-touch .leaflet-bar a:first-child {
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+  border-bottom: 0.1rem solid var(--text-color--tint-5);
+}
+
+.leaflet-touch .leaflet-bar a:last-child {
+  border-bottom-left-radius: 0.4rem;
+  border-bottom-right-radius: 0.4rem;
+}
+
+.leaflet-touch .leaflet-bar .leaflet-control-zoom-in,
+.leaflet-touch .leaflet-bar .leaflet-control-zoom-out {
+  font-family: var(--font-family);
+  font-weight: 500;
+  color: var(--text-color);
+}

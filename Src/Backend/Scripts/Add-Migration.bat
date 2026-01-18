@@ -7,4 +7,4 @@ IF "%name%"=="" (
     exit /b 1
 )
 
-dotnet ef migrations add %name% --project ../Rentify.DataAccess --startup-project ../Rentify.API
+dotnet ef migrations add %name% --project ../Rentify.DataAccess.SqlServer --startup-project ../Rentify.API

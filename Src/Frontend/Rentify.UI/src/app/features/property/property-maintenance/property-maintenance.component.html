@@ -1,25 +1,32 @@
-<!-- Create cards out of these sections -->
-<section
-  [appPropertyDetails]="propertyDetailsAgg.generalDetails"
-  [propertyId]="propertyId"
-  [loading]="propertyLoading"
-  class="app-property__details"
-></section>
-<section
-  [appPropertyMedia]="propertyDetailsAgg.imageMetadataList"
-  [propertyId]="propertyId"
-  [loading]="propertyLoading"
-  class="app-property__media"
-></section>
-<section
-  [appPropertyUnits]="propertyDetailsAgg.units"
-  [propertyId]="propertyId"
-  [loading]="propertyLoading"
-  class="app-property__units"
-></section>
-<section
-  [appPropertyLocation]="propertyDetailsAgg.location"
-  [propertyId]="propertyId"
-  [loading]="propertyLoading"
-  class="app-property__location"
-></section>
+<header class="app-property-maintenance__header">
+  <button
+    appButton
+    type="inline"
+    iconClass="app-page_header__icon"
+    class="app-property-maintenance__header__back-btn"
+    [input]="{ icon: ICONS.ArrowLeft }"
+  ></button>
+  <h2>Property Maintenance</h2>
+</header>
+<div class="app-property-maintenance__main">
+  <section
+    [appPropertyDetails]="propertyDetailsAgg?.generalDetails"
+    [propertyId]="propertyId"
+    [loading]="propertyLoading"
+  ></section>
+  <section
+    [appPropertyMedia]="propertyDetailsAgg?.mediaFiles"
+    [propertyId]="propertyId"
+    [loading]="propertyLoading"
+  ></section>
+  <section
+    [appPropertyUnits]="propertyDetailsAgg?.units"
+    [propertyId]="propertyId"
+    [loading]="propertyLoading"
+  ></section>
+  <section
+    [appPropertyLocation]="propertyDetailsAgg?.location"
+    [propertyId]="propertyId"
+    [loading]="propertyLoading"
+  ></section>
+</div>

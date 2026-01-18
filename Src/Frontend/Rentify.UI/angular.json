@@ -24,7 +24,14 @@
                 "input": "public"
               }
             ],
-            "styles": ["node_modules/leaflet/dist/leaflet.css", "src/styles.css"],
+            "styles": [
+              "node_modules/leaflet/dist/leaflet.css",
+              "src/styles.css",
+              "src/styles/forms.css",
+              "src/styles/icons.css",
+              "src/styles/leaflet.css",
+              "src/styles/tables.css"
+            ],
             "scripts": []
           },
           "configurations": {

@@ -1,28 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PropertyService } from '../../../core/services/property.service';
+import { PropertyService } from '../../../core/services/abstractions/property.service';
 
-import { Property } from '../../../core/models/property.model';
-import { PropertyDetailsComponent } from '../shared/property-details/property-details.component';
-import { PropertyMediaComponent } from '../shared/property-media/property-media.component';
-import { PropertyUnitsComponent } from '../shared/property-units/property-units.component';
-import { PropertyLocationComponent } from '../shared/property-location/property-location.component';
+import { PropertyDetailsComponent } from './property-details/property-details.component';
+import { PropertyMediaComponent } from './property-media/property-media.component';
+import { PropertyUnitsComponent } from './property-units/property-units.component';
+import { PropertyLocationComponent } from './property-location/property-location.component';
+import { PROPERTY_SERVICE_TOKEN } from '../../../core/services/tokens/property.token';
+import { Property } from '../../../core/models/property/property.model';
+import { ApiError } from '../../../core/exceptions/api-error';
+import { ArrowLeft, LucideAngularModule } from 'lucide-angular';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
-  selector: 'app-property',
+  selector: 'app-property-maintenance',
   standalone: true,
-  imports: [PropertyDetailsComponent, PropertyMediaComponent, PropertyUnitsComponent, PropertyLocationComponent],
+  imports: [
+    PropertyDetailsComponent,
+    PropertyMediaComponent,
+    PropertyUnitsComponent,
+    PropertyLocationComponent,
+    LucideAngularModule,
+    ButtonComponent,
+  ],
   templateUrl: './property-maintenance.component.html',
   styleUrl: './property-maintenance.component.css',
 })
 export class PropertyMaintenanceComponent implements OnInit {
+  readonly ICONS = { ArrowLeft };
   readonly PROPERTY_ID_PARAM = 'id';
 
-  propertyDetailsAgg: Property = {};
+  propertyDetailsAgg?: Property;
   propertyLoading: boolean = true;
 
   constructor(
-    private propertyService: PropertyService,
+    @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
     private route: ActivatedRoute,
   ) {}
 
@@ -37,9 +49,18 @@ export class PropertyMaintenanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.propertyService.getPropertyById(this.propertyId).subscribe((propertyDetailsAgg) => {
-      this.propertyDetailsAgg = propertyDetailsAgg ?? {};
-      this.propertyLoading = false;
+    this.propertyService.getPropertyAggregateById(this.propertyId).subscribe({
+      next: (propertyDetailsAgg) => {
+        this.propertyDetailsAgg = propertyDetailsAgg;
+        this.propertyLoading = false;
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
     });
   }
 }

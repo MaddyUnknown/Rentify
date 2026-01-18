@@ -1,6 +1,25 @@
-:host {
+.app-property-maintenance__header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  margin-bottom: 1.7rem;
+  padding: 2.8rem 2rem 1.8rem 1.8rem;
+  border-bottom: 0.1rem solid var(--border-color);
+
+  background-color: var(--background-color);
+}
+
+.app-property-maintenance__header h2 {
+  padding-bottom: 0.2rem;
+  font-weight: 600;
+}
+
+.app-property-maintenance__main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-auto-rows: minmax(min-content, max-content);
   gap: 0.8rem;
+
+  padding: 0rem 1.2rem;
 }

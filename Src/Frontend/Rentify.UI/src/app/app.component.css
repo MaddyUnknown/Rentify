@@ -27,8 +27,6 @@ header {
 .site-main {
   flex-grow: 1;
 
-  padding: 2.8rem 1.2rem;
-
   background-color: var(--background-color--muted);
 
   border: 0.1rem solid var(--border-color);

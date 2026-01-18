@@ -1,0 +1,36 @@
+<app-panel [icon]="ICONS.Map" heading="Property Map">
+  <div appPanelButtons class="app-property-units__btns">
+    @if (currentState) {
+      <button
+        appButton
+        type="normal"
+        color="primary"
+        [disabled]="loading || disableActions || mode.isEdit"
+        [input]="{ icon: ICONS.MapPin, label: 'Locate' }"
+        (click)="onLocateClick()"
+      ></button>
+    }
+    <button
+      appButton
+      type="normal"
+      color="primary"
+      [disabled]="loading || disableActions"
+      [input]="mode.isEdit ? { icon: ICONS.Save, label: 'Save' } : { icon: ICONS.SquarePen, label: 'Edit' }"
+      (click)="onEditSaveClick()"
+    ></button>
+    <button
+      appButton
+      type="normal"
+      color="danger"
+      [disabled]="loading || disableActions"
+      [input]="mode.isEdit ? { icon: ICONS.CircleX, label: 'Close' } : { icon: ICONS.MapPinOff, label: 'Clear' }"
+      (click)="onCloseClearClick()"
+    ></button>
+  </div>
+  <div [style.position]="'relative'" appPanelDesc>
+    <div id="map" class="map-container"></div>
+    @if (loading) {
+      <app-skeleton-loader type="box" class="map-container"></app-skeleton-loader>
+    }
+  </div>
+</app-panel>

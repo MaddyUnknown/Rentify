@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Rentify.Event.Processor.Worker-3ada4f39-3b62-453d-9547-112adc9dda45</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rentify.DataAccess.SqlServer\Rentify.DataAccess.SqlServer.csproj" />
+    <ProjectReference Include="..\Rentify.Event.Application\Rentify.Event.Application.csproj" />
+    <ProjectReference Include="..\Rentify.Event.Hangfire\Rentify.Event.Hangfire.csproj" />
+    <ProjectReference Include="..\Rentify.FileWorkflow.Implementation\Rentify.FileWorkflow.Implementation.csproj" />
+    <ProjectReference Include="..\Rentify.Storage.LocalStorage\Rentify.Storage.LocalStorage.csproj" />
+  </ItemGroup>
+</Project>

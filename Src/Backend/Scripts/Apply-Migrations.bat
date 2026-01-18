@@ -1,2 +1,2 @@
 @echo off
-dotnet ef database update --project ../Rentify.DataAccess --startup-project ../Rentify.API
+dotnet ef database update --project ../Rentify.DataAccess.SqlServer --startup-project ../Rentify.API

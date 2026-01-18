@@ -1,34 +1,52 @@
-using Microsoft.EntityFrameworkCore;
-using Rentify.DataAccess.Data;
-using Rentify.DataAccess.Repositories;
-using Rentify.DataAccess.UnitOfWork;
-using Rentify.Service.Interfaces;
-using Rentify.Service.Services;
+using Rentify.Application.Extensions;
+using Rentify.DataAccess.SqlServer.Extensions;
+using Rentify.FileWorkflow.Implementation.Extensions;
+using Rentify.Storage.LocalStorage.Extensions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+    });
 
-// Add DbContext
-builder.Services.AddDbContext<RentifyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+// Add data access services
+builder.Services.AddDataAccessServices(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("ApplicationDBConnection");
+});
 
-// Add repository pattern
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Add storage services
+builder.Services.AddLocalStorageServices(options =>
+{
+    options.RootFolder = builder.Configuration.GetValue<string>("Storage:RootFolder");
+    options.StreamBufferSize = builder.Configuration.GetValue<int>("Storage:StreamBufferSize");
+});
+
+// Add file workflow services
+builder.Services.AddFileWorkflowServices();
 
 // Add application services
-builder.Services.AddScoped<IPropertyService, PropertyService>();
-builder.Services.AddScoped<IUnitService, UnitService>();
-builder.Services.AddScoped<IUtilityService, UtilityService>();
+builder.Services.AddApplicationServices();
 
 // Add Swagger for development
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Rentify API", Version = "v1" });
+});
+
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("dev", policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
 });
 
 var app = builder.Build();
@@ -47,6 +65,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+if(app.Environment.IsDevelopment())
+{
+    app.UseCors("dev");
+}
 
 app.MapControllers();
 

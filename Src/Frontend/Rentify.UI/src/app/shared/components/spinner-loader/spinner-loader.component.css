@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  border: var(--app-spinner-loader-size, 0.2rem) solid var(--app-spinner-loader-color, var(--background-color, #fff));
+  border: var(--app-spinner-loader-size, 0.1rem) solid var(--app-spinner-loader-color, var(--text-color, #fff));
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
@@ -14,7 +14,7 @@
   position: absolute;
   width: calc(100% + var(--app-spinner-loader-size, 0.2rem));
   height: calc(100% + var(--app-spinner-loader-size, 0.2rem));
-  border: var(--app-spinner-loader-size, 0.2rem) solid var(--app-spinner-loader-color, var(--background-color, #fff));
+  border: var(--app-spinner-loader-size, 0.2rem) solid var(--app-spinner-loader-color, var(--text-color, #fff));
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
