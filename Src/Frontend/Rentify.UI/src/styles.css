@@ -24,7 +24,15 @@
   --background-color--overlay: rgba(0, 0, 0, 0.8);
   --background-color--overlay-shade-3: rgba(77, 77, 77, 0.8);
 
+  --background-color--vacant-badge: #e6f8ec;
+  --text-color--vacant-badge: #2e7d32;
+
+  --background-color--occupied-badge: #ffe8e8;
+  --text-color--occupied-badge: #c62828;
+
   --border-color: #e8ecf1;
+
+  --background-color--skeleton-loader: #e2e2e2;
 
   /* Timing variable */
   --base-animation-time: 0.2s;
@@ -48,51 +56,4 @@ body {
   font-size: 1.6rem;
   color: var(--text-color);
   background-color: var(--background-color);
-}
-
-/* Icon Styles */
-lucide-icon {
-  display: inline-flex;
-  margin: 0;
-  padding: 0;
-}
-
-.app-panel__icon {
-  width: 1.8rem;
-}
-
-.app-button__icon {
-  width: 1.4rem;
-}
-
-.app-button__icon--inline {
-  width: 1.5rem;
-}
-
-.app-button-action__icon {
-  width: 3.2rem;
-}
-
-/* Leaflet Style */
-.leaflet-touch .leaflet-bar {
-  border: 0.1rem solid var(--text-color--tint-5);
-  border-radius: 0.4rem;
-}
-
-.leaflet-touch .leaflet-bar a:first-child {
-  border-top-left-radius: 0.4rem;
-  border-top-right-radius: 0.4rem;
-  border-bottom: 0.1rem solid var(--text-color--tint-5);
-}
-
-.leaflet-touch .leaflet-bar a:last-child {
-  border-bottom-left-radius: 0.4rem;
-  border-bottom-right-radius: 0.4rem;
-}
-
-.leaflet-touch .leaflet-bar .leaflet-control-zoom-in,
-.leaflet-touch .leaflet-bar .leaflet-control-zoom-out {
-  font-family: var(--font-family);
-  font-weight: 500;
-  color: var(--text-color);
 }

@@ -34,8 +34,6 @@ export class MediaMockService implements MediaService {
             }
           });
 
-        //TO-DO: Error if the id doesnt match.
-
         observer.next(files);
         observer.complete();
       });

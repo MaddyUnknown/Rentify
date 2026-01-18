@@ -12,15 +12,17 @@
   </div>
 
   @if (loading) {
-    <div class="app-property-media__galary" appPanelDesc>
+    <div appPanelDesc class="app-property-media__galary">
       @for (id of [1, 2]; track id) {
         <app-skeleton-loader type="img" class="app-property-media__galary_img"> </app-skeleton-loader>
       }
     </div>
   } @else {
-    <div class="app-property-media__galary" appPanelDesc>
-      @for (file of images; track file.data.id) {
-        @if (file.data.processingStatus === 'uploading' || file.data.processingStatus === 'uploaded') {
+    <div appPanelDesc class="app-property-media__galary">
+      @for (file of imageList$ | async; track file.data.id) {
+        @if (
+          file.kind === 'new' || file.data.processingStatus === 'uploading' || file.data.processingStatus === 'uploaded'
+        ) {
           <div class="app-property-media__galary_img">
             <div class="app-property-media__galary_img__loading-overlay">
               <app-spinner-loader class="app-property-media__galary_img__loading-animation"></app-spinner-loader>
@@ -30,7 +32,7 @@
             <img src="/img/thumbnails/placeholder-house-2.jpg" [alt]="file.data.name" />
           </div>
         } @else {
-          <div class="app-property-media__galary_img" [class.disabled]="file.isActionDisabled">
+          <div class="app-property-media__galary_img" [class.disabled]="file.disableActions">
             <div class="app-property-media__galary_img__action-overlay">
               <button
                 appButton
@@ -39,11 +41,10 @@
                 iconClass="app-button__icon--inline"
                 class="app-property-media__galary_img__action__icon"
                 [input]="{ icon: ICONS.Trash2 }"
-                [disabled]="file.isActionDisabled"
-                (click)="onRemoveClick(file.data)"
+                [disabled]="file.disableActions"
+                (click)="onRemoveClick(file)"
               ></button>
             </div>
-            <!-- //TO-DO: thumbnail URL -->
             <img [src]="generatePropertyUrl(file.data, 'thumbnail')" [alt]="file.data.name" />
           </div>
         }

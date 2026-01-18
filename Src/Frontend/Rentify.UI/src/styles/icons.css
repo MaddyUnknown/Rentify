@@ -1,0 +1,27 @@
+/* Icon Styles */
+lucide-icon {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+}
+
+.app-panel__icon {
+  width: 1.8rem;
+}
+
+.app-button__icon {
+  width: 1.4rem;
+}
+
+.app-button__icon--inline {
+  width: 1.5rem;
+}
+
+.app-button-action__icon {
+  width: 3.2rem;
+}
+
+.app-page_header__icon {
+  height: 2.4rem;
+  width: 2.4rem;
+}

@@ -1,5 +1,4 @@
 import { Observable } from 'rxjs';
-import { data } from '../mock/data';
 import { MediaService } from '../../abstractions/media.service';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { HttpClient } from '@angular/common/http';

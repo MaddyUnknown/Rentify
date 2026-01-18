@@ -1,19 +1,18 @@
-:host {
+/* Table styling */
+.app-table {
   display: grid;
-  grid-template-columns: repeat(var(--num-of-column), 1fr) auto;
-
+  /* grid-template-columns: repeat(var(--num-of-column), 1fr) auto; */
   text-align: left;
-
   overflow: auto;
 }
 
-thead,
-tbody,
-tr {
+.app-table thead,
+.app-table tbody,
+.app-table tr {
   display: contents;
 }
 
-th {
+.app-table th {
   position: sticky;
   top: 0;
 
@@ -30,7 +29,7 @@ th {
   background-color: var(--background-color);
 }
 
-td {
+.app-table td {
   padding: 0.3rem 0.4rem;
 
   border-bottom: 1px solid var(--border-color);

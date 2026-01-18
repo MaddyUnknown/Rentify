@@ -7,7 +7,6 @@ import { GeoLocationService } from '../../../../shared/services/geolocation.serv
 import { EnvironmentConfigService } from '../../../../core/services/abstractions/environment-config.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
-import { UIEditState } from '../../../../shared/models/edit-ui-state.model';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
 import { PropertyService } from '../../../../core/services/abstractions/property.service';
 import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
@@ -33,7 +32,10 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
   private map?: L.Map;
   private locationMarker?: L.Marker;
 
-  locationDetails: UIEditState<Location | undefined> = { data: undefined, mode: EditMode.from('view') };
+  mode = EditMode.from('view');
+  disableActions = false;
+  currentState?: Location;
+  private originalState?: Location;
 
   @Input({ required: true }) propertyId!: number;
   @Input({ alias: 'appPropertyLocation', required: false }) location?: Location;
@@ -50,11 +52,8 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
     if (changes['location']) {
       const value: Location | undefined = changes['location'].currentValue ?? undefined;
 
-      this.locationDetails = {
-        data: this.locationDetails.mode.isView ? value : this.locationDetails.data,
-        mode: this.locationDetails.mode,
-        previousData: this.locationDetails.mode.isView ? undefined : value,
-      };
+      if (this.mode.isView) this.currentState = value;
+      this.originalState = value;
 
       if (value) {
         this.updateLocationMarker(value);
@@ -72,9 +71,9 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
       maxZoom: 19,
     }).addTo(this.map);
 
-    if (this.locationDetails.data) {
-      this.updateLocationMarker(this.locationDetails.data);
-      this.panMap(this.locationDetails.data);
+    if (this.currentState) {
+      this.updateLocationMarker(this.currentState);
+      this.panMap(this.currentState);
       this.map.on('click', this.onMapClick.bind(this));
     } else {
       this.geolocationService.getCurrentLocation().subscribe({
@@ -90,106 +89,96 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
 
   //#region Event handlers
   onLocateClick() {
-    if (!this.locationDetails.data) return;
-    this.panMap(this.locationDetails.data);
+    if (!this.currentState) return;
+    this.panMap(this.currentState);
   }
 
   onCloseClearClick() {
-    if (this.locationDetails.mode.isEdit) {
-      this.locationDetails.data = this.locationDetails.previousData;
-      this.locationDetails.previousData = undefined;
-      this.locationDetails.mode.toggle();
-      this.updateLocationMarker(this.locationDetails.data);
+    if (this.mode.isEdit) {
+      this.currentState = this.originalState;
+      this.mode.toggle();
+      this.updateLocationMarker(this.currentState);
     } else {
       this.deleteLocation(this.propertyId);
     }
   }
 
   onEditSaveClick() {
-    if (this.locationDetails.mode.isView) {
+    if (this.mode.isView) {
       //Edit mode on
-      this.locationDetails.previousData = this.locationDetails.data;
-      this.locationDetails.mode.toggle();
+      this.mode.toggle();
     } else {
       //Update property
-      if (this.locationDetails.data) {
-        this.updateLocation(this.locationDetails.data);
+      if (this.currentState) {
+        this.updateLocation(this.currentState);
       }
     }
   }
 
   onMapClick(e: L.LeafletMouseEvent) {
-    if (!this.map || this.locationDetails.mode.isView) return;
+    if (!this.map || this.mode.isView) return;
 
     const { lat: latitude, lng: longitude } = e.latlng;
-    this.locationDetails.data = { latitude, longitude };
-    this.updateLocationMarker(this.locationDetails.data);
+    this.currentState = { latitude, longitude };
+    this.updateLocationMarker(this.currentState);
   }
   //#endregion
 
   //#region Service Call
   private updateLocation(data: Location) {
     // Disable action
-    this.locationDetails.isActionDisabled = true;
+    this.disableActions = true;
 
-    // Save new unit details
-    const updateLocation: UpdatePropertyLocation = {
-      latitude: data.latitude,
-      longitude: data.longitude,
-    };
-
-    this.propertyService.updatePropertyLocation(this.propertyId, updateLocation).subscribe({
+    this.propertyService.updatePropertyLocation(this.propertyId, data).subscribe({
       next: (location) => {
-        const updatedData: UIEditState<Location | undefined> = {
-          data:
-            location.latitude && location.longitude
-              ? { latitude: location.latitude, longitude: location.longitude }
-              : undefined,
-          mode: EditMode.from('view'),
-        };
+        const propertyLocation =
+          location.latitude && location.longitude
+            ? { latitude: location.latitude, longitude: location.longitude }
+            : undefined;
+        this.originalState = propertyLocation;
+        this.currentState = propertyLocation;
+        this.mode.state = 'view';
+        this.disableActions = false;
 
-        //Update received property
-        this.locationDetails = updatedData;
-        this.updateLocationMarker(this.locationDetails.data);
+        this.updateLocationMarker(this.currentState);
       },
       error: (err) => {
-        this.locationDetails.isActionDisabled = false;
-
         if (err instanceof ApiError) {
           console.log('API Error', err.Errors);
         } else {
           console.error(err);
         }
+
+        this.disableActions = false;
       },
     });
   }
 
   private deleteLocation(propertyId: number) {
     // Disable action
-    this.locationDetails.isActionDisabled = true;
+    this.disableActions = true;
 
     this.propertyService.updatePropertyLocation(propertyId, {}).subscribe({
       next: (location) => {
-        const updatedData: UIEditState<Location | undefined> = {
-          data:
-            location.latitude && location.longitude
-              ? { latitude: location.latitude, longitude: location.longitude }
-              : undefined,
-          mode: EditMode.from('view'),
-        };
+        const propertyLocation =
+          location.latitude && location.longitude
+            ? { latitude: location.latitude, longitude: location.longitude }
+            : undefined;
+        this.originalState = propertyLocation;
+        this.currentState = propertyLocation;
+        this.mode.state = 'view';
+        this.disableActions = false;
 
-        //Update received property
-        this.locationDetails = updatedData;
-        this.updateLocationMarker(this.locationDetails.data);
+        this.updateLocationMarker(this.currentState);
       },
       error: (err) => {
-        this.locationDetails.isActionDisabled = false;
-
         if (err instanceof ApiError) {
           console.log('API Error', err.Errors);
         } else {
           console.error(err);
         }
+
+        this.disableActions = false;
       },
     });
   }

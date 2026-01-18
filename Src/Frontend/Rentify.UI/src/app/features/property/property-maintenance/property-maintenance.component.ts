@@ -2,22 +2,32 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PropertyService } from '../../../core/services/abstractions/property.service';
 
-import { PropertyDetailsComponent } from '../shared/property-details/property-details.component';
-import { PropertyMediaComponent } from '../shared/property-media/property-media.component';
-import { PropertyUnitsComponent } from '../shared/property-units/property-units.component';
-import { PropertyLocationComponent } from '../shared/property-location/property-location.component';
+import { PropertyDetailsComponent } from './property-details/property-details.component';
+import { PropertyMediaComponent } from './property-media/property-media.component';
+import { PropertyUnitsComponent } from './property-units/property-units.component';
+import { PropertyLocationComponent } from './property-location/property-location.component';
 import { PROPERTY_SERVICE_TOKEN } from '../../../core/services/tokens/property.token';
 import { Property } from '../../../core/models/property/property.model';
 import { ApiError } from '../../../core/exceptions/api-error';
+import { ArrowLeft, LucideAngularModule } from 'lucide-angular';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
-  selector: 'app-property',
+  selector: 'app-property-maintenance',
   standalone: true,
-  imports: [PropertyDetailsComponent, PropertyMediaComponent, PropertyUnitsComponent, PropertyLocationComponent],
+  imports: [
+    PropertyDetailsComponent,
+    PropertyMediaComponent,
+    PropertyUnitsComponent,
+    PropertyLocationComponent,
+    LucideAngularModule,
+    ButtonComponent,
+  ],
   templateUrl: './property-maintenance.component.html',
   styleUrl: './property-maintenance.component.css',
 })
 export class PropertyMaintenanceComponent implements OnInit {
+  readonly ICONS = { ArrowLeft };
   readonly PROPERTY_ID_PARAM = 'id';
 
   propertyDetailsAgg?: Property;

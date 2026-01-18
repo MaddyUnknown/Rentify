@@ -1,4 +1,4 @@
-import { catchError, Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { PropertyService } from '../../abstractions/property.service';
 import { Property } from '../../../models/property/property.model';
 import { UpdatePropertyDetails } from '../../../models/property/update-property-details.model';

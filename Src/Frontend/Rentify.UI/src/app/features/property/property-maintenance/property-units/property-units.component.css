@@ -39,8 +39,8 @@ app-panel {
 }
 
 .app-property-units__table_item_status--vacant {
-  background: #e6f8ec;
-  color: #2e7d32;
+  background: var(--background-color--vacant-badge);
+  color: var(--text-color--vacant-badge);
   gap: 0.2rem;
 }
 
@@ -51,12 +51,12 @@ app-panel {
   height: 0.4rem;
   border-radius: 50%;
   margin-right: 0.4rem;
-  background-color: #2e7d32;
+  background-color: var(--text-color--vacant-badge);
 }
 
 .app-property-units__table_item_status--occupied {
-  background: #ffe8e8;
-  color: #c62828;
+  background: var(--background-color--occupied-badge);
+  color: var(--text-color--occupied-badge);
 }
 
 .app-property-units__table_item_action {

@@ -1,0 +1,18 @@
+<div class="app-property-create">
+  <div class="app-property-create__header">
+    <h1>Create New Property</h1>
+    <button
+      appButton
+      type="normal"
+      color="primary"
+      [input]="{ icon: ICONS.Save, label: 'Create Property' }"
+      [disabled]="isSubmitting"
+      (click)="onSubmit()"
+    ></button>
+  </div>
+
+  <section class="app-property__details" appPropertyDetails></section>
+  <section class="app-property__media" appPropertyMedia></section>
+  <section class="app-property__units" appPropertyUnits></section>
+  <section class="app-property__location" appPropertyLocation></section>
+</div>
