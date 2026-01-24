@@ -1,36 +1,83 @@
-<header>
-  <h2>My Property</h2>
-  <button>Add New Property</button>
+<header class="app-property-search__header">
+  <h2>Properties</h2>
+  <button
+    appButton
+    type="normal"
+    color="primary"
+    class="app-property-search__header__back-btn"
+    [input]="{ icon: ICONS.Plus, label: 'Add Property' }"
+    [disabled]="loading || disableActions"
+  ></button>
 </header>
-
-<section class="app-properties__container">
-  @for (property of properties; track property.propertyId) {
-    <article class="app-properties__card">
-      <header>
-        <div
-          class="app-properties__card__img"
-          [style.backgroundImage]="'url(' + 'https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg' + ')'"
-        ></div>
-      </header>
-      <main>
-        <h3 class="app-properties__card__title">{{ property.name }}</h3>
-        <p class="app-properties__card__address">{{ property.address }}</p>
-        <p class="app-properties__card__desc">{{ property.description }}</p>
-      </main>
-      <footer>
-        <div>
-          @if (property.numberOfUnits !== 0) {
-            <span class="app-properties__card__units">{{ property.numberOfUnits }} units</span>
-          }
-          @if (property.numberOfUtility !== 0) {
-            <span class="app-properties__card__utility">{{ property.numberOfUtility }} units</span>
-          }
+<div class="app-properties__container">
+  <section class="app-properties__cards">
+    @if (loading) {
+      @for (property of [1, 2]; track property) {
+        <article class="app-properties__card app-properties_loader">
+          <header>
+            <app-skeleton-loader type="img" class="app-properties__card__img"></app-skeleton-loader>
+          </header>
+          <main>
+            <app-skeleton-loader type="box" class="app-properties__card__title"></app-skeleton-loader>
+            <app-skeleton-loader type="box" class="app-properties__card__address"></app-skeleton-loader>
+            <div class="app-propeties__card__stats">
+              <app-skeleton-loader type="box" class="app-properties__card__units"></app-skeleton-loader>
+              <app-skeleton-loader type="box" class="app-properties__card__units--vacant"></app-skeleton-loader>
+            </div>
+          </main>
+          <footer>
+            <app-skeleton-loader type="box" class="app-properties__card__manage-btn"></app-skeleton-loader>
+          </footer>
+        </article>
+      }
+    } @else {
+      @for (property of properties?.items ?? []; track property.id) {
+        <article class="app-properties__card">
+          <header>
+            <div class="app-properties__card__img">
+              <img [src]="generatePropertyCoverUrl(property, 'cover')" [alt]="property.name" />
+            </div>
+          </header>
+          <main>
+            <h3 [title]="property.name" class="app-properties__card__title">{{ property.name }}</h3>
+            <p [title]="property.address" class="app-properties__card__address">{{ property.address }}</p>
+            <div class="app-propeties__card__stats">
+              @if (property.numberOfUnits !== 0) {
+                <span class="app-properties__card__units">Units {{ property.numberOfUnits }}</span>
+              }
+              @if (property.numberOfVacantUnits !== 0) {
+                <span class="app-properties__card__units--vacant">Vacant {{ property.numberOfVacantUnits }}</span>
+              }
+            </div>
+          </main>
+          <footer>
+            <button
+              appButton
+              type="normal"
+              color="primary"
+              class="app-properties__card__manage-btn"
+              [disabled]="disableActions"
+              [input]="{ icon: ICONS.SquarePen, label: 'Manage' }"
+              [routerLink]="propertyRoute(property.id)"
+            ></button>
+          </footer>
+        </article>
+      } @empty {
+        <div class="app-properties__non_found">
+          <lucide-icon [strokeWidth]="1.5" [img]="ICONS.SearchX"></lucide-icon>
+          <div>No Property found</div>
         </div>
-      </footer>
-    </article>
-  } @empty {
-    <div>No property found</div>
+      }
+    }
+  </section>
+  @if (properties !== undefined && properties.totalItems > 0) {
+    <section class="app-properties__pagination">
+      <app-pagination
+        [totalItems]="totalItems"
+        [pageSize]="ITEMS_PER_PAGE"
+        [currentPage]="currentPage"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </section>
   }
-</section>
-
-<!-- <app-property></app-property> -->
+</div>

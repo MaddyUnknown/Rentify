@@ -16,6 +16,8 @@ import { Inject, Injectable } from '@angular/core';
 import { ResponseWrapper } from '../../../models/response/response-wrapper.model';
 import { processResponse } from '../../../utils/process-response.util';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
+import { PaginatedList } from '../../../models/response/paginated-list.model';
+import { PropertySummary } from '../../../models/property/property-summary.model';
 
 @Injectable()
 export class PropertyApiService implements PropertyService {
@@ -23,6 +25,14 @@ export class PropertyApiService implements PropertyService {
     private httpClient: HttpClient,
     @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private environmentConfigService: EnvironmentConfigJsonService,
   ) {}
+
+  getPaginatedProperties(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<PropertySummary>> {
+    return this.httpClient
+      .get<
+        ResponseWrapper<PaginatedList<PropertySummary>>
+      >(this.environmentConfigService.apiBaseURL + `properties?page=${page}&pageSize=${pageSize}&asOfDate=${asOfDate.toISOString()}`)
+      .pipe(processResponse());
+  }
 
   getPropertyAggregateById(propertyId: number): Observable<Property> {
     return this.httpClient
@@ -68,6 +78,14 @@ export class PropertyApiService implements PropertyService {
       .delete<
         ResponseWrapper<MediaFile>
       >(this.environmentConfigService.apiBaseURL + `properties/${propertyId}/media/${mediaId}`)
+      .pipe(processResponse());
+  }
+
+  markMediaFileAsCover(propertyId: number, mediaId: number): Observable<MediaFile> {
+    return this.httpClient
+      .put<
+        ResponseWrapper<MediaFile>
+      >(this.environmentConfigService.apiBaseURL + `properties/${propertyId}/cover-media`, { mediaFileId: mediaId })
       .pipe(processResponse());
   }
 

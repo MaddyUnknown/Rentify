@@ -5,50 +5,51 @@ import { TenantsComponent } from './features/tenants/tenants.component';
 import { UnitsComponent } from './features/units/units.component';
 import { PropertyMaintenanceComponent } from './features/property/property-maintenance/property-maintenance.component';
 import { PropertySearchComponent } from './features/property/property-search/property-search.component';
+import { RoutesConstants } from './core/constants/routes.constants';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'properties',
+    redirectTo: RoutesConstants.Properties,
     pathMatch: 'full',
   },
   {
-    path: 'properties',
+    path: RoutesConstants.Properties,
     component: PropertySearchComponent,
     data: {
       navName: 'properties',
     },
   },
   {
-    path: 'property/:id',
+    path: `${RoutesConstants.Property}/:id`,
     component: PropertyMaintenanceComponent,
     data: {
       navName: 'properties',
     },
   },
   {
-    path: 'units',
+    path: RoutesConstants.Units,
     component: UnitsComponent,
     data: {
       navName: 'units',
     },
   },
   {
-    path: 'contracts',
+    path: RoutesConstants.Contracts,
     component: ContractsComponent,
     data: {
       navName: 'contracts',
     },
   },
   {
-    path: 'billing',
+    path: RoutesConstants.Billing,
     component: BillingComponent,
     data: {
       navName: 'billing',
     },
   },
   {
-    path: 'tenants',
+    path: RoutesConstants.Tenants,
     component: TenantsComponent,
     data: {
       navName: 'tenants',

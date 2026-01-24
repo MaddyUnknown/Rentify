@@ -9,8 +9,12 @@ import { Unit } from '../../models/unit/unit.model';
 import { CreateUnit } from '../../models/unit/create-unit.model';
 import { UpdateUnit } from '../../models/unit/update-unit.model';
 import { MediaFileVariantType } from '../../models/media-file/media-file-variant-type.model';
+import { PaginatedList } from '../../models/response/paginated-list.model';
+import { PropertySummary } from '../../models/property/property-summary.model';
 
 export interface PropertyService {
+  getPaginatedProperties(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<PropertySummary>>;
+
   getPropertyAggregateById(propertyId: number): Observable<Property>;
   updateProperty(propertyId: number, updatePropertyDetails: UpdatePropertyDetails): Observable<PropertyDetails>;
   deleteProperty(propertyId: number): Observable<PropertyDetails>;
@@ -18,6 +22,7 @@ export interface PropertyService {
 
   uploadMediaFile(propertyId: number, file: File): Observable<MediaFile>;
   deleteMediaFile(propertyId: number, mediaId: number): Observable<MediaFile>;
+  markMediaFileAsCover(propertyId: number, mediaId: number): Observable<MediaFile>;
 
   createUnit(propertyId: number, unit: CreateUnit): Observable<Unit>;
   updateUnit(propertyId: number, unitId: number, unit: UpdateUnit): Observable<Unit>;

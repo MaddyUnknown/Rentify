@@ -8,6 +8,7 @@ namespace Rentify.Application.Enums
 {
     public enum MediaFileVariantDTOEnum
     {
-        Thumbnail = 1
+        Thumbnail = 1,
+        Cover = 2
     }
 }

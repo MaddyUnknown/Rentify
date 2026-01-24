@@ -105,6 +105,9 @@ namespace Rentify.DataAccess.SqlServer.Migrations
                     b.Property<int>("EntityType")
                         .HasColumnType("int");
 
+                    b.Property<bool>("MarkedAsCover")
+                        .HasColumnType("bit");
+
                     b.Property<int>("MediaFileId")
                         .HasColumnType("int");
 

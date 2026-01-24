@@ -25,6 +25,7 @@ namespace Rentify.Event.Application.Extensions
             // Add Event handlers
             serviceCollection.AddTransient<IMessageHandler<MediaFileCreateEvent>, MediaFileCreateHandler>();
             serviceCollection.AddTransient<IMessageHandler<MediaFileDeleteEvent>, MediaFileDeleteHandler>();
+            serviceCollection.AddTransient<IMessageHandler<SetNewCoverImageEvent>, SetNewCoverImageHandler>();
         }
     }
 }

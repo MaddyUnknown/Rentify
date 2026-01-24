@@ -42,7 +42,7 @@
   top: 0rem;
   height: 4rem;
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: 0.4rem;
   z-index: -1;
 
   background: var(--primary-color);
@@ -60,7 +60,7 @@
 
 .app-header__nav__list li {
   cursor: pointer;
-  border-radius: 0.5rem;
+  border-radius: 0.4rem;
 }
 
 .app-header__nav__list li a,

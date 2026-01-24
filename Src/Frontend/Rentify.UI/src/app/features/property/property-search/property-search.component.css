@@ -1,16 +1,83 @@
-.app-properties__container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 1.6rem;
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 
-  padding: 1.6rem;
+  padding-bottom: 1.8rem;
+}
+
+/* Header section styling */
+.app-property-search__header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  margin-bottom: 1.7rem;
+  padding: 2.8rem 2rem 1.8rem 2rem;
+  border-bottom: 0.1rem solid var(--border-color);
+
+  background-color: var(--background-color);
+}
+
+.app-property-search__header h2 {
+  flex-grow: 1;
+  padding-bottom: 0.2rem;
+  font-weight: 600;
+}
+
+/* Property container */
+.app-properties__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 0 1.6rem;
+  flex-grow: 1;
+}
+
+/* Property card loading */
+app-skeleton-loader.app-properties__card__title {
+  height: 2.4rem;
+  width: 70%;
+  margin-bottom: 0.4rem;
+}
+
+app-skeleton-loader.app-properties__card__address {
+  height: 1.2rem;
+  width: 40%;
+  /* margin: 5rem 0; */
+}
+
+.app-properties_loader .app-propeties__card__stats {
+  display: flex;
+}
+
+app-skeleton-loader.app-properties__card__units,
+app-skeleton-loader.app-properties__card__units--vacant {
+  width: 8ch;
+  height: 2rem;
+  padding: 0;
+  border: none;
+}
+
+app-skeleton-loader.app-properties__card__manage-btn {
+  height: 3.2rem;
+  width: 10ch;
+}
+
+/* Property cards list */
+.app-properties__cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
 }
 
 .app-properties__card {
   display: flex;
   flex-direction: column;
 
-  border-radius: 0.5rem;
+  border-radius: 0.8rem;
+  border: 0.1rem solid var(--border-color);
   overflow: hidden;
 
   background-color: var(--background-color);
@@ -18,36 +85,94 @@
 
 .app-properties__card__img {
   width: 100%;
-  height: 20rem;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  height: 16rem;
+}
+
+.app-properties__card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-properties__card > header {
+  margin-bottom: 0.4rem;
 }
 
 .app-properties__card > main {
-  margin-bottom: 1.2rem;
-  padding: 0 1.2rem;
+  margin-bottom: 1.8rem;
+  padding: 0 0.8rem;
 }
 
 .app-properties__card__title {
   font-size: 1.8rem;
-  font-weight: 600;
   line-height: 1.6;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-properties__card__address {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.6rem;
 
-  font-size: 1.6rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+
+  color: var(--text-color--muted);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.app-properties__card > footer {
-  margin-bottom: 1.2rem;
+.app-properties__card__units,
+.app-properties__card__units--vacant {
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
 
-  padding: 0 1.2rem;
+  border-radius: 0.4rem;
+  border: 0.1rem solid var(--border-color);
+
+  white-space: nowrap;
+
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .app-properties__card__units {
-  display: inline-block;
-  padding-right: 1.2rem;
+  margin-right: 0.8rem;
+}
+
+.app-properties__card > footer {
+  display: flex;
+  justify-content: end;
+
+  padding: 0 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.app-properties__pagination {
+  align-self: center;
+}
+
+.app-properties__non_found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  margin-top: 0.8rem;
+
+  grid-column: 1 / -1;
+
+  width: 100%;
+
+  color: var(--text-color--muted);
+}
+
+.app-properties__non_found > div {
+  font-weight: 600;
 }

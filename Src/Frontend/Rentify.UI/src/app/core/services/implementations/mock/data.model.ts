@@ -27,6 +27,7 @@ export type MockFiles = {
   name: string;
   contentType: string;
   processingStatus: MediaFileStatus;
+  markedAsCover?: boolean;
   thumbnailType?: string;
   thumbnailProcessingStatus?: MediaFileVariantStatus;
   propertyId: number;

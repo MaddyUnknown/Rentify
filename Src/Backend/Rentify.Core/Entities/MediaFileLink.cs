@@ -17,6 +17,8 @@ namespace Rentify.Core.Entities
         [Required]
         public MediaFileEntityEnum EntityType { get; set; }
 
+        public bool MarkedAsCover { get; set; }
+
         // Foreign keys
         [Required]
         public int MediaFileId { get; set; }

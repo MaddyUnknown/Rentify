@@ -25,7 +25,18 @@ namespace Rentify.Storage.LocalStorage
             ct.ThrowIfCancellationRequested();
 
             var filePath = ResolvePath(key);
-            if (File.Exists(filePath)) File.Delete(filePath);
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    File.Delete(filePath);
+                }
+                catch(Exception ex)
+                {
+                    if (ex is FileNotFoundException || ex is DirectoryNotFoundException) { /* Suppress silently as the file doesn't exists */ }
+                    throw;
+                }
+            }
 
             return Task.CompletedTask;
         }

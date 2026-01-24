@@ -10,6 +10,7 @@ namespace Rentify.DataAccess.Core.Repositories
 {
     public interface IMediaFileRepository
     {
+        Task<MediaFileLink?> GetCoverMediaFileLinkByEntityAsync(MediaFileEntityEnum entityType, int entityId);
         Task<IEnumerable<MediaFile>> GetMediaFilesByEntityAsync(MediaFileEntityEnum entityType, int entityId, bool filterDeletedRecords = false);
         Task<MediaFile?> GetMediaFileByIdAsync(int id);
         Task<IEnumerable<MediaFile>> GetMediaFileByIdsAsync(IEnumerable<int> ids);

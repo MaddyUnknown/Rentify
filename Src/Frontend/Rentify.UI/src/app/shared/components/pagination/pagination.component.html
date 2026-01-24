@@ -1,0 +1,34 @@
+<div class="app-pagination-btns">
+  <button
+    appButton
+    type="inline"
+    class="app-pagination-btn"
+    [disabled]="currentPage === 1"
+    [input]="{ icon: ICONS.ChevronLeft }"
+    (click)="onPageClick(currentPage - 1)"
+  ></button>
+
+  @for (page of pages; track page) {
+    <button
+      appButton
+      class="app-pagination-btn"
+      [disabled]="currentPage === page"
+      [input]="{
+        label:
+          ($index === 0 && page !== 1) || ($index === MAX_VISIBLE_PAGES - 1 && page !== totalPages)
+            ? '...'
+            : page.toString(),
+      }"
+      (click)="onPageClick(page)"
+    ></button>
+  }
+
+  <button
+    appButton
+    type="inline"
+    class="app-pagination-btn"
+    [disabled]="currentPage === totalPages"
+    [input]="{ icon: ICONS.ChevronRight }"
+    (click)="onPageClick(currentPage + 1)"
+  ></button>
+</div>

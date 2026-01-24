@@ -1,8 +1,10 @@
+import { MediaFile } from '../media-file/media-file.model';
+
 export interface PropertySummary {
-  propertyId: number;
+  id: number;
   name: string;
-  description?: string;
   address: string;
   numberOfUnits: number;
-  numberOfUtility: number;
+  numberOfVacantUnits: number;
+  coverImage?: MediaFile;
 }

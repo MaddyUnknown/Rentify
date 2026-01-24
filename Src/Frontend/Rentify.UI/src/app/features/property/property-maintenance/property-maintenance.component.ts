@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PropertyService } from '../../../core/services/abstractions/property.service';
 
 import { PropertyDetailsComponent } from './property-details/property-details.component';
@@ -11,6 +11,8 @@ import { Property } from '../../../core/models/property/property.model';
 import { ApiError } from '../../../core/exceptions/api-error';
 import { ArrowLeft, LucideAngularModule } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { RouteService } from '../../../core/services/abstractions/route.service';
+import { ROUTE_SERVICE_TOKEN } from '../../../core/services/tokens/route.token';
 
 @Component({
   selector: 'app-property-maintenance',
@@ -22,6 +24,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
     PropertyLocationComponent,
     LucideAngularModule,
     ButtonComponent,
+    RouterLink,
   ],
   templateUrl: './property-maintenance.component.html',
   styleUrl: './property-maintenance.component.css',
@@ -35,6 +38,7 @@ export class PropertyMaintenanceComponent implements OnInit {
 
   constructor(
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
+    @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
     private route: ActivatedRoute,
   ) {}
 
@@ -46,6 +50,10 @@ export class PropertyMaintenanceComponent implements OnInit {
     if (Number.isNaN(propertyId) || !Number.isInteger(propertyId)) return 0;
 
     return propertyId;
+  }
+
+  propertiesRoute() {
+    return this.routeService.propeties();
   }
 
   ngOnInit(): void {

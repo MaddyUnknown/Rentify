@@ -74,6 +74,7 @@ export const data: { apiLatency: number; properties: MockProperty[]; units: Mock
       processingStatus: 'processed',
       thumbnailType: 'image/png',
       thumbnailProcessingStatus: 'processed',
+      markedAsCover: true,
       propertyId: 1,
     },
     {

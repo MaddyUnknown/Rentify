@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { exhaustMap, finalize, interval, Observable, Subject, Subscription } from 'rxjs';
 import { MediaService } from '../../core/services/abstractions/media.service';
-import { MEDIA_SERVICE_TOKEN } from '../../core/services/tokens/media';
+import { MEDIA_SERVICE_TOKEN } from '../../core/services/tokens/media.token';
 import { MediaFile } from '../../core/models/media-file/media-file.model';
 import { ApiError } from '../../core/exceptions/api-error';
 

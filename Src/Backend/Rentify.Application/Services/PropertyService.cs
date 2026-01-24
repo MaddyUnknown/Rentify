@@ -1,5 +1,7 @@
 using Rentify.Application.Constants;
+using Rentify.Application.DTOs;
 using Rentify.Application.DTOs.Location;
+using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Property;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Application.Mappers;
@@ -18,6 +20,7 @@ public class PropertyService : IPropertyService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<Property> _propertyCRUDRepo;
     private readonly IMediaFileRepository _mediaFileRepo;
+    private readonly IPropertyRepository _propertyRepo;
     private readonly IUnitRepository _unitRepo;
 
     public PropertyService(
@@ -26,13 +29,32 @@ public class PropertyService : IPropertyService
         IRepository<MediaFileLink> mediaFileLinkCRUDRepo, 
         IRepository<MediaFile> mediaFileCRUDRepo, 
         IUnitRepository unitRepo, 
+        IPropertyRepository propertyRepository,
         IMediaFileRepository mediaFileRepo,
         IFileStorageService fileStorageSerice)
     {
         _unitOfWork = unitOfWork;
         _propertyCRUDRepo = propertyCRUDRepo;
         _mediaFileRepo = mediaFileRepo;
+        _propertyRepo = propertyRepository;
         _unitRepo = unitRepo;
+    }
+
+    public async Task<PaginatedList<PropertySummaryDto>> GetAllPropertyAsync(PropertySearchDto propertySearchDto)
+    {
+        var skipItems = (propertySearchDto.CurrentPage - 1) * propertySearchDto.TotalItemPerPage;
+        var totalItemCount = await _propertyRepo.CountAsync(propertySearchDto.AsOfDate);
+        var totalPage = Math.Ceiling(totalItemCount*1.0/propertySearchDto.TotalItemPerPage);
+
+        if(propertySearchDto.CurrentPage > totalPage) throw new AppValidationException(string.Format(PropertyConstants.PropertiesOutOfPageError, totalPage, propertySearchDto.CurrentPage));
+
+        var properties = await _propertyRepo.GetAllPropertySummaryAsync(skipItems, propertySearchDto.TotalItemPerPage, propertySearchDto.AsOfDate);
+
+        return new PaginatedList<PropertySummaryDto>(
+            propertySearchDto.CurrentPage, 
+            totalItemCount, 
+            properties.Select(p => PropertyMapper.MapToPropertySummaryDto(p))
+        );
     }
 
     public async Task<PropertyDto> GetPropertyByIdAsync(int id)

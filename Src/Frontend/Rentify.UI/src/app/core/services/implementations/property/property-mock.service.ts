@@ -15,9 +15,23 @@ import { MediaFileStatus } from '../../../models/media-file/media-file-status.mo
 import { MockFiles } from '../mock/data.model';
 import { Injectable } from '@angular/core';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
+import { PaginatedList } from '../../../models/response/paginated-list.model';
+import { PropertySummary } from '../../../models/property/property-summary.model';
 
 @Injectable()
 export class PropertyMockService implements PropertyService {
+  getPaginatedProperties(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<PropertySummary>> {
+    return new Observable<PaginatedList<PropertySummary>>((observer) => {
+      setTimeout(() => {
+        const properties = data.properties
+          .slice((page - 1) * pageSize, page * pageSize)
+          .map((p) => ({ id: p.id, name: p.name, address: p.streetName, numberOfUnits: 4, numberOfVacantUnits: 1 }));
+        observer.next({ totalItems: data.properties.length, items: properties, currentPage: page });
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
   getPropertyAggregateById(propertyId: number): Observable<Property> {
     return new Observable<Property>((observer) => {
       setTimeout(() => {
@@ -29,19 +43,22 @@ export class PropertyMockService implements PropertyService {
 
         const fileList = data.files
           .filter((img) => img.propertyId === propertyId)
-          .map(({ id, name, contentType, processingStatus, thumbnailType, thumbnailProcessingStatus }) => ({
-            id,
-            name,
-            contentType,
-            processingStatus,
-            thumbnail:
-              thumbnailType && thumbnailProcessingStatus
-                ? {
-                    contentType: thumbnailType,
-                    processingStatus: thumbnailProcessingStatus,
-                  }
-                : undefined,
-          }));
+          .map(
+            ({ id, name, contentType, processingStatus, thumbnailType, thumbnailProcessingStatus, markedAsCover }) => ({
+              id,
+              name,
+              contentType,
+              processingStatus,
+              markedAsCover: markedAsCover ?? false,
+              thumbnail:
+                thumbnailType && thumbnailProcessingStatus
+                  ? {
+                      contentType: thumbnailType,
+                      processingStatus: thumbnailProcessingStatus,
+                    }
+                  : undefined,
+            }),
+          );
 
         if (!property) {
           observer.error('Property not found');
@@ -181,6 +198,7 @@ export class PropertyMockService implements PropertyService {
           name: image.name,
           contentType: image.contentType,
           processingStatus: image.processingStatus,
+          markedAsCover: false,
           thumbnail:
             image.thumbnailType && image.thumbnailProcessingStatus
               ? {
@@ -209,11 +227,45 @@ export class PropertyMockService implements PropertyService {
           name: deletedFile.name,
           contentType: deletedFile.contentType,
           processingStatus: deletedFile.processingStatus,
+          markedAsCover: false,
           thumbnail:
             deletedFile.thumbnailType && deletedFile.thumbnailProcessingStatus
               ? {
                   contentType: deletedFile.thumbnailType,
                   processingStatus: deletedFile.thumbnailProcessingStatus,
+                }
+              : undefined,
+        });
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
+  markMediaFileAsCover(propertyId: number, mediaId: number): Observable<MediaFile> {
+    return new Observable((observer) => {
+      setTimeout(() => {
+        const id = data.files.findIndex((u) => u.id === mediaId);
+
+        if (id === -1 || data.files[id].propertyId !== propertyId) observer.error('File not found');
+
+        for (let file of data.files) {
+          if (file.propertyId == propertyId) file.markedAsCover = false;
+        }
+
+        const mediaFile = data.files[id];
+        mediaFile.markedAsCover = true;
+
+        observer.next({
+          id: mediaFile.id,
+          name: mediaFile.name,
+          contentType: mediaFile.contentType,
+          processingStatus: mediaFile.processingStatus,
+          markedAsCover: mediaFile.markedAsCover,
+          thumbnail:
+            mediaFile.thumbnailType && mediaFile.thumbnailProcessingStatus
+              ? {
+                  contentType: mediaFile.thumbnailType,
+                  processingStatus: mediaFile.thumbnailProcessingStatus,
                 }
               : undefined,
         });

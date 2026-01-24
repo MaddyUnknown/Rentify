@@ -1,6 +1,8 @@
-﻿using Rentify.Application.DTOs.Location;
+﻿using Rentify.Application.DTOs;
+using Rentify.Application.DTOs.Location;
 using Rentify.Application.DTOs.Property;
 using Rentify.Core.Entities;
+using Rentify.DataAccess.Core.QueryResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +59,19 @@ namespace Rentify.Application.Mappers
                 State = property.PropertyAddress?.State ?? string.Empty,
                 ZipCode = property.PropertyAddress?.ZipCode ?? string.Empty,
                 Description = property.Description ?? string.Empty,
+            };
+        }
+
+        public static PropertySummaryDto MapToPropertySummaryDto(PropertySummaryQueryResult property)
+        {
+            return new PropertySummaryDto
+            {
+                Id = property.Id,
+                Name = property.Name,
+                Address = $"{property.Address.StreetName}, {property.Address.City}, {property.Address.State}, {property.Address.ZipCode}",
+                NumberOfUnits = property.NumberOfUnits,
+                NumberOfVacantUnits = 1,
+                CoverImage = property.CoverImage == null ? null : MediaFileMapper.MapToMediaFileDto(property.CoverImage),
             };
         }
 

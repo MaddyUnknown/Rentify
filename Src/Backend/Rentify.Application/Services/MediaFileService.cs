@@ -104,6 +104,7 @@ namespace Rentify.Application.Services
                 var type = mediaFileSearchDto.VariantType switch
                 {
                     MediaFileVariantDTOEnum.Thumbnail => MediaFileVariantEnum.Thumbnail,
+                    MediaFileVariantDTOEnum.Cover => MediaFileVariantEnum.Cover,
                     _ => MediaFileVariantEnum.None
                 };
 
@@ -113,6 +114,27 @@ namespace Rentify.Application.Services
                 var fileStream = await _fileStorageService.ReadAsync(mediaFileVariant.FileKey, ct);
                 return MediaFileMapper.MapToMediaFileStreamDto(mediaFile, mediaFileVariant, fileStream);
             }
+        }
+
+        public async Task<MediaFileDto> UpdateCoverImageAsync(UpdateCoverImageDto updateCoverDto)
+        {
+            var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(updateCoverDto.MediaFileId);
+            if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, updateCoverDto.MediaFileId));
+            if (mediaFile.MediaFileLink?.EntityType != updateCoverDto.EntityType || mediaFile.MediaFileLink?.EntityId != updateCoverDto.EntityId) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, updateCoverDto.MediaFileId));
+
+            // Transactional outbox pattern
+            var eventData = new SetNewCoverImageEvent { MediaFileId = mediaFile.Id, MediaFileLinkId = mediaFile.MediaFileLink.Id };
+            var eventOutbox = new EventOutbox
+            {
+                EventObjectType = EventTypeHelper.GetEventObjectType<SetNewCoverImageEvent>(),
+                EventData = JsonSerializerHelper.Serialize(eventData)
+            };
+
+            _eventOutboxCRUDRepo.Add(eventOutbox);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return MediaFileMapper.MapToMediaFileDto(mediaFile);
         }
 
         public async Task<MediaFileDto> UploadMediaFileAsync(UploadMediaFileDto uploadMediaDto, CancellationToken ct)

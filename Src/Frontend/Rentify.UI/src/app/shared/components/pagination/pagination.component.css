@@ -1,0 +1,12 @@
+.app-pagination-btns {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.app-pagination-btn {
+  padding: 0.4rem;
+  background-color: var(--background-color);
+  border-radius: 0.4rem;
+  border: 0.1rem solid var(--border-color);
+  width: 3ch;
+}
