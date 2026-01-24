@@ -11,7 +11,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
-import { Images, Plus, Trash2 } from 'lucide-angular';
+import { Images, Plus, SquareStar, Star, Trash2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { SpinnerLoaderComponent } from '../../../../shared/components/spinner-loader/spinner-loader.component';
@@ -47,7 +47,7 @@ type MediaFileRow = {
   imports: [ButtonComponent, PanelComponent, SkeletonLoaderComponent, SpinnerLoaderComponent, AsyncPipe],
 })
 export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
-  readonly ICONS = { Images, Plus, Trash2 };
+  readonly ICONS = { Images, Plus, Star, SquareStar, Trash2 };
   private tempRowID: number = -1;
 
   private images: ObservableMap<number, MediaFileRow>;
@@ -188,7 +188,12 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
       if (!file) continue;
 
       const newFileId = this.tempRowID--;
-      const newMediaFile: MediaFile = { id: newFileId, name: file.name, processingStatus: 'uploading' };
+      const newMediaFile: MediaFile = {
+        id: newFileId,
+        name: file.name,
+        processingStatus: 'uploading',
+        markedAsCover: false,
+      };
       const newMediaFileRow: NewMediaFileRow = this.createNewImageRow(newMediaFile);
       this.newImages.set(newFileId, newMediaFileRow);
 
@@ -208,6 +213,37 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
         },
       });
     }
+  }
+
+  onMarkAsCover(row: MediaFileRow) {
+    // Disable action
+    const existingRow = this.images.get(row.data.id);
+    if (existingRow) existingRow.disableActions = true;
+
+    this.propertyService.markMediaFileAsCover(this.propertyId, row.data.id).subscribe({
+      next: (image) => {
+        for (let [_, image] of this.images) {
+          image.data.markedAsCover = false;
+        }
+
+        const existingRow = this.images.get(row.data.id);
+        if (existingRow) {
+          existingRow.data.markedAsCover = true;
+          existingRow.disableActions = false;
+          console.log(existingRow);
+        }
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        const existingRow = this.images.get(row.data.id);
+        if (existingRow) existingRow.disableActions = false;
+      },
+    });
   }
 
   onRemoveClick(row: MediaFileRow) {

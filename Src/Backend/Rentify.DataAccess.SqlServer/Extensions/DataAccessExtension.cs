@@ -41,6 +41,7 @@ namespace Rentify.DataAccess.SqlServer.Extensions
             serviceCollection.AddTransient<IMediaFileRepository, MediaFileRepository>();
             serviceCollection.AddTransient<IMediaFileVariantRepository, MediaFileVariantRepository>();
             serviceCollection.AddTransient<IUnitRepository, UnitRepository>();
+            serviceCollection.AddTransient<IPropertyRepository, PropertyRepository>();
 
             // Add unit of work
             serviceCollection.AddTransient<IUnitOfWork, UOW.UnitOfWork>();

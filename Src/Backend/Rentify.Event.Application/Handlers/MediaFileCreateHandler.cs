@@ -24,6 +24,7 @@ namespace Rentify.Event.Application.Handlers
         private IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
         private IImageThumbnailGenerator _thumbnailGenerator;
         private IFileStorageService _fileStorage;
+        private (int width, int height) _thumbnailDimension;
 
         public MediaFileCreateHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
         {
@@ -32,6 +33,7 @@ namespace Rentify.Event.Application.Handlers
             _mediaFileVariantCRUDRepository = mediaFileVariantCRUDRepository;
             _thumbnailGenerator = imageThumbnailGenerator;
             _fileStorage = fileStorageService;
+            _thumbnailDimension = (200, 200);
         }
 
         public async Task HandleAsync(MediaFileCreateEvent message, IMessageProcessingContext context)
@@ -44,13 +46,13 @@ namespace Rentify.Event.Application.Handlers
 
             try
             {
-                var imageStream = await _fileStorage.ReadAsync(mediaFile.FileKey);
-
                 //Thumbnail generation
                 if (mediaFile.MediaFileVariants?.Any(m => m.VariantType == MediaFileVariantEnum.Thumbnail) == false)
                 {
+                    using var imageStream = await _fileStorage.ReadAsync(mediaFile.FileKey);
+
                     var thumbnailKey = StorageKeyHelper.GenerateFileKeyForMediaFileVariant(mediaFile.FileKey, MediaFileVariantEnum.Thumbnail);
-                    var thumbnailStream = _thumbnailGenerator.Generate(imageStream, 200, 200);
+                    using var thumbnailStream = _thumbnailGenerator.Generate(imageStream, _thumbnailDimension.width, _thumbnailDimension.height);
 
                     await _fileStorage.DeleteAsync(thumbnailKey); //Delete if any
                     await _fileStorage.WriteAsync(thumbnailKey, thumbnailStream);

@@ -1,1 +1,1 @@
-export type MediaFileVariantType = undefined | 'thumbnail';
+export type MediaFileVariantType = undefined | 'thumbnail' | 'cover';

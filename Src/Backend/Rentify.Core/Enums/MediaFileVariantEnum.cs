@@ -9,6 +9,7 @@ namespace Rentify.Core.Enums
     public enum MediaFileVariantEnum
     {
         None = 0,
-        Thumbnail = 1
+        Thumbnail = 1,
+        Cover = 2,
     }
 }

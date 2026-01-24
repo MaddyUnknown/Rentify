@@ -11,7 +11,7 @@
   align-items: center;
   padding: 1rem;
   background: var(--surface-color, #ffffff);
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
 using Rentify.API.DTOs;
+using Rentify.Application.DTOs;
 using Rentify.Application.DTOs.Location;
 using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Property;
@@ -31,6 +32,24 @@ public class PropertiesController : ApiControllerBase
     }
 
     #region Property Details Endpoint
+
+    /// <summary>
+    /// Get all properties
+    /// </summary>
+    [HttpGet("")]
+    public async Task<ActionResult<ResponseWrapper<PaginatedList<PropertySummaryDto>>>> GetAllProperty(int page, int pageSize, DateTime asOfDate)
+    {
+        try
+        {
+            var properties = await _propertyService.GetAllPropertyAsync(new PropertySearchDto { AsOfDate = asOfDate, CurrentPage = page, TotalItemPerPage = pageSize });
+            return Ok(ResponseWrapper<PaginatedList<PropertySummaryDto>>.SuccessResponse(properties));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving properties for page '{pageNo}', pageSize '{pageSize}', asOfDate '{asOfDate}'", page, pageSize, asOfDate);
+            return HandleException(ex);
+        }
+    }
 
     /// <summary>
     /// Get property by ID
@@ -167,6 +186,25 @@ public class PropertiesController : ApiControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting property media for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, mediaId);
+            return HandleException(ex);
+        }
+    }
+
+    /// <summary>
+    /// Delete media file
+    /// </summary>
+    [HttpPut("{propertyId}/cover-media")]
+    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdateCoverImageRequestDto request, CancellationToken ct)
+    {
+        try
+        {
+            var mediaFileDto = new UpdateCoverImageDto { MediaFileId = request.MediaFileId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
+            var updatedMediaFileDto = await _mediaFileService.UpdateCoverImageAsync(mediaFileDto);
+            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(updatedMediaFileDto));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating cover image for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, request.MediaFileId);
             return HandleException(ex);
         }
     }

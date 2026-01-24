@@ -4,13 +4,14 @@
   gap: 0.8rem;
 
   margin-bottom: 1.7rem;
-  padding: 2.8rem 2rem 1.8rem 1.8rem;
+  padding: 2.8rem 2rem 1.8rem 2rem;
   border-bottom: 0.1rem solid var(--border-color);
 
   background-color: var(--background-color);
 }
 
 .app-property-maintenance__header h2 {
+  flex-grow: 1;
   padding-bottom: 0.2rem;
   font-weight: 600;
 }

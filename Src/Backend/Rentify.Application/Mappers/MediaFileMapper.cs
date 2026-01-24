@@ -21,13 +21,23 @@ namespace Rentify.Application.Mappers
                     ProcessingStatus = v.Status
                 }).FirstOrDefault();
 
+            var coverDto = file.MediaFileVariants
+                .Where(f => f.VariantType == MediaFileVariantEnum.Cover)
+                .Select(v => new MediaFileVariantsDto
+                {
+                    ContentType = v.ContentType,
+                    ProcessingStatus = v.Status
+                }).FirstOrDefault();
+
             return new MediaFileDto
             {
                 Id = file.Id,
                 Name = file.Name,
                 ContentType = file.ContentType,
                 ProcessingStatus = file.Status,
-                Thumbnail = thumbnailDto
+                MarkedAsCover = file?.MediaFileLink?.MarkedAsCover,
+                Thumbnail = thumbnailDto,
+                Cover = coverDto
             };
         }
 

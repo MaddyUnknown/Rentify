@@ -8,6 +8,7 @@ namespace Rentify.Application.Constants
 {
     public static class PropertyConstants
     {
+        public static readonly string PropertiesOutOfPageError = "Total pages '{0}' but received request for page number '{1}'";
         public static readonly string PropertyNotFound = "Property not found for id '{0}'";
         public static readonly string PropertyDeleteFailForActiveUnits = "Cannot delete property with active units";
     }

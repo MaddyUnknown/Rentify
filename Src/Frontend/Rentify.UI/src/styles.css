@@ -24,11 +24,11 @@
   --background-color--overlay: rgba(0, 0, 0, 0.8);
   --background-color--overlay-shade-3: rgba(77, 77, 77, 0.8);
 
-  --background-color--vacant-badge: #e6f8ec;
-  --text-color--vacant-badge: #2e7d32;
+  --background-color--vacant-badge: #ffe8e8;
+  --text-color--vacant-badge: #c62828;
 
-  --background-color--occupied-badge: #ffe8e8;
-  --text-color--occupied-badge: #c62828;
+  --background-color--occupied-badge: #e6f8ec;
+  --text-color--occupied-badge: #2e7d32;
 
   --border-color: #e8ecf1;
 

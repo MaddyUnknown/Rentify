@@ -1,12 +1,14 @@
 <header class="app-property-maintenance__header">
+  <h2>Property Maintenance</h2>
   <button
     appButton
-    type="inline"
-    iconClass="app-page_header__icon"
+    type="normal"
+    color="primary"
     class="app-property-maintenance__header__back-btn"
-    [input]="{ icon: ICONS.ArrowLeft }"
+    [disabled]="propertyLoading"
+    [routerLink]="propertiesRoute()"
+    [input]="{ icon: ICONS.ArrowLeft, label: 'Back to Properties' }"
   ></button>
-  <h2>Property Maintenance</h2>
 </header>
 <div class="app-property-maintenance__main">
   <section
