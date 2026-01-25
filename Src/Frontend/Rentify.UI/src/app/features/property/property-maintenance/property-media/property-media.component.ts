@@ -11,7 +11,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
-import { Images, Plus, SquareStar, Star, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Images, Plus, SquareStar, Star, Trash2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { SpinnerLoaderComponent } from '../../../../shared/components/spinner-loader/spinner-loader.component';
@@ -44,7 +44,14 @@ type MediaFileRow = {
   templateUrl: './property-media.component.html',
   styleUrls: ['./property-media.component.css'],
   standalone: true,
-  imports: [ButtonComponent, PanelComponent, SkeletonLoaderComponent, SpinnerLoaderComponent, AsyncPipe],
+  imports: [
+    ButtonComponent,
+    PanelComponent,
+    SkeletonLoaderComponent,
+    SpinnerLoaderComponent,
+    AsyncPipe,
+    LucideAngularModule,
+  ],
 })
 export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
   readonly ICONS = { Images, Plus, Star, SquareStar, Trash2 };
