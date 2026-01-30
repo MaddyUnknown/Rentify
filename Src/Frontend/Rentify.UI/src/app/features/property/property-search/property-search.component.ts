@@ -11,7 +11,6 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
 import { RouterLink } from '@angular/router';
 import { ROUTE_SERVICE_TOKEN } from '../../../core/services/tokens/route.token';
 import { RouteService } from '../../../core/services/abstractions/route.service';
-import { MediaFile } from '../../../core/models/media-file/media-file.model';
 import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
 
 @Component({
@@ -53,11 +52,13 @@ export class PropertySearchComponent implements OnInit {
     return this.routeService.property(id);
   }
 
-  generatePropertyCoverUrl(property: PropertySummary, variant: MediaFileVariantType): string {
-    console.log(property);
+  propertyCreateRoute() {
+    return this.routeService.propertyCreate();
+  }
 
+  generatePropertyCoverUrl(property: PropertySummary, variant: MediaFileVariantType): string {
     return property.coverImage?.cover?.processingStatus === 'processed'
-      ? this.propertyService.generatePropertyMediaUrl(property.id, property.coverImage.id, variant)
+      ? this.propertyService.generatePropertyMediaUrl(property.coverImage.id, variant)
       : this.DEFAULT_COVER_IMAGE;
   }
 

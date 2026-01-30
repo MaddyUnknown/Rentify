@@ -36,12 +36,30 @@ public class PropertiesController : ApiControllerBase
     /// <summary>
     /// Get all properties
     /// </summary>
-    [HttpGet("")]
-    public async Task<ActionResult<ResponseWrapper<PaginatedList<PropertySummaryDto>>>> GetAllProperty(int page, int pageSize, DateTime asOfDate)
+    [HttpPost("")]
+    public async Task<ActionResult<ResponseWrapper<PropertyDto>>> CreateProperty(CreatePropertyDto createPropertyDto)
     {
         try
         {
-            var properties = await _propertyService.GetAllPropertyAsync(new PropertySearchDto { AsOfDate = asOfDate, CurrentPage = page, TotalItemPerPage = pageSize });
+            var property = await _propertyService.CreatePropertyAsync(createPropertyDto);
+            return Ok(ResponseWrapper<PropertyDto>.SuccessResponse(property));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating property");
+            return HandleException(ex);
+        }
+    }
+
+    /// <summary>
+    /// Get all properties
+    /// </summary>
+    [HttpGet("")]
+    public async Task<ActionResult<ResponseWrapper<PaginatedList<PropertySummaryDto>>>> GetAllProperty(int? page, int? pageSize, DateTime? asOfDate)
+    {
+        try
+        {
+            var properties = await _propertyService.GetAllPropertyAsync(new PropertySearchDto { AsOfDate = asOfDate?.ToLocalTime() ?? DateTime.Now, CurrentPage = page ?? 1, TotalItemPerPage = pageSize ?? 1000 });
             return Ok(ResponseWrapper<PaginatedList<PropertySummaryDto>>.SuccessResponse(properties));
         }
         catch (Exception ex)
@@ -130,22 +148,20 @@ public class PropertiesController : ApiControllerBase
     #region Property Media Endpoint
 
     /// <summary>
-    /// Upload media file
+    /// Delete media file
     /// </summary>
-    [HttpGet("{propertyId}/media/{mediaId}")]
-    public async Task<IActionResult> GetPropertyMediaStream(int propertyId, int mediaId, [FromQuery] MediaFileVariantDTOEnum? variantType, CancellationToken ct)
+    [HttpPut("{propertyId}/cover-media")]
+    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdateCoverImageRequestDto request, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new MediaFileStreamSearchDto { Id = mediaId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property, VariantType = variantType };
-            var result = await _mediaFileService.GetMediaFileStreamAsync(mediaFileDto, ct);
-
-            Response.Headers["X-Content-Type-Options"] = "nosniff";
-            return File(result.MediaStream,result.ContentType,result.FileName,enableRangeProcessing: true);
+            var mediaFileDto = new UpdateCoverImageDto { MediaFileId = request.MediaFileId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
+            var updatedMediaFileDto = await _mediaFileService.UpdateCoverImageAsync(mediaFileDto);
+            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(updatedMediaFileDto));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching property media stram for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, mediaId);
+            _logger.LogError(ex, "Error updating cover image for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, request.MediaFileId);
             return HandleException(ex);
         }
     }
@@ -163,8 +179,8 @@ public class PropertiesController : ApiControllerBase
             var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
-        } 
-        catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error uploading property media for propertyId '{propertyId}'", propertyId);
             return HandleException(ex);
@@ -172,20 +188,43 @@ public class PropertiesController : ApiControllerBase
     }
 
     /// <summary>
-    /// Delete media file
+    /// Upload media file
     /// </summary>
-    [HttpDelete("{propertyId}/media/{mediaId}")]
-    public async Task<ActionResult<MediaFileDto>> DeletePropertyMedia(int propertyId, int mediaId, CancellationToken ct)
+    [HttpPost("media")]
+    public async Task<ActionResult<MediaFileDto>> UploadPropertyMedia(IFormFile file, CancellationToken ct)
     {
+        await using Stream stream = file.OpenReadStream();
+
         try
         {
-            var mediaFileDto = new DeleteMediaFileDto { Id = mediaId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
-            var deletedMediaFileDto = await _mediaFileService.DeleteMediaFileAsync(mediaFileDto, ct);
-            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(deletedMediaFileDto));
+            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityType = MediaFileEntityEnum.Property };
+            var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
+            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting property media for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, mediaId);
+            _logger.LogError(ex, "Error uploading property media");
+            return HandleException(ex);
+        }
+    }
+
+    /// <summary>
+    /// Upload media file
+    /// </summary>
+    [HttpGet("media/{mediaId}")]
+    public async Task<IActionResult> GetPropertyMediaStream(int mediaId, [FromQuery] MediaFileVariantDTOEnum? variantType, CancellationToken ct)
+    {
+        try
+        {
+            var mediaFileDto = new MediaFileStreamSearchDto { Id = mediaId, EntityType = MediaFileEntityEnum.Property, VariantType = variantType };
+            var result = await _mediaFileService.GetMediaFileStreamAsync(mediaFileDto, ct);
+
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return File(result.MediaStream,result.ContentType,result.FileName,enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching property media stram for fileMediaId '{mediaId}'", mediaId);
             return HandleException(ex);
         }
     }
@@ -193,18 +232,18 @@ public class PropertiesController : ApiControllerBase
     /// <summary>
     /// Delete media file
     /// </summary>
-    [HttpPut("{propertyId}/cover-media")]
-    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdateCoverImageRequestDto request, CancellationToken ct)
+    [HttpDelete("media/{mediaId}")]
+    public async Task<ActionResult<MediaFileDto>> DeletePropertyMedia(int mediaId, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new UpdateCoverImageDto { MediaFileId = request.MediaFileId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
-            var updatedMediaFileDto = await _mediaFileService.UpdateCoverImageAsync(mediaFileDto);
-            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(updatedMediaFileDto));
+            var mediaFileDto = new DeleteMediaFileDto { Id = mediaId, EntityType = MediaFileEntityEnum.Property };
+            var deletedMediaFileDto = await _mediaFileService.DeleteMediaFileAsync(mediaFileDto, ct);
+            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(deletedMediaFileDto));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating cover image for propertyId '{propertyId}', fileMediaId '{mediaId}'", propertyId, request.MediaFileId);
+            _logger.LogError(ex, "Error deleting property media for fileMediaId '{mediaId}'", mediaId);
             return HandleException(ex);
         }
     }

@@ -23,7 +23,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         public async Task<MediaFileLink?> GetCoverMediaFileLinkByEntityAsync(MediaFileEntityEnum entityType, int entityId)
         {
             return await _context.MediaFileLinks
-                .Where(l => l.MarkedAsCover == true)
+                .Where(l => l.MarkedAsCover == true && l.EntityId == entityId && l.EntityType == entityType)
                 .Include(l => l.MediaFile)
                 .ThenInclude(m => m.MediaFileVariants)
                 .FirstOrDefaultAsync();

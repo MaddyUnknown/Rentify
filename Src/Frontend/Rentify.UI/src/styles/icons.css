@@ -5,6 +5,10 @@ lucide-icon {
   padding: 0;
 }
 
+.app-button__icon--filled {
+  fill: currentColor;
+}
+
 .app-panel__icon {
   width: 1.8rem;
 }

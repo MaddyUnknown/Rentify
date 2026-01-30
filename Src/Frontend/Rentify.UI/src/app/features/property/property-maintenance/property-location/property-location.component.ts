@@ -99,7 +99,7 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
       this.mode.toggle();
       this.updateLocationMarker(this.currentState);
     } else {
-      this.deleteLocation(this.propertyId);
+      this.deleteLocation();
     }
   }
 
@@ -154,11 +154,11 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
     });
   }
 
-  private deleteLocation(propertyId: number) {
+  private deleteLocation() {
     // Disable action
     this.disableActions = true;
 
-    this.propertyService.updatePropertyLocation(propertyId, {}).subscribe({
+    this.propertyService.updatePropertyLocation(this.propertyId, {}).subscribe({
       next: (location) => {
         const propertyLocation =
           location.latitude && location.longitude

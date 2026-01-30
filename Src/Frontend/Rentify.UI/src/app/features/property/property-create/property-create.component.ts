@@ -1,155 +1,462 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { PropertyService } from '../../../core/services/abstractions/property.service';
-import { PropertyDetailsComponent } from '../property-maintenance/property-details/property-details.component.old';
-import { PropertyMediaComponent } from '../property-maintenance/property-media/property-media.component';
-import { PropertyUnitsComponent } from '../property-maintenance/property-units/property-units.component';
-import { PropertyLocationComponent } from '../property-maintenance/property-location/property-location.component';
-import { PROPERTY_SERVICE_TOKEN } from '../../../core/services/tokens/property.token';
-import { PropertyStateService } from '../services/property-state.service';
-import { ApiError } from '../../../core/exceptions/api-error';
+import { AfterViewInit, Component, DestroyRef, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Route, Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { Save } from 'lucide-angular';
+import {
+  Blocks,
+  CircleX,
+  Images,
+  InfoIcon,
+  LucideAngularModule,
+  Map,
+  MapPinOff,
+  Plus,
+  Save,
+  SquarePen,
+  Star,
+  Trash2,
+} from 'lucide-angular';
+import { ROUTE_SERVICE_TOKEN } from '../../../core/services/tokens/route.token';
+import { RouteService } from '../../../core/services/abstractions/route.service';
+import { PanelComponent } from '../../../shared/components/panel/panel.component';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { PROPERTY_SERVICE_TOKEN } from '../../../core/services/tokens/property.token';
+import { PropertyService } from '../../../core/services/abstractions/property.service';
+import { SpinnerLoaderComponent } from '../../../shared/components/spinner-loader/spinner-loader.component';
+import { MediaFile } from '../../../core/models/media-file/media-file.model';
+import { LocalDestroyRef } from '../../../shared/lifecycles/local-destroy-ref';
+import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
+import { BehaviorSubject, debounceTime, merge, startWith } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
+import { ObservableMap } from '../../../shared/models/observable-map.model';
+import { MediaStatusPollingService } from '../../../shared/services/media-status-polling.service';
+import { ApiError } from '../../../core/exceptions/api-error';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
+import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
+import * as L from 'leaflet';
+import { GeoLocationService } from '../../../shared/services/geolocation.service';
+import { Location } from '../../../core/models/location/location.model';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader';
+import { CreateProperty } from '../../../core/models/property/create-property.model';
+
+type PropertyForm = {
+  details: FormGroup<PropertyDetailsForm>;
+  location: FormControl<Location | undefined>;
+  media: FormArray<FormGroup<PropertyMediaFileForm>>;
+  units: FormArray<FormGroup<PropertyUnitForm>>;
+};
+
+type PropertyDetailsForm = {
+  name: FormControl<string>;
+  streetName: FormControl<string>;
+  city: FormControl<string>;
+  state: FormControl<string>;
+  zipCode: FormControl<string>;
+  description: FormControl<string>;
+};
+
+type PropertyUnitForm = {
+  name: FormControl<string>;
+  type: FormControl<string>;
+  size: FormControl<number>;
+};
+
+type PropertyMediaFileForm = {
+  id: FormControl<number>;
+  markAsCover: FormControl<boolean>;
+};
+
+type NewMediaFileRow = {
+  kind: 'new';
+  data: MediaFile;
+};
+
+type MediaFileRow = {
+  kind: 'existing';
+  data: MediaFile;
+  disableActions: boolean;
+  destoryPollingRef: LocalDestroyRef;
+};
 
 @Component({
   selector: 'app-property-create',
   standalone: true,
   imports: [
-    PropertyDetailsComponent,
-    PropertyMediaComponent,
-    PropertyUnitsComponent,
-    PropertyLocationComponent,
+    AsyncPipe,
     ButtonComponent,
+    LucideAngularModule,
+    RouterLink,
+    PanelComponent,
+    ReactiveFormsModule,
+    SpinnerLoaderComponent,
+    SkeletonLoaderComponent,
   ],
-  providers: [PropertyStateService],
   templateUrl: './property-create.component.html',
   styleUrl: './property-create.component.css',
 })
-export class PropertyCreateComponent implements OnInit, OnDestroy {
-  readonly ICONS = { Save };
+export class PropertyCreateComponent implements OnInit, AfterViewInit {
+  readonly ICONS = { Blocks, CircleX, Images, InfoIcon, Map, MapPinOff, Plus, Save, SquarePen, Star, Trash2 };
+  readonly MAP_SELECTOR = 'map';
+  readonly LEAFLY_PROVIDER_URL = 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+  readonly LEAFLY_PROVIDER_ATTRIBUTION =
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>';
 
-  isSubmitting: boolean = false;
+  @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+
+  private propertyImageState: {
+    images: ObservableMap<number, MediaFileRow>;
+    newImages: ObservableMap<number, NewMediaFileRow>;
+    newImageTempId: number;
+  };
+
+  private propertyLocationState: {
+    map?: L.Map;
+    locationMarker?: L.Marker;
+  };
+
+  propertyImageList$: BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>;
+  mapLoading: boolean;
+  propertyForm: FormGroup<PropertyForm>;
+  disableActions: boolean;
 
   constructor(
+    private destroyRef: DestroyRef,
+    private fb: FormBuilder,
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
+    @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
-    private propertyStateService: PropertyStateService,
+    private geolocationService: GeoLocationService,
+    private fileStatusPollingService: MediaStatusPollingService,
     private router: Router,
-  ) {}
+  ) {
+    this.propertyForm = this.fb.group<PropertyForm>({
+      details: this.fb.group<PropertyDetailsForm>({
+        name: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+        streetName: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+        city: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+        state: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+        zipCode: this.fb.nonNullable.control('', { validators: [Validators.required] }),
+        description: this.fb.nonNullable.control(''),
+      }),
+      location: this.fb.nonNullable.control<Location | undefined>(undefined),
+      media: this.fb.array<FormGroup<PropertyMediaFileForm>>([]),
+      units: this.fb.array<FormGroup<PropertyUnitForm>>([]),
+    });
 
-  ngOnInit(): void {
-    // Set service to create mode
-    this.propertyStateService.setMode('create');
-    this.propertyStateService.resetState();
-  }
-
-  ngOnDestroy(): void {
-    // Clean up state when component is destroyed
-    this.propertyStateService.resetState();
-  }
-
-  // Validate all sections before submission
-  private validateForm(): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
-    const state = this.propertyStateService.getFullState();
-
-    // Validate property details
-    if (!state.generalDetails) {
-      errors.push('Property details are required');
-      return { isValid: false, errors };
-    }
-
-    if (!state.generalDetails.name || state.generalDetails.name.trim().length === 0) {
-      errors.push('Property name is required');
-    }
-    if (!state.generalDetails.streetName || state.generalDetails.streetName.trim().length === 0) {
-      errors.push('Street name is required');
-    }
-    if (!state.generalDetails.city || state.generalDetails.city.trim().length === 0) {
-      errors.push('City is required');
-    }
-    if (!state.generalDetails.state || state.generalDetails.state.trim().length === 0) {
-      errors.push('State is required');
-    }
-    if (!state.generalDetails.zipCode || state.generalDetails.zipCode.trim().length === 0) {
-      errors.push('Zip code is required');
-    }
-
-    // Validate units (if any)
-    for (const unit of state.units) {
-      if (!unit.name || unit.name.trim().length === 0) {
-        errors.push(`Unit name is required for one or more units`);
-        break;
-      }
-      if (!unit.type || unit.type.trim().length === 0) {
-        errors.push(`Unit type is required for one or more units`);
-        break;
-      }
-      if (!unit.size || unit.size <= 0) {
-        errors.push(`Unit size must be greater than 0 for one or more units`);
-        break;
-      }
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
+    this.propertyImageState = {
+      images: new ObservableMap<number, MediaFileRow>(),
+      newImages: new ObservableMap<number, NewMediaFileRow>(),
+      newImageTempId: -1,
     };
+
+    this.propertyLocationState = {};
+    this.mapLoading = false;
+
+    this.propertyImageList$ = new BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>([]);
+
+    this.disableActions = false;
   }
 
-  // Submit handler - collects all data from service and calls API
-  onSubmit() {
-    const validation = this.validateForm();
-    if (!validation.isValid) {
-      console.error('Validation errors:', validation.errors);
-      // TODO: Show validation errors to user via a notification service
+  // #region Lifecycle hooks
+  ngOnInit(): void {
+    // Code to sync-up list of rows when elements are added/removed
+    const subscription = merge(
+      this.propertyImageState.images.valueChange,
+      this.propertyImageState.newImages.valueChange,
+    )
+      .pipe(startWith(null), debounceTime(100))
+      .subscribe(() => {
+        this.syncImageList();
+      });
+
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  }
+
+  ngAfterViewInit(): void {
+    //Hack to avoid expressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => (this.mapLoading = true));
+
+    const { latitude, longitude } = this.envConfigService.defaultPropertyLatLon;
+
+    this.propertyLocationState.map = L.map(this.MAP_SELECTOR).setView([latitude, longitude], 18);
+    L.tileLayer(this.LEAFLY_PROVIDER_URL, {
+      attribution: this.LEAFLY_PROVIDER_ATTRIBUTION,
+      maxZoom: 19,
+    }).addTo(this.propertyLocationState.map);
+
+    this.geolocationService.getCurrentLocation().subscribe({
+      next: (location) => {
+        this.panMap(location);
+        this.propertyLocationState.map?.on('click', this.onMapClick.bind(this));
+        setTimeout(() => (this.mapLoading = false));
+      },
+      error: (err) => {
+        console.error(err);
+        setTimeout(() => (this.mapLoading = false));
+      },
+    });
+  }
+  // #endregion
+
+  // #region Helper methods
+  isInvalid(control: AbstractControl): boolean {
+    return control.invalid && (control.dirty || control.touched);
+  }
+
+  propertiesRoute() {
+    return this.routeService.propeties();
+  }
+
+  generatePropertyUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
+    return this.propertyService.generatePropertyMediaUrl(mediaFile.id, variant);
+  }
+  // #endregion
+
+  // #region Event handlers
+  onSaveClick() {
+    if (!this.propertyForm.valid) {
+      this.propertyForm.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting = true;
+    this.disableActions = true;
 
-    const state = this.propertyStateService.getFullState();
+    const property: CreateProperty = this.propertyForm.getRawValue();
 
-    // TODO: Implement createProperty API call
-    // This is a placeholder - you'll need to add the createProperty method to PropertyService
-    console.log('Creating property with data:', state);
+    this.propertyService.createProperty(property).subscribe({
+      next: (property) => {
+        this.disableActions = false;
+        this.router.navigate(this.routeService.property(property.id));
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
 
-    // Placeholder for API call
-    // this.propertyService.createProperty({
-    //   generalDetails: {
-    //     name: state.generalDetails!.name,
-    //     streetName: state.generalDetails!.streetName,
-    //     city: state.generalDetails!.city,
-    //     state: state.generalDetails!.state,
-    //     zipCode: state.generalDetails!.zipCode,
-    //     description: state.generalDetails!.description,
-    //   },
-    //   units: state.units.map(u => ({
-    //     name: u.name,
-    //     type: u.type,
-    //     size: u.size,
-    //   })),
-    //   location: state.location,
-    // }).subscribe({
-    //   next: (property) => {
-    //     // Upload media files after property is created (if any)
-    //     // this.uploadMediaFiles(property.id);
-    //     this.router.navigate(['/properties', property.id]);
-    //   },
-    //   error: (err) => {
-    //     this.isSubmitting = false;
-    //     if (err instanceof ApiError) {
-    //       console.log('API Error', err.Errors);
-    //     } else {
-    //       console.error(err);
-    //     }
-    //   },
-    // });
-
-    // Temporary: simulate API call
-    setTimeout(() => {
-      this.isSubmitting = false;
-      console.log('Property created successfully (simulated)');
-      // this.router.navigate(['/properties']);
-    }, 2000);
+        this.disableActions = false;
+      },
+    });
   }
+
+  // #endregion
+
+  // #region Helper methods - Property Images
+  private syncImageList() {
+    const imageList = [...this.propertyImageState.images.values(), ...this.propertyImageState.newImages.values()];
+    this.propertyImageList$.next(imageList);
+  }
+
+  private createNewImageRow(mediaFile: MediaFile): NewMediaFileRow {
+    const data: NewMediaFileRow = { kind: 'new', data: mediaFile };
+    return data;
+  }
+
+  private createImageRow(mediaFile: MediaFile): MediaFileRow {
+    const data: MediaFileRow = {
+      kind: 'existing',
+      data: mediaFile,
+      disableActions: false,
+      destoryPollingRef: new LocalDestroyRef(),
+    };
+
+    this.setupImagePolling(data);
+    return data;
+  }
+
+  private deleteImageRow(mediaFileRow: MediaFileRow) {
+    mediaFileRow.destoryPollingRef.destroy();
+  }
+
+  private setupImagePolling(mediaFileRow: MediaFileRow) {
+    if (mediaFileRow.data.processingStatus !== 'uploading' && mediaFileRow.data.processingStatus !== 'uploaded') return;
+
+    const subscription = this.fileStatusPollingService.getStatusObservable(mediaFileRow.data.id).subscribe({
+      next: (data) => {
+        if (data.processingStatus === 'deleted' || data.processingStatus === 'failed') {
+          const existingRow = this.propertyImageState.images.get(data.id);
+          if (existingRow) this.deleteImageRow(existingRow);
+          this.propertyImageState.images.delete(data.id);
+        } else {
+          const existingRow = this.propertyImageState.images.get(data.id);
+          if (existingRow) existingRow.data = data;
+        }
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        // Only stop polling | TO-DO: Show error to users for reloading the page to see latest upload status
+        const existingRow = this.propertyImageState.images.get(mediaFileRow.data.id);
+        if (existingRow) existingRow.destoryPollingRef.destroy();
+      },
+    });
+
+    mediaFileRow.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
+  }
+  // #endregion
+
+  // #region Event handlers - Property Images
+  onFileInputClick() {
+    this.fileInput?.nativeElement.click();
+  }
+
+  onFileSelected() {
+    const files = this.fileInput?.nativeElement.files;
+    if (!files || files.length === 0) return;
+    for (let i = 0; i < files.length; i++) {
+      const file = files.item(i);
+      if (!file) continue;
+      const newFileId = this.propertyImageState.newImageTempId--;
+      const newMediaFile: MediaFile = {
+        id: newFileId,
+        name: file.name,
+        processingStatus: 'uploading',
+        markedAsCover: false,
+      };
+      const newMediaFileRow: NewMediaFileRow = this.createNewImageRow(newMediaFile);
+      this.propertyImageState.newImages.set(newFileId, newMediaFileRow);
+      this.propertyService.uploadMediaFile(file).subscribe({
+        next: (image) => {
+          this.propertyImageState.newImages.delete(newFileId);
+          this.propertyImageState.images.set(image.id, this.createImageRow(image));
+
+          //Push to form
+          this.propertyForm.controls.media.push(
+            this.fb.nonNullable.group<PropertyMediaFileForm>({
+              id: this.fb.nonNullable.control(image.id),
+              markAsCover: this.fb.nonNullable.control(false),
+            }),
+          );
+        },
+        error: (err) => {
+          if (err instanceof ApiError) {
+            console.log('API Error', err.Errors);
+          } else {
+            console.error(err);
+          }
+          this.propertyImageState.newImages.delete(newFileId);
+        },
+      });
+    }
+  }
+
+  onImageRemoveClick(row: MediaFileRow) {
+    // Disable action
+    const existingRow = this.propertyImageState.images.get(row.data.id);
+    if (existingRow) existingRow.disableActions = true;
+    this.propertyService.deleteMediaFile(row.data.id).subscribe({
+      next: (deletedUnit) => {
+        const existingRow = this.propertyImageState.images.get(deletedUnit.id);
+        if (existingRow) this.deleteImageRow(existingRow);
+        this.propertyImageState.images.delete(deletedUnit.id);
+
+        //Remove from form
+        const index = this.propertyForm.controls.media.controls.findIndex(
+          (x) => x.controls.id.value === deletedUnit.id,
+        );
+        if (index !== -1) {
+          this.propertyForm.controls.media.removeAt(index);
+        }
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+        const existingRow = this.propertyImageState.images.get(row.data.id);
+        if (existingRow) existingRow.disableActions = false;
+      },
+    });
+  }
+
+  onMarkAsCover(row: MediaFileRow) {
+    for (let [_, image] of this.propertyImageState.images) {
+      if (image.data.markedAsCover) {
+        image.data.markedAsCover = false;
+        const item = this.propertyForm.controls.media.controls.find((x) => x.controls.id.value === image.data.id);
+        if (item) item.controls.markAsCover.setValue(false);
+      }
+    }
+
+    const existingRow = this.propertyImageState.images.get(row.data.id);
+    if (existingRow) {
+      existingRow.data.markedAsCover = true;
+      const item = this.propertyForm.controls.media.controls.find((x) => x.controls.id.value === row.data.id);
+      if (item) item.controls.markAsCover.setValue(true);
+    }
+  }
+  // #endregion
+
+  // #region Helper methods - Property Units
+  private createRowForm() {
+    return this.fb.group<PropertyUnitForm>({
+      name: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
+      type: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
+      size: this.fb.nonNullable.control<number>(0, { validators: [Validators.required, Validators.min(1)] }),
+    });
+  }
+  // #endregion
+
+  // #region Event handlers - Property Units
+  onAddRowClick() {
+    this.propertyForm.controls.units.push(this.createRowForm());
+  }
+
+  onUnitRemoveClick(rowIndex: number) {
+    this.propertyForm.controls.units.removeAt(rowIndex);
+  }
+  // #endregion
+
+  // #region Helper methods - Property Location
+  private updateLocationMarker(location: Location | undefined) {
+    if (!this.propertyLocationState.map) return;
+
+    this.propertyLocationState.locationMarker?.remove();
+    this.propertyLocationState.locationMarker = undefined;
+
+    if (location) {
+      const { latitude: markerLat, longitude: markerLng } = location;
+      this.propertyLocationState.locationMarker = L.marker([markerLat, markerLng]);
+      this.propertyLocationState.locationMarker.addTo(this.propertyLocationState.map);
+    }
+  }
+
+  private panMap(location: Location) {
+    this.propertyLocationState.map?.panTo([location.latitude, location.longitude], { animate: true });
+  }
+
+  private deleteLocation() {
+    const currentState = undefined;
+    this.propertyForm.controls.location.setValue(currentState);
+    this.updateLocationMarker(currentState);
+  }
+  // #endregion
+
+  // #region Event handlers - Property Location
+  onMapClick(e: L.LeafletMouseEvent) {
+    if (!this.propertyLocationState.map) return;
+
+    const { lat: latitude, lng: longitude } = e.latlng;
+    const currentState = { latitude, longitude };
+    this.propertyForm.controls.location.setValue(currentState);
+    this.updateLocationMarker(currentState);
+  }
+
+  onClearClick() {
+    this.deleteLocation();
+  }
+  // #endregion
 }

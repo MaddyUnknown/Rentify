@@ -6,6 +6,7 @@ import { UnitsComponent } from './features/units/units.component';
 import { PropertyMaintenanceComponent } from './features/property/property-maintenance/property-maintenance.component';
 import { PropertySearchComponent } from './features/property/property-search/property-search.component';
 import { RoutesConstants } from './core/constants/routes.constants';
+import { PropertyCreateComponent } from './features/property/property-create/property-create.component';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,13 @@ export const routes: Routes = [
   {
     path: RoutesConstants.Properties,
     component: PropertySearchComponent,
+    data: {
+      navName: 'properties',
+    },
+  },
+  {
+    path: RoutesConstants.PropertyCreate,
+    component: PropertyCreateComponent,
     data: {
       navName: 'properties',
     },

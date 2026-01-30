@@ -9,9 +9,10 @@ namespace Rentify.Application.Constants
     public static class MediaFileConstants
     {
         public static readonly string MediaFileNotFound = "Media not found for id '{0}'";
+        public static readonly string MediaFileAlreadyLinked = "Media file id '{0}' already linked to another '{1}'";
         public static readonly string MediaFileVariantNotFound = "Media not found for id '{0}', variant '{1}'";
         public static readonly string MediaNotSupported = "Media not supported for entity type '{0}'";
-        public static readonly string MediaFileKeyTemplate = @"{0}/{1}/{2}";
+        public static readonly string MediaFileKeyTemplate = @"{0}";
         public static readonly string InvalidMediaTypeProvided = "Invalid media files provided. Accepted media file type are: {0}";
 
         public static readonly string MediaTypeNotResolved = "Unable to resolve media type";

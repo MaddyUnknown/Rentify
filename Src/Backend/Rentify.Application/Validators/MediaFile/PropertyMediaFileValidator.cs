@@ -27,12 +27,15 @@ namespace Rentify.Application.Validators.MediaFile
 
         public MediaFileEntityEnum EntityType => MediaFileEntityEnum.Property;
 
-        public async Task<IEnumerable<string>> ValidateEntityAsync(int entityId, string fileName, FileInspectionInfo fileInfo)
+        public async Task<IEnumerable<string>> ValidateEntityAsync(string fileName, FileInspectionInfo fileInfo, int? entityId = null)
         {
             var errorList = new List<string>();
 
-            var property = await _propertyCRUDRepo.GetByIdAsync(entityId);
-            if (property == null) errorList.Add(string.Format(PropertyConstants.PropertyNotFound, entityId));
+            if(entityId.HasValue)
+            {
+                var property = await _propertyCRUDRepo.GetByIdAsync(entityId.Value);
+                if (property == null) errorList.Add(string.Format(PropertyConstants.PropertyNotFound, entityId));
+            }
 
             if (fileInfo.MimeType == null || !AllowedMimeType.Contains(fileInfo.MimeType)) errorList.Add(string.Format(MediaFileConstants.InvalidMediaTypeProvided, string.Join(", ", AllowedMimeType.Select(x => $"'{x}'"))));
 

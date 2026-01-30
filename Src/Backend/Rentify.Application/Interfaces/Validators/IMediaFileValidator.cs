@@ -13,6 +13,6 @@ namespace Rentify.Application.Interfaces.Validators
     {
         MediaFileEntityEnum EntityType { get; }
 
-        Task<IEnumerable<string>> ValidateEntityAsync(int entityId, string fileName, FileInspectionInfo fileInfo);
+        Task<IEnumerable<string>> ValidateEntityAsync(string fileName, FileInspectionInfo fileInfo, int? entityId = null);
     }
 }

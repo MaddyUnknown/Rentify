@@ -97,3 +97,12 @@ app-panel {
   width: 2.8rem;
   height: 2.8rem;
 }
+
+.app-property-media__galary_img__action__cover {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  color: var(--background-color);
+}

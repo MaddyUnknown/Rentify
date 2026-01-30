@@ -6,6 +6,7 @@
     color="primary"
     class="app-property-search__header__back-btn"
     [input]="{ icon: ICONS.Plus, label: 'Add Property' }"
+    [routerLink]="propertyCreateRoute()"
     [disabled]="loading || disableActions"
   ></button>
 </header>

@@ -11,10 +11,10 @@ namespace Rentify.Application.Utils
 {
     public static class StorageKeyHelper
     {
-        public static string GenerateNewFileKeyForMediaFile(MediaFileEntityEnum entityType, int entityId)
+        public static string GenerateNewFileKeyForMediaFile()
         {
             var guid = Guid.NewGuid();
-            return string.Format(MediaFileConstants.MediaFileKeyTemplate, entityType, entityId, guid);
+            return string.Format(MediaFileConstants.MediaFileKeyTemplate, guid);
         }
     }
 }

@@ -34,16 +34,24 @@
         } @else {
           <div class="app-property-media__galary_img" [class.disabled]="file.disableActions">
             <div class="app-property-media__galary_img__action-overlay">
-              <button
-                appButton
-                color="primary"
-                type="normal"
-                iconClass="app-button__icon--inline"
-                class="app-property-media__galary_img__action__icon"
-                [input]="{ icon: file.data.markedAsCover ? ICONS.SquareStar : ICONS.Star }"
-                [disabled]="file.disableActions || file.data.markedAsCover"
-                (click)="onMarkAsCover(file)"
-              ></button>
+              @if (file.data.markedAsCover) {
+                <lucide-icon
+                  [img]="ICONS.Star"
+                  class="app-property-media__galary_img__action__cover app-button__icon--inline app-button__icon--filled"
+                ></lucide-icon>
+              } @else {
+                <button
+                  appButton
+                  color="primary"
+                  type="normal"
+                  iconClass="app-button__icon--inline"
+                  class="app-property-media__galary_img__action__icon"
+                  [input]="{ icon: ICONS.Star }"
+                  [disabled]="file.disableActions || file.data.markedAsCover"
+                  (click)="onMarkAsCover(file)"
+                ></button>
+              }
+
               <button
                 appButton
                 color="danger"

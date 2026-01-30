@@ -1,18 +1,245 @@
-<div class="app-property-create">
-  <div class="app-property-create__header">
-    <h1>Create New Property</h1>
-    <button
-      appButton
-      type="normal"
-      color="primary"
-      [input]="{ icon: ICONS.Save, label: 'Create Property' }"
-      [disabled]="isSubmitting"
-      (click)="onSubmit()"
-    ></button>
-  </div>
-
-  <section class="app-property__details" appPropertyDetails></section>
-  <section class="app-property__media" appPropertyMedia></section>
-  <section class="app-property__units" appPropertyUnits></section>
-  <section class="app-property__location" appPropertyLocation></section>
-</div>
+<header class="app-property-create__header">
+  <h2>Add New Property</h2>
+  <button
+    appButton
+    type="normal"
+    color="primary"
+    class="app-property-create__header-btn"
+    (click)="onSaveClick()"
+    [disabled]="disableActions"
+    [input]="{ icon: ICONS.Save, label: 'Save' }"
+  ></button>
+  <button
+    appButton
+    type="normal"
+    color="danger"
+    class="app-property-create__header-btn"
+    [routerLink]="propertiesRoute()"
+    [disabled]="disableActions"
+    [input]="{ icon: ICONS.CircleX, label: 'Cancel' }"
+  ></button>
+</header>
+<form [formGroup]="propertyForm" class="app-property-maintenance__main">
+  <section>
+    <app-panel [icon]="ICONS.InfoIcon" heading="Property Details">
+      <div appPanelDesc class="app-form" formGroupName="details">
+        <div class="form-group">
+          <label for="property-name">Property Name</label>
+          <input
+            id="property-name"
+            type="text"
+            formControlName="name"
+            [attr.invalid]="isInvalid(propertyForm.controls.details.controls.name) ? '' : null"
+          />
+        </div>
+        <div class="form-group">
+          <label for="property-street-name">Address</label>
+          <input
+            id="property-street-name"
+            type="text"
+            formControlName="streetName"
+            [attr.invalid]="isInvalid(propertyForm.controls.details.controls.streetName) ? '' : null"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="property-city">City</label>
+            <input
+              id="property-city"
+              type="text"
+              formControlName="city"
+              [attr.invalid]="isInvalid(propertyForm.controls.details.controls.city) ? '' : null"
+            />
+          </div>
+          <div class="form-group">
+            <label for="property-state">State</label>
+            <input
+              id="property-state"
+              type="text"
+              formControlName="state"
+              [attr.invalid]="isInvalid(propertyForm.controls.details.controls.state) ? '' : null"
+            />
+          </div>
+          <div class="form-group">
+            <label for="property-zip-code">Zip Code</label>
+            <input
+              id="property-zip-code"
+              type="text"
+              formControlName="zipCode"
+              [attr.invalid]="isInvalid(propertyForm.controls.details.controls.zipCode) ? '' : null"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="property-description">Description</label>
+          <textarea
+            id="property-description"
+            rows="4"
+            formControlName="description"
+            [attr.invalid]="isInvalid(propertyForm.controls.details.controls.description) ? '' : null"
+          ></textarea>
+        </div>
+      </div>
+    </app-panel>
+  </section>
+  <section>
+    <app-panel [icon]="ICONS.Images" heading="Property Media">
+      <div appPanelButtons class="app-property-media__btns">
+        <button
+          type="normal"
+          color="primary"
+          appButton
+          [input]="{ icon: ICONS.Plus, label: 'Add' }"
+          [disabled]="disableActions"
+          (click)="onFileInputClick()"
+        ></button>
+        <input #fileInput type="file" accept="image/*" hidden multiple (change)="onFileSelected()" />
+      </div>
+      <div appPanelDesc class="app-property-media__galary">
+        @for (file of propertyImageList$ | async; track file.data.id) {
+          <!-- Kind of new to do -->
+          @if (
+            file.kind === 'new' ||
+            file.data.processingStatus === 'uploading' ||
+            file.data.processingStatus === 'uploaded'
+          ) {
+            <div class="app-property-media__galary_img">
+              <div class="app-property-media__galary_img__loading-overlay">
+                <app-spinner-loader class="app-property-media__galary_img__loading-animation"></app-spinner-loader>
+                <!-- The status of uploaded is a but confusing for users, hence treading it as uploading and then would transition to processing -->
+                <div>{{ file.data.processingStatus === 'uploaded' ? 'uploading' : file.data.processingStatus }}</div>
+              </div>
+              <img src="/img/thumbnails/placeholder-house-2.jpg" [alt]="file.data.name" />
+            </div>
+          } @else {
+            <div class="app-property-media__galary_img" [class.disabled]="file.disableActions">
+              <div class="app-property-media__galary_img__action-overlay">
+                @if (file.data.markedAsCover) {
+                  <lucide-icon
+                    [img]="ICONS.Star"
+                    class="app-property-media__galary_img__action__cover app-button__icon--inline app-button__icon--filled"
+                  ></lucide-icon>
+                } @else {
+                  <button
+                    appButton
+                    color="primary"
+                    type="normal"
+                    iconClass="app-button__icon--inline"
+                    class="app-property-media__galary_img__action__icon"
+                    [input]="{ icon: ICONS.Star }"
+                    [disabled]="file.disableActions || file.data.markedAsCover || disableActions"
+                    (click)="onMarkAsCover(file)"
+                  ></button>
+                }
+                <button
+                  appButton
+                  color="danger"
+                  type="normal"
+                  iconClass="app-button__icon--inline"
+                  class="app-property-media__galary_img__action__icon"
+                  [input]="{ icon: ICONS.Trash2 }"
+                  [disabled]="file.disableActions || disableActions"
+                  (click)="onImageRemoveClick(file)"
+                ></button>
+              </div>
+              <img [src]="generatePropertyUrl(file.data, 'thumbnail')" [alt]="file.data.name" />
+            </div>
+          }
+        }
+      </div>
+    </app-panel>
+  </section>
+  <section>
+    <app-panel [icon]="ICONS.Blocks" heading="Property Units">
+      <div appPanelButtons class="app-property-units__btns">
+        <button
+          appButton
+          type="normal"
+          color="primary"
+          [input]="{ icon: ICONS.Plus, label: 'Add' }"
+          [disabled]="disableActions"
+          (click)="onAddRowClick()"
+        ></button>
+      </div>
+      <table appPanelDesc class="app-table app-property-units__table">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size (sqft)</th>
+            <th [style.text-align]="'center'">Status</th>
+            <th [style.text-align]="'right'">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of propertyForm.controls.units.controls; track $index) {
+            <tr>
+              <td></td>
+              <td>
+                <div class="app-form">
+                  <input
+                    type="text"
+                    [formControl]="row.controls.name"
+                    [attr.invalid]="isInvalid(row.controls.name) ? '' : null"
+                  />
+                </div>
+              </td>
+              <td>
+                <div class="app-form">
+                  <input
+                    type="text"
+                    [formControl]="row.controls.type"
+                    [attr.invalid]="isInvalid(row.controls.type) ? '' : null"
+                  />
+                </div>
+              </td>
+              <td>
+                <div class="app-form">
+                  <input
+                    type="number"
+                    [formControl]="row.controls.size"
+                    [attr.invalid]="isInvalid(row.controls.size) ? '' : null"
+                  />
+                </div>
+              </td>
+              <td></td>
+              <td>
+                <div class="app-property-units__table_item_action">
+                  <button
+                    type="inline"
+                    color="danger"
+                    appButton
+                    [input]="{ icon: ICONS.CircleX }"
+                    [disabled]="disableActions"
+                    (click)="onUnitRemoveClick($index)"
+                  ></button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </app-panel>
+  </section>
+  <section>
+    <app-panel [icon]="ICONS.Map" heading="Property Map">
+      <div appPanelButtons class="app-property-units__btns">
+        <button
+          appButton
+          type="normal"
+          color="danger"
+          [input]="{ icon: ICONS.MapPinOff, label: 'Clear' }"
+          [disabled]="disableActions"
+          (click)="onClearClick()"
+        ></button>
+      </div>
+      <div [style.position]="'relative'" appPanelDesc>
+        <div id="map" class="map-container"></div>
+        @if (mapLoading) {
+          <app-skeleton-loader type="box" class="map-container"></app-skeleton-loader>
+        }
+      </div>
+    </app-panel>
+  </section>
+</form>

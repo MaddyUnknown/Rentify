@@ -6,7 +6,12 @@ export class RouteImplementationService implements RouteService {
   propeties(): any[] {
     return [`/${RoutesConstants.Properties}`];
   }
+
   property(id: number): any[] {
     return [`/${RoutesConstants.Property}`, id];
+  }
+
+  propertyCreate(): any[] {
+    return [`/${RoutesConstants.PropertyCreate}`];
   }
 }
