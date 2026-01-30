@@ -33,7 +33,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
                     Name = p.Name,
                     Address = p.PropertyAddress,
                     NumberOfUnits = _context.Units.Where(u => u.PropertyId == p.Id).Count(),
-                    CoverImage = _context.MediaFileLinks.Include(m => m.MediaFile).ThenInclude(m => m.MediaFileVariants).Where(l => l.MarkedAsCover == true).Select(l => l.MediaFile).FirstOrDefault()
+                    CoverImage = _context.MediaFileLinks.Include(m => m.MediaFile).ThenInclude(m => m.MediaFileVariants).Where(l => l.MarkedAsCover == true && l.EntityType == MediaFileEntityEnum.Property && l.EntityId == p.Id).Select(l => l.MediaFile).FirstOrDefault()
                 })
                 .AsNoTracking()
                 .ToListAsync();

@@ -12,4 +12,5 @@ public interface IPropertyService
     Task<PropertyDetailsDto> UpdatePropertyAsync(int id, UpdatePropertyDetailsDto updatePropertyDto);
     Task<PropertyDetailsDto> DeletePropertyAsync(int id);
     Task<PropertyLocationDto> UpdatePropertyLocationAsync(int id, UpdatePropertyLocationDto updatePropertyLocationDto);
+    Task<PropertyDto> CreatePropertyAsync(CreatePropertyDto createPropertyDto);
 }

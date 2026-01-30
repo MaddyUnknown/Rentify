@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
 import { PropertySummary } from '../../../models/property/property-summary.model';
+import { CreateProperty } from '../../../models/property/create-property.model';
 
 @Injectable()
 export class PropertyMockService implements PropertyService {
@@ -30,6 +31,10 @@ export class PropertyMockService implements PropertyService {
         observer.complete();
       }, data.apiLatency);
     });
+  }
+
+  createProperty(property: CreateProperty): Observable<Property> {
+    throw new Error('Method not implemented.');
   }
 
   getPropertyAggregateById(propertyId: number): Observable<Property> {
@@ -162,17 +167,19 @@ export class PropertyMockService implements PropertyService {
     });
   }
 
-  uploadMediaFile(propertyId: number, file: File): Observable<MediaFile> {
+  uploadMediaFile(file: File, propertyId?: number): Observable<MediaFile> {
     const formData = new FormData();
     formData.append('file', file);
 
     return new Observable((observer) => {
       setTimeout(() => {
-        const property = data.properties.find((p) => p.id === propertyId);
+        if (propertyId) {
+          const property = data.properties.find((p) => p.id === propertyId);
 
-        if (!property) {
-          observer.error('Property not found');
-          return;
+          if (!property) {
+            observer.error('Property not found');
+            return;
+          }
         }
 
         const nextId = data.files.reduce((maxId, img) => Math.max(maxId, img.id), 0) + 1;
@@ -212,12 +219,10 @@ export class PropertyMockService implements PropertyService {
     });
   }
 
-  deleteMediaFile(propertyId: number, mediaId: number): Observable<MediaFile> {
+  deleteMediaFile(mediaId: number): Observable<MediaFile> {
     return new Observable((observer) => {
       setTimeout(() => {
         const id = data.files.findIndex((u) => u.id === mediaId);
-
-        if (id === -1 || data.files[id].propertyId !== propertyId) observer.error('File not found');
 
         const deletedFile = data.files[id];
         data.files.splice(id, 1);
@@ -358,7 +363,7 @@ export class PropertyMockService implements PropertyService {
     });
   }
 
-  generatePropertyMediaUrl(propertyId: number, mediaId: number, variant: MediaFileVariantType): string {
+  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType): string {
     return './img/thumbnails/thumbnail-image.png';
   }
 }

@@ -84,7 +84,7 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
     const subscription = merge(this.images.valueChange, this.newImages.valueChange)
       .pipe(startWith(null), debounceTime(100))
       .subscribe(() => {
-        this.syncUnitsList();
+        this.syncImageList();
       });
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
@@ -140,7 +140,6 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
     mediaFileRow.destoryPollingRef.destroy();
   }
 
-  //Currently only supports existing, new one needs to be accounted for
   private setupPolling(mediaFileRow: MediaFileRow) {
     if (mediaFileRow.data.processingStatus !== 'uploading' && mediaFileRow.data.processingStatus !== 'uploaded') return;
 
@@ -162,7 +161,7 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
           console.error(err);
         }
 
-        // Only stop polling | TO-DO: Show error to users for reloading the page to see latest upload status
+        // Only stop polling
         const existingRow = this.images.get(mediaFileRow.data.id);
         if (existingRow) existingRow.destoryPollingRef.destroy();
       },
@@ -171,13 +170,13 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
     mediaFileRow.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
   }
 
-  private syncUnitsList() {
+  private syncImageList() {
     const imageList = [...this.images.values(), ...this.newImages.values()];
     this.imageList$.next(imageList);
   }
 
   generatePropertyUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
-    return this.propertyService.generatePropertyMediaUrl(this.propertyId, mediaFile.id, variant);
+    return this.propertyService.generatePropertyMediaUrl(mediaFile.id, variant);
   }
   // #endregion
 
@@ -204,7 +203,7 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
       const newMediaFileRow: NewMediaFileRow = this.createNewImageRow(newMediaFile);
       this.newImages.set(newFileId, newMediaFileRow);
 
-      this.propertyService.uploadMediaFile(this.propertyId, file).subscribe({
+      this.propertyService.uploadMediaFile(file, this.propertyId).subscribe({
         next: (image) => {
           this.newImages.delete(newFileId);
           this.images.set(image.id, this.createImageRow(image));
@@ -258,7 +257,7 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
     const existingRow = this.images.get(row.data.id);
     if (existingRow) existingRow.disableActions = true;
 
-    this.propertyService.deleteMediaFile(this.propertyId, row.data.id).subscribe({
+    this.propertyService.deleteMediaFile(row.data.id).subscribe({
       next: (deletedUnit) => {
         const existingRow = this.images.get(deletedUnit.id);
         if (existingRow) this.deleteImageRow(existingRow);

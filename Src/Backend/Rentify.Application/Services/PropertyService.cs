@@ -5,9 +5,12 @@ using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Property;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Application.Mappers;
+using Rentify.Application.Utils;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
+using Rentify.Core.Events;
 using Rentify.Core.Exceptions;
+using Rentify.Core.Utils;
 using Rentify.Core.ValueObjects;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
@@ -19,32 +22,38 @@ public class PropertyService : IPropertyService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<Property> _propertyCRUDRepo;
+    private readonly IRepository<Unit> _unitCRUDRepo;
     private readonly IMediaFileRepository _mediaFileRepo;
     private readonly IPropertyRepository _propertyRepo;
     private readonly IUnitRepository _unitRepo;
+    private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
+    private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
 
     public PropertyService(
         IUnitOfWork unitOfWork, 
         IRepository<Property> propertyCRUDRepo, 
+        IRepository<Unit> unitCRUDRepo,
         IRepository<MediaFileLink> mediaFileLinkCRUDRepo, 
-        IRepository<MediaFile> mediaFileCRUDRepo, 
         IUnitRepository unitRepo, 
         IPropertyRepository propertyRepository,
         IMediaFileRepository mediaFileRepo,
-        IFileStorageService fileStorageSerice)
+        IRepository<EventOutbox> eventOutboxCRUDRepo)
     {
         _unitOfWork = unitOfWork;
         _propertyCRUDRepo = propertyCRUDRepo;
+        _unitCRUDRepo = unitCRUDRepo;
         _mediaFileRepo = mediaFileRepo;
         _propertyRepo = propertyRepository;
         _unitRepo = unitRepo;
+        _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
+        _eventOutboxCRUDRepo = eventOutboxCRUDRepo;
     }
 
     public async Task<PaginatedList<PropertySummaryDto>> GetAllPropertyAsync(PropertySearchDto propertySearchDto)
     {
         var skipItems = (propertySearchDto.CurrentPage - 1) * propertySearchDto.TotalItemPerPage;
         var totalItemCount = await _propertyRepo.CountAsync(propertySearchDto.AsOfDate);
-        var totalPage = Math.Ceiling(totalItemCount*1.0/propertySearchDto.TotalItemPerPage);
+        var totalPage = Math.Max(1, Math.Ceiling(totalItemCount*1.0/propertySearchDto.TotalItemPerPage));
 
         if(propertySearchDto.CurrentPage > totalPage) throw new AppValidationException(string.Format(PropertyConstants.PropertiesOutOfPageError, totalPage, propertySearchDto.CurrentPage));
 
@@ -122,5 +131,88 @@ public class PropertyService : IPropertyService
         await _unitOfWork.SaveChangesAsync();
 
         return PropertyMapper.MapToPropertyLocationDto(property);
+    }
+
+    public async Task<PropertyDto> CreatePropertyAsync(CreatePropertyDto createPropertyDto)
+    {
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+
+            // Add Property
+            var propertyEntity = new Property
+            {
+                Name = createPropertyDto.Details.Name,
+                Description = createPropertyDto.Details.Description,
+                PropertyAddress = new Address
+                {
+                    StreetName = createPropertyDto.Details.StreetName,
+                    City = createPropertyDto.Details.City,
+                    State = createPropertyDto.Details.State,
+                    ZipCode = createPropertyDto.Details.ZipCode,
+                },
+                PropertyLocation = (createPropertyDto.Location == null) ? null : new Location { Latitude = createPropertyDto.Location.Latitude, Longitude = createPropertyDto.Location.Longitude }
+            };
+
+            _propertyCRUDRepo.Add(propertyEntity);
+            await _unitOfWork.SaveChangesAsync();
+
+
+            //Add Units
+            foreach(var unit in createPropertyDto.Units)
+            {
+                var unitEntity = new Unit
+                {
+                    Name = unit.Name,
+                    Type = unit.Type,
+                    Size = unit.Size,
+                    PropertyId = propertyEntity.Id
+                };
+
+                _unitCRUDRepo.Add(unitEntity);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+
+            //Add Media Link
+            foreach(var media in createPropertyDto.Media)
+            {
+                var mediaFileLink = new MediaFileLink
+                {
+                    MediaFileId = media.Id,
+                    EntityId = propertyEntity.Id,
+                    EntityType = MediaFileEntityEnum.Property,
+                };
+
+                _mediaFileLinkCRUDRepo.Add(mediaFileLink);
+
+                if(media.MarkAsCover)
+                {
+                    // Used to insert the row in DB else Media Link Id is not generated
+                    await _unitOfWork.SaveChangesAsync();
+
+                    // Transactional outbox pattern
+                    var eventData = new SetNewCoverImageEvent { MediaFileId = media.Id, MediaFileLinkId = mediaFileLink.Id };
+                    var eventOutbox = new EventOutbox
+                    {
+                        EventObjectType = EventTypeHelper.GetEventObjectType<SetNewCoverImageEvent>(),
+                        EventData = JsonSerializerHelper.Serialize(eventData)
+                    };
+
+                    _eventOutboxCRUDRepo.Add(eventOutbox);
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+
+            return await GetPropertyByIdAsync(propertyEntity.Id);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
     }
 }

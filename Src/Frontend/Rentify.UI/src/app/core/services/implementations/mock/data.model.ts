@@ -30,5 +30,5 @@ export type MockFiles = {
   markedAsCover?: boolean;
   thumbnailType?: string;
   thumbnailProcessingStatus?: MediaFileVariantStatus;
-  propertyId: number;
+  propertyId?: number;
 };

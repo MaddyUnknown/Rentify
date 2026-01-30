@@ -18,6 +18,7 @@ import { processResponse } from '../../../utils/process-response.util';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
 import { PropertySummary } from '../../../models/property/property-summary.model';
+import { CreateProperty } from '../../../models/property/create-property.model';
 
 @Injectable()
 export class PropertyApiService implements PropertyService {
@@ -31,6 +32,12 @@ export class PropertyApiService implements PropertyService {
       .get<
         ResponseWrapper<PaginatedList<PropertySummary>>
       >(this.environmentConfigService.apiBaseURL + `properties?page=${page}&pageSize=${pageSize}&asOfDate=${asOfDate.toISOString()}`)
+      .pipe(processResponse());
+  }
+
+  createProperty(property: CreateProperty): Observable<Property> {
+    return this.httpClient
+      .post<ResponseWrapper<Property>>(this.environmentConfigService.apiBaseURL + `properties`, property)
       .pipe(processResponse());
   }
 
@@ -62,22 +69,20 @@ export class PropertyApiService implements PropertyService {
       .pipe(processResponse());
   }
 
-  uploadMediaFile(propertyId: number, file: File): Observable<MediaFile> {
+  uploadMediaFile(file: File, propertyId?: number): Observable<MediaFile> {
     const formData = new FormData();
     formData.append('file', file);
 
+    const requestUrl = propertyId ? `properties/${propertyId}/media` : 'properties/media';
+
     return this.httpClient
-      .post<
-        ResponseWrapper<MediaFile>
-      >(this.environmentConfigService.apiBaseURL + `properties/${propertyId}/media`, formData)
+      .post<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + requestUrl, formData)
       .pipe(processResponse());
   }
 
-  deleteMediaFile(propertyId: number, mediaId: number): Observable<MediaFile> {
+  deleteMediaFile(mediaId: number): Observable<MediaFile> {
     return this.httpClient
-      .delete<
-        ResponseWrapper<MediaFile>
-      >(this.environmentConfigService.apiBaseURL + `properties/${propertyId}/media/${mediaId}`)
+      .delete<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + `properties/media/${mediaId}`)
       .pipe(processResponse());
   }
 
@@ -111,10 +116,10 @@ export class PropertyApiService implements PropertyService {
       .pipe(processResponse());
   }
 
-  generatePropertyMediaUrl(propertyId: number, mediaId: number, variant: MediaFileVariantType): string {
+  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType): string {
     return (
       this.environmentConfigService.apiBaseURL +
-      `properties/${propertyId}/media/${mediaId}` +
+      `properties/media/${mediaId}` +
       (variant === undefined ? '' : `?variantType=${variant}`)
     );
   }

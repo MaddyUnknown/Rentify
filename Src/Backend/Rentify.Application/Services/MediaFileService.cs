@@ -63,7 +63,7 @@ namespace Rentify.Application.Services
             //DB operation to set status as deleted (File/Variant is deleted in job asynchronously)
             var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(deleteMediaDto.Id);
             if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, deleteMediaDto.Id));
-            if (mediaFile.MediaFileLink?.EntityType != deleteMediaDto.EntityType || mediaFile.MediaFileLink?.EntityId != deleteMediaDto.EntityId) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, deleteMediaDto.Id));
+            if(mediaFile.MediaFileLink != null && mediaFile.MediaFileLink.EntityType != deleteMediaDto.EntityType) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, deleteMediaDto.Id));
             
             // Transactional outbox pattern
             var eventData = new MediaFileDeleteEvent { MediaFileId = mediaFile.Id };
@@ -92,9 +92,9 @@ namespace Rentify.Application.Services
         {
             var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(mediaFileSearchDto.Id);
             if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
-            if (mediaFile.MediaFileLink?.EntityType != mediaFileSearchDto.EntityType || mediaFile.MediaFileLink?.EntityId != mediaFileSearchDto.EntityId) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
+            if (mediaFile.MediaFileLink != null && mediaFile.MediaFileLink.EntityType != mediaFileSearchDto.EntityType) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
 
-            if(mediaFileSearchDto.VariantType == null)
+            if (mediaFileSearchDto.VariantType == null)
             {
                 var fileStream = await _fileStorageService.ReadAsync(mediaFile.FileKey, ct);
                 return MediaFileMapper.MapToMediaFileStreamDto(mediaFile, fileStream);
@@ -144,10 +144,10 @@ namespace Rentify.Application.Services
             if (result.MimeType == null) throw new AppValidationException(MediaFileConstants.MediaTypeNotResolved);
 
             var validator = _mediaFileValidatorResolver.Resolve(uploadMediaDto.EntityType);
-            var errors = await validator.ValidateEntityAsync(uploadMediaDto.EntityId, uploadMediaDto.FileName, result);
-            if(errors.Count() > 0) throw new AppValidationException(errors);
+            var errors = await validator.ValidateEntityAsync(uploadMediaDto.FileName, result, uploadMediaDto.EntityId);
+            if (errors.Count() > 0) throw new AppValidationException(errors);
 
-            var generatedFileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile(uploadMediaDto.EntityType, uploadMediaDto.EntityId);
+            var generatedFileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile();
             
             // Uploading file to storage
             await _fileStorageService.WriteAsync(generatedFileKey, uploadMediaDto.MediaStream, ct);
@@ -166,15 +166,21 @@ namespace Rentify.Application.Services
                     Status = MediaFileStatusEnum.Uploaded
                 };
 
-                var mediaFileLink = new MediaFileLink
-                {
-                    EntityId = uploadMediaDto.EntityId,
-                    EntityType = uploadMediaDto.EntityType,
-                    MediaFile = mediaFile
-                };
-
                 _mediaFileCRUDRepo.Add(mediaFile);
-                _mediaFileLinkCRUDRepo.Add(mediaFileLink);
+
+                if (uploadMediaDto.EntityId.HasValue)
+                {
+                    var mediaFileLink = new MediaFileLink
+                    {
+                        EntityId = uploadMediaDto.EntityId.Value,
+                        EntityType = uploadMediaDto.EntityType,
+                        MediaFile = mediaFile
+                    };
+
+                    _mediaFileLinkCRUDRepo.Add(mediaFileLink);
+                }
+
+                
                 await _unitOfWork.SaveChangesAsync();
 
                 // Save event record in DB - Transactional outbox pattern

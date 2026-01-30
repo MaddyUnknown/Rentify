@@ -46,7 +46,7 @@
                   type="normal"
                   iconClass="app-button__icon--inline"
                   class="app-property-media__galary_img__action__icon"
-                  [input]="{ icon: file.data.markedAsCover ? ICONS.SquareStar : ICONS.Star }"
+                  [input]="{ icon: ICONS.Star }"
                   [disabled]="file.disableActions || file.data.markedAsCover"
                   (click)="onMarkAsCover(file)"
                 ></button>
