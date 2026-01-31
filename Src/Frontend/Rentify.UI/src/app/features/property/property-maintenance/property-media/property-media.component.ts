@@ -198,7 +198,6 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
         id: newFileId,
         name: file.name,
         processingStatus: 'uploading',
-        markedAsCover: false,
       };
       const newMediaFileRow: NewMediaFileRow = this.createNewImageRow(newMediaFile);
       this.newImages.set(newFileId, newMediaFileRow);

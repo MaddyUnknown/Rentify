@@ -9,6 +9,9 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
 import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
 import { GetPropertyDetails } from '../../../../core/models/property/get-property-details.model';
 import { ApiError } from '../../../../core/exceptions/api-error';
+import { RouteService } from '../../../../core/services/abstractions/route.service';
+import { ROUTE_SERVICE_TOKEN } from '../../../../core/services/tokens/route.token';
+import { Router } from '@angular/router';
 
 type PropertyDetailsForm = {
   name: FormControl<string>;
@@ -42,6 +45,8 @@ export class PropertyDetailsComponent implements OnInit, OnChanges {
     private destroyRef: DestroyRef,
     private fb: FormBuilder,
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
+    @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
+    private router: Router,
   ) {
     this.form = this.fb.group<PropertyDetailsForm>({
       name: this.fb.nonNullable.control('', { validators: [Validators.required] }),
@@ -131,19 +136,27 @@ export class PropertyDetailsComponent implements OnInit, OnChanges {
 
   private removeProperty(data: GetPropertyDetails) {
     this.disableActions = true;
-    console.log('Delete: ', data);
 
     setTimeout(() => {
       this.disableActions = false;
     }, 2000);
 
     // TO-DO: Delete action
-    // this.propertyService.deleteProperty(this.propertyId).subscribe({
-    //   next: () => {
-    //     //What to do on delete? Redirect to property pages.
-    //   },
-    //   error: (err) => console.error(err),
-    //});
+    this.propertyService.deleteProperty(this.propertyId).subscribe({
+      next: () => {
+        this.router.navigate(this.routeService.propeties());
+        this.disableActions = false;
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        this.disableActions = false;
+      },
+    });
   }
   //#endregion
 }
