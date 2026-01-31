@@ -20,15 +20,6 @@ namespace Rentify.DataAccess.SqlServer.Repositories
             _context = context;
         }
 
-        public async Task<MediaFileLink?> GetCoverMediaFileLinkByEntityAsync(MediaFileEntityEnum entityType, int entityId)
-        {
-            return await _context.MediaFileLinks
-                .Where(l => l.MarkedAsCover == true && l.EntityId == entityId && l.EntityType == entityType)
-                .Include(l => l.MediaFile)
-                .ThenInclude(m => m.MediaFileVariants)
-                .FirstOrDefaultAsync();
-        }
-
         public async Task<IEnumerable<MediaFile>> GetMediaFilesByEntityAsync(MediaFileEntityEnum entityType, int entityId, bool filterDeletedRecords = false)
         {
             return await _context.MediaFileLinks

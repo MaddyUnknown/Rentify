@@ -22,15 +22,17 @@ namespace Rentify.Event.Application.Handlers
         private IUnitOfWork _unitOfWork;
         private IMediaFileRepository _mediaFileRepository;
         private IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
+        private IMediaFileLinkRepository _mediaFileLinkRepository;
         private IImageThumbnailGenerator _thumbnailGenerator;
         private IFileStorageService _fileStorage;
         private (int width, int height) _coverImageDimension;
 
-        public SetNewCoverImageHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
+        public SetNewCoverImageHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IMediaFileLinkRepository mediaFileLinkRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _mediaFileRepository = mediaFileRepository;
             _mediaFileVariantCRUDRepository = mediaFileVariantCRUDRepository;
+            _mediaFileLinkRepository = mediaFileLinkRepository;
             _thumbnailGenerator = imageThumbnailGenerator;
             _fileStorage = fileStorageService;
             _coverImageDimension = (540, 320); //TO-DO: Replace in config
@@ -41,7 +43,7 @@ namespace Rentify.Event.Application.Handlers
             var mediaFile = await _mediaFileRepository.GetMediaFileByIdAsync(message.MediaFileId);
             var mediaFileLink = mediaFile?.MediaFileLink;
 
-            if (mediaFile == null) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileNotFoundForId, message.MediaFileId));
+            if (mediaFile == null) return; // Skip as the media file is deleted
             if (mediaFileLink == null || mediaFile.MediaFileLink.Id != message.MediaFileLinkId) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileLinkMissmatchError, message.MediaFileId, message.MediaFileLinkId));
             if (mediaFile.Status != MediaFileStatusEnum.Processed) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileProcessingForStatusError, mediaFile.Id, mediaFile.Status));
 
@@ -56,7 +58,7 @@ namespace Rentify.Event.Application.Handlers
                 await _fileStorage.DeleteAsync(coverImageKey); //Delete if any
                 await _fileStorage.WriteAsync(coverImageKey, coverImageStream);
 
-                //Save to DB
+                //Save cover to DB
                 var coverImageVariant = new MediaFileVariant
                 {
                     VariantType = MediaFileVariantEnum.Cover,
@@ -70,12 +72,8 @@ namespace Rentify.Event.Application.Handlers
                 await _unitOfWork.SaveChangesAsync();
             }
 
-            //Mark new image as cover pic
-            var existingCoverMediaLink = await _mediaFileRepository.GetCoverMediaFileLinkByEntityAsync(mediaFileLink.EntityType, mediaFileLink.EntityId);
-            if (existingCoverMediaLink != null) existingCoverMediaLink.MarkedAsCover = false;
-            mediaFileLink.MarkedAsCover = true;
-
-            await _unitOfWork.SaveChangesAsync();
+            //Commit media file as cover pic, this update takes into account if the mediaFile was first marked as requested or not, if not then update is skipped
+            await _mediaFileLinkRepository.CommitRequestedCoverForEntityAsync(mediaFileLink.Id, mediaFileLink.EntityType, mediaFileLink.EntityId);
         }
     }
 }

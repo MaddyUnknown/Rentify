@@ -71,7 +71,7 @@ namespace Rentify.Application.Mappers
                 Address = $"{property.Address.StreetName}, {property.Address.City}, {property.Address.State}, {property.Address.ZipCode}",
                 NumberOfUnits = property.NumberOfUnits,
                 NumberOfVacantUnits = 1,
-                CoverImage = property.CoverImage == null ? null : MediaFileMapper.MapToMediaFileDto(property.CoverImage),
+                CoverImage = property.CoverImage == null ? null : MediaFileMapper.MapToMediaFileDto(property.CoverImage, false),
             };
         }
 

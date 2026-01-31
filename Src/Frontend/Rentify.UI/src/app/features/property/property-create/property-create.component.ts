@@ -323,7 +323,6 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
         id: newFileId,
         name: file.name,
         processingStatus: 'uploading',
-        markedAsCover: false,
       };
       const newMediaFileRow: NewMediaFileRow = this.createNewImageRow(newMediaFile);
       this.propertyImageState.newImages.set(newFileId, newMediaFileRow);

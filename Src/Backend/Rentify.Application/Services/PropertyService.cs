@@ -27,6 +27,8 @@ public class PropertyService : IPropertyService
     private readonly IPropertyRepository _propertyRepo;
     private readonly IUnitRepository _unitRepo;
     private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
+    private readonly IMediaFileLinkRepository _mediaFileLinkRepo;
+    private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
     private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
 
     public PropertyService(
@@ -34,6 +36,8 @@ public class PropertyService : IPropertyService
         IRepository<Property> propertyCRUDRepo, 
         IRepository<Unit> unitCRUDRepo,
         IRepository<MediaFileLink> mediaFileLinkCRUDRepo, 
+        IRepository<MediaFile> mediaFileCRUDRepo,
+        IMediaFileLinkRepository mediaFileLinkRepo,
         IUnitRepository unitRepo, 
         IPropertyRepository propertyRepository,
         IMediaFileRepository mediaFileRepo,
@@ -46,6 +50,8 @@ public class PropertyService : IPropertyService
         _propertyRepo = propertyRepository;
         _unitRepo = unitRepo;
         _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
+        _mediaFileLinkRepo = mediaFileLinkRepo;
+        _mediaFileCRUDRepo = mediaFileCRUDRepo;
         _eventOutboxCRUDRepo = eventOutboxCRUDRepo;
     }
 
@@ -106,6 +112,23 @@ public class PropertyService : IPropertyService
         // Check if property has units before deletion
         var unitCount = await _unitRepo.CountByPropertyIdAsync(id);
         if (unitCount != 0) throw new AppValidationException(PropertyConstants.PropertyDeleteFailForActiveUnits);
+
+        // Delete property media
+        var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, true);
+        foreach(var mediaFile in mediaFiles)
+        {
+            // Transactional outbox pattern
+            var eventData = new MediaFileDeleteEvent { MediaFileId = mediaFile.Id };
+            var eventOutbox = new EventOutbox
+            {
+                EventObjectType = EventTypeHelper.GetEventObjectType<MediaFileDeleteEvent>(),
+                EventData = JsonSerializerHelper.Serialize(eventData)
+            };
+
+            //Save media status and event record in DB
+            mediaFile.Status = MediaFileStatusEnum.Deleted;
+            _eventOutboxCRUDRepo.Add(eventOutbox);
+        }
 
         _propertyCRUDRepo.Remove(property);
         await _unitOfWork.SaveChangesAsync();
@@ -191,6 +214,8 @@ public class PropertyService : IPropertyService
                 {
                     // Used to insert the row in DB else Media Link Id is not generated
                     await _unitOfWork.SaveChangesAsync();
+
+                    await _mediaFileLinkRepo.UpdateRequestedCoverForEntityAsync(mediaFileLink.Id, mediaFileLink.EntityType, mediaFileLink.EntityId);
 
                     // Transactional outbox pattern
                     var eventData = new SetNewCoverImageEvent { MediaFileId = media.Id, MediaFileLinkId = mediaFileLink.Id };

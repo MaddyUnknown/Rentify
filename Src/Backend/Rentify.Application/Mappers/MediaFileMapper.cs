@@ -11,7 +11,7 @@ namespace Rentify.Application.Mappers
 {
     public static class MediaFileMapper
     {
-        public static MediaFileDto MapToMediaFileDto(MediaFile file)
+        public static MediaFileDto MapToMediaFileDto(MediaFile file, bool checkCoverRequested = true)
         {
             var thumbnailDto = file.MediaFileVariants
                 .Where(f => f.VariantType == MediaFileVariantEnum.Thumbnail)
@@ -35,7 +35,7 @@ namespace Rentify.Application.Mappers
                 Name = file.Name,
                 ContentType = file.ContentType,
                 ProcessingStatus = file.Status,
-                MarkedAsCover = file?.MediaFileLink?.MarkedAsCover,
+                MarkedAsCover = checkCoverRequested ? file?.MediaFileLink?.MarkAsCoverRequested : file?.MediaFileLink?.MarkedAsCover,
                 Thumbnail = thumbnailDto,
                 Cover = coverDto
             };
