@@ -1,4 +1,4 @@
-# 🏠 Rentify - Test
+# 🏠 Rentify - Test 2
 
 **Rentify** is a platform designed to help landlords and property managers handle rental operations with ease.  
 It provides a streamlined way to manage **properties, tenants, contracts, utilities, billing, and payments** in a single system.
