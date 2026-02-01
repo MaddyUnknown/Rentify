@@ -11,6 +11,10 @@ jobs:
 
     runs-on: ubuntu-latest
     
+    defaults:
+      run:
+        working-directory: ./Src/Frontend/Rentify.UI
+    
     steps:
     - uses: actions/checkout@v4
     - name: Setup Node.js
@@ -29,6 +33,10 @@ jobs:
   build_test-backend:
 
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./Src/Backend
 
     steps:
     - uses: actions/checkout@v4
