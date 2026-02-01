@@ -22,6 +22,7 @@ jobs:
       with:
         node-version: 20.x
         cache: 'npm'
+        cache-dependency-path: ./Src/Frontend/Rentify.UI/package-lock.json
     - name: Restore dependencies
       run: npm ci
     - name: Build
