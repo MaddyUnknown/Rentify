@@ -71,15 +71,15 @@ export class PropertyLocationComponent implements OnChanges, AfterViewInit {
       maxZoom: 19,
     }).addTo(this.map);
 
+    this.map.on('click', this.onMapClick.bind(this));
+
     if (this.currentState) {
       this.updateLocationMarker(this.currentState);
       this.panMap(this.currentState);
-      this.map.on('click', this.onMapClick.bind(this));
     } else {
       this.geolocationService.getCurrentLocation().subscribe({
         next: (location) => {
           this.panMap(location);
-          this.map?.on('click', this.onMapClick.bind(this));
         },
         error: (err) => console.error(err),
       });

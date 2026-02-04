@@ -111,7 +111,7 @@ export class PropertyDetailsComponent implements OnInit, OnChanges {
   //#endregion
 
   //#region Service Calls
-  private async updateProperty(data: GetPropertyDetails) {
+  private updateProperty(data: GetPropertyDetails) {
     this.disableActions = true;
 
     this.propertyService.updateProperty(this.propertyId, data).subscribe({

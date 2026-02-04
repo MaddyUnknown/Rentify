@@ -66,14 +66,14 @@ export class PropertySearchComponent implements OnInit {
     if (enableLoading) this.loading = true;
     if (enableActionDisable) this.disableActions = true;
 
-    this.propertyService.getPaginatedProperties(currentPage, this.ITEMS_PER_PAGE, new Date()).subscribe({
+    this.propertyService.getPaginatedProperties(currentPage, this.ITEMS_PER_PAGE, this.DATE_SNAPSHOT).subscribe({
       next: (properties) => {
         this.properties = properties;
         this.totalItems = this.properties.totalItems;
         this.currentPage = this.properties.currentPage;
 
         if (enableLoading) this.loading = false;
-        if (enableActionDisable) this.disableActions = true;
+        if (enableActionDisable) this.disableActions = false;
       },
       error: (err) => {
         if (err instanceof ApiError) {
@@ -83,7 +83,7 @@ export class PropertySearchComponent implements OnInit {
         }
 
         if (enableLoading) this.loading = false;
-        if (enableActionDisable) this.disableActions = true;
+        if (enableActionDisable) this.disableActions = false;
       },
     });
   }
