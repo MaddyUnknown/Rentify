@@ -1,0 +1,32 @@
+<header class="app-tenant-maintenance__header">
+  <h2>Tenant Maintenance</h2>
+  <button
+    appButton
+    type="normal"
+    color="primary"
+    class="app-tenant-maintenance__header__back-btn"
+    [disabled]="tenantLoading"
+    [routerLink]="tenantsRoute()"
+    [input]="{ icon: ICONS.ArrowLeft, label: 'Back to Tenants' }"
+  ></button>
+</header>
+<div class="app-tenant-maintenance__main">
+  <section
+    class="app-tenant-maintenance__personal_details"
+    [appTenantDetails]="tenantAggregate?.details"
+    [tenantId]="tenantId"
+    [loading]="tenantLoading"
+  ></section>
+  <section
+    class="app-tenant-maintenance__emergency_contact"
+    [appTenantEmergencyContact]="tenantAggregate?.emergencyContact"
+    [tenantId]="tenantId"
+    [loading]="tenantLoading"
+  ></section>
+  <section
+    class="app-tenant-maintenance__documents"
+    [appTenantDocuments]="tenantAggregate?.documents"
+    [tenantId]="tenantId"
+    [loading]="tenantLoading"
+  ></section>
+</div>

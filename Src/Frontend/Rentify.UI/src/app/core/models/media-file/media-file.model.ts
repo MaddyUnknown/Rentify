@@ -5,6 +5,8 @@ export interface MediaFile {
   id: number;
   name?: string;
   contentType?: string;
+  uploadedDate?: Date;
+  size?: number;
   markedAsCover?: boolean;
   processingStatus: MediaFileStatus;
   thumbnail?: MediaFileVariant;

@@ -1,0 +1,98 @@
+.app-tenant-search__header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  margin-bottom: 1.7rem;
+  padding: 2.8rem 2rem 1.8rem 2rem;
+  border-bottom: 0.1rem solid var(--border-color);
+
+  background-color: var(--background-color);
+}
+
+.app-tenant-search__header h2 {
+  flex-grow: 1;
+  padding-bottom: 0.2rem;
+  font-weight: 600;
+}
+
+.app-tenants__container {
+  padding: 0rem 1.2rem;
+}
+
+.app-tenants__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+  gap: 0.8rem;
+}
+
+.app-tenants__card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.8rem;
+  padding: 1.2rem;
+  border: 0.1rem solid var(--border-color);
+  border-radius: 0.8rem;
+  background-color: var(--background-color);
+}
+
+.app-tenants__card__avatar {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--border-color);
+}
+
+.app-tenants__card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-tenants__card__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.app-tenants__card__subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--muted-text-color);
+  font-size: 1.2rem;
+}
+
+.app-tenants__card__status {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  background-color: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+  text-transform: capitalize;
+}
+
+.app-tenants__card__status--inactive {
+  background-color: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+}
+
+.app-tenants__card__manage-btn {
+  width: 100%;
+}
+
+.app-tenants__non_found {
+  display: grid;
+  place-items: center;
+  gap: 0.6rem;
+  padding: 2.8rem 0;
+  color: var(--muted-text-color);
+}
+
+.app-tenants__pagination {
+  display: flex;
+  justify-content: center;
+  padding: 1.2rem 0 2rem;
+}

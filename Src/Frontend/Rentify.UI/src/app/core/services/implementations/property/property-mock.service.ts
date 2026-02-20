@@ -190,6 +190,8 @@ export class PropertyMockService implements PropertyService {
           contentType: file.type,
           processingStatus: 'uploaded' as MediaFileStatus,
           propertyId: propertyId,
+          size: file.size,
+          uploadedDate: new Date(),
         };
 
         data.files.push(image);

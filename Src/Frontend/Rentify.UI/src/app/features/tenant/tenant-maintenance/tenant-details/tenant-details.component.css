@@ -1,0 +1,81 @@
+app-panel {
+  height: 100%;
+}
+
+button[appButton] {
+  width: 11ch;
+}
+
+.app-tenant__user-details {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.app-tenant__user-pic {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  height: 6.4rem;
+  width: 6.4rem;
+  padding: 0.4rem;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.app-tenant__user-pic_hover-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 0.8rem);
+  height: calc(100% - 0.8rem);
+  margin: 0.4rem;
+  border-radius: 50%;
+  opacity: 0;
+
+  background-color: var(--background-color--overlay);
+
+  transition: opacity 0.3s ease-in-out;
+}
+
+.app-tenant__user-pic_hover-box button[appButton] {
+  color: var(--background-color);
+}
+
+.app-tenant__user-pic:hover .app-tenant__user-pic_hover-box {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.app-tenant__user-pic img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.app-tenant__user-name {
+  width: auto;
+  flex-grow: 1;
+}
+
+/* Shadow loader style */
+.app-tenant__user-pic__loader {
+  margin: 0;
+  padding: 0.4rem;
+  height: 6.4rem;
+  width: 6.4rem;
+}
+
+.app-tenant__user-pic__loader app-skeleton-loader {
+  width: 100%;
+  border-radius: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-tenant-details__shadow-text-box {
+  height: 9.8rem;
+}

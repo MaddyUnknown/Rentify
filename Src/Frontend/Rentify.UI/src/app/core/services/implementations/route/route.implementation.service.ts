@@ -14,4 +14,16 @@ export class RouteImplementationService implements RouteService {
   propertyCreate(): any[] {
     return [`/${RoutesConstants.PropertyCreate}`];
   }
+
+  tenants(): any[] {
+    return [`/${RoutesConstants.Tenants}`];
+  }
+
+  tenant(id: number): any[] {
+    return [`/${RoutesConstants.Tenant}`, id];
+  }
+
+  tenantCreate(): any[] {
+    return [`/${RoutesConstants.TenantCreate}`];
+  }
 }

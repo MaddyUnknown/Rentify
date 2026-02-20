@@ -1,0 +1,80 @@
+app-panel {
+  height: 100%;
+}
+
+[appPanelButtons] button {
+  width: 11ch;
+}
+
+.app-tenant-documents__list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.8rem;
+  gap: 0.8rem;
+  height: 15rem;
+  overflow-y: auto;
+}
+
+.app-tenant-documents__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 0.1rem solid var(--border-color);
+  border-radius: 0.8rem;
+  background-color: var(--background-color);
+}
+
+.app-tenant-documents__meta h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.app-tenant-documents__subtext {
+  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--muted-text-color);
+}
+
+.app-tenant-documents__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.app-tenant-documents__item--loading {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.app-tenant-documents__skeleton-title {
+  width: 60%;
+  height: 1.6rem;
+}
+
+.app-tenant-documents__skeleton-meta {
+  width: 80%;
+  height: 1.2rem;
+}
+
+.app-tenant-documents__item--spinner {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: start;
+
+  min-height: 5.4rem;
+}
+
+.app-tenant-documents__item--spinner app-spinner-loader {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.app-tenant-documents_item__status {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 1.2rem;
+}

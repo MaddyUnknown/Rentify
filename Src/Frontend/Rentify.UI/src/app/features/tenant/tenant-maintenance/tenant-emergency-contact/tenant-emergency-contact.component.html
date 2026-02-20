@@ -1,0 +1,87 @@
+<app-panel [icon]="ICONS.Phone" heading="Emergency Contact">
+  <div appPanelButtons>
+    @if (mode.isEdit) {
+      <button
+        appButton
+        type="normal"
+        color="primary"
+        [input]="{ icon: ICONS.Save, label: 'Save' }"
+        [disabled]="loading || disableActions"
+        (click)="onSaveClick()"
+      ></button>
+    }
+
+    <button
+      appButton
+      type="normal"
+      [color]="mode.isEdit ? 'danger' : 'primary'"
+      [input]="mode.isEdit ? { icon: ICONS.CircleX, label: 'Close' } : { icon: ICONS.SquarePen, label: 'Edit' }"
+      [disabled]="loading || disableActions"
+      (click)="onEditCloseClick()"
+    ></button>
+  </div>
+
+  @if (loading) {
+    <div appPanelDesc class="app-form">
+      <div class="form-group">
+        <label>Full Name</label>
+        <app-skeleton-loader type="input" />
+      </div>
+      <div class="form-group">
+        <label>Relationship</label>
+        <app-skeleton-loader type="input" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone</label>
+          <app-skeleton-loader type="input" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <app-skeleton-loader type="input" />
+        </div>
+      </div>
+    </div>
+  } @else {
+    <form appPanelDesc class="app-form" [formGroup]="form">
+      <div class="form-group">
+        <label for="tenant-emergency-name">Full Name</label>
+        <input
+          id="tenant-emergency-name"
+          type="text"
+          formControlName="name"
+          [attr.invalid]="isInvalid(form.controls.name) ? '' : null"
+        />
+      </div>
+      <div class="form-group">
+        <label for="tenant-emergency-relationship">Relationship</label>
+        <input
+          id="tenant-emergency-relationship"
+          type="text"
+          formControlName="relationship"
+          [attr.invalid]="isInvalid(form.controls.relationship) ? '' : null"
+        />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tenant-emergency-phone">Phone</label>
+          <input
+            id="tenant-emergency-phone"
+            type="text"
+            formControlName="phoneNumber"
+            [attr.invalid]="isInvalid(form.controls.phoneNumber) ? '' : null"
+          />
+        </div>
+        <div class="form-group">
+          <label for="tenant-emergency-email">Email</label>
+          <input
+            id="tenant-emergency-email"
+            type="text"
+            formControlName="email"
+            [attr.invalid]="isInvalid(form.controls.email) ? '' : null"
+          />
+        </div>
+      </div>
+    </form>
+  }
+</app-panel>
