@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     { provide: ENVIRONMENT_CONFIG_SERVICE_TOKEN, useClass: EnvironmentConfigJsonService },
-    { provide: MEDIA_SERVICE_TOKEN, useClass: MediaMockService },
+    { provide: MEDIA_SERVICE_TOKEN, useClass: MediaApiService },
     { provide: PROPERTY_SERVICE_TOKEN, useClass: PropertyApiService },
     { provide: TENANT_SERVICE_TOKEN, useClass: TenantMockService },
     { provide: ROUTE_SERVICE_TOKEN, useClass: RouteImplementationService },

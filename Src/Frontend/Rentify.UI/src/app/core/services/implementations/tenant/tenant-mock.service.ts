@@ -12,6 +12,8 @@ import { data } from '../mock/data';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { MockFiles } from '../mock/data.model';
 import { MediaFileStatus } from '../../../models/media-file/media-file-status.model';
+import { TenantStatus } from '../../../models/tenant/tenant-status.model';
+import { CreateTenant } from '../../../models/tenant/create-tenant.model';
 
 @Injectable()
 export class TenantMockService implements TenantService {
@@ -25,9 +27,64 @@ export class TenantMockService implements TenantService {
             name,
             email,
             phone: phoneNumber,
+            status: 'active' as TenantStatus,
           }));
 
         observer.next({ totalItems: data.tenants.length, items: tenants, currentPage: page });
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
+  createTenant(tenant: CreateTenant): Observable<Tenant> {
+    return new Observable<Tenant>((observer) => {
+      setTimeout(() => {
+        const nextTenantId = data.tenants.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1;
+
+        data.tenants.push({
+          id: nextTenantId,
+          name: tenant.details.name,
+          email: tenant.details.email,
+          phoneNumber: tenant.details.phoneNumber,
+          dob: tenant.details.dob,
+          employment: tenant.details.employment,
+          streetName: tenant.details.streetName,
+          city: tenant.details.city,
+          state: tenant.details.state,
+          zipCode: tenant.details.zipCode,
+          note: tenant.details.note,
+        });
+
+        data.tenantEmergencyContacts.push({
+          tenantId: nextTenantId,
+          name: tenant.emergencyContact.name,
+          relationship: tenant.emergencyContact.relationship,
+          phoneNumber: tenant.emergencyContact.phoneNumber,
+          email: tenant.emergencyContact.email,
+        });
+
+        const selectedDocumentIds = new Set(tenant.documents.map((document) => document.id));
+        const documents = data.files
+          .filter((file) => selectedDocumentIds.has(file.id))
+          .map((file) => {
+            file.tenantId = nextTenantId;
+
+            return {
+              id: file.id,
+              name: file.name,
+              contentType: file.contentType,
+              uploadedDate: file.uploadedDate,
+              size: file.size,
+              processingStatus: file.processingStatus,
+            };
+          });
+
+        observer.next({
+          id: nextTenantId,
+          details: { ...tenant.details },
+          emergencyContact: { ...tenant.emergencyContact },
+          documents,
+        });
         observer.complete();
       }, data.apiLatency);
     });

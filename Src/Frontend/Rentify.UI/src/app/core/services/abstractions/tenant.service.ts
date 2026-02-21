@@ -7,9 +7,12 @@ import { TenantDetails } from '../../models/tenant/tenant-details.model';
 import { TenantEmergencyContact } from '../../models/tenant/tenant-emergency-contact.model';
 import { UpdateTenantEmergencyContact } from '../../models/tenant/update-tenant-emergency-contact.model';
 import { MediaFile } from '../../models/media-file/media-file.model';
+import { CreateTenant } from '../../models/tenant/create-tenant.model';
 
 export interface TenantService {
   getPaginatedTenants(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<TenantSummary>>;
+
+  createTenant(tenant: CreateTenant): Observable<Tenant>;
 
   getTenantAggregateById(tenantId: number): Observable<Tenant>;
   updateTenantDetails(tenantId: number, details: UpdateTenantDetails): Observable<TenantDetails>;

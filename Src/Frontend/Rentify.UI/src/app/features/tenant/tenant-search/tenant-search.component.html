@@ -22,6 +22,7 @@
             <app-skeleton-loader type="box" class="app-tenants__card__title"></app-skeleton-loader>
             <app-skeleton-loader type="box" class="app-tenants__card__subtitle"></app-skeleton-loader>
             <app-skeleton-loader type="box" class="app-tenants__card__subtitle"></app-skeleton-loader>
+            <div class="app-tenants__card__status"><app-skeleton-loader type="box"></app-skeleton-loader></div>
           </main>
           <footer>
             <app-skeleton-loader type="box" class="app-tenants__card__manage-btn"></app-skeleton-loader>
@@ -29,7 +30,7 @@
         </article>
       }
     } @else {
-      @for (tenant of tenants; track tenant.id) {
+      @for (tenant of tenants?.items ?? []; track tenant.id) {
         <article class="app-tenants__card">
           <header>
             <div class="app-tenants__card__avatar">
@@ -66,7 +67,7 @@
       }
     }
   </section>
-  @if (tenants.length > 0) {
+  @if (tenants !== undefined && tenants.totalItems > 0) {
     <section class="app-tenants__pagination">
       <app-pagination
         [totalItems]="totalItems"

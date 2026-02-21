@@ -13,7 +13,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { ROUTE_SERVICE_TOKEN } from '../../../core/services/tokens/route.token';
 import { RouteService } from '../../../core/services/abstractions/route.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SpinnerLoaderComponent } from '../../../shared/components/spinner-loader/spinner-loader.component';
 import { AsyncPipe, DatePipe } from '@angular/common';
@@ -43,7 +43,7 @@ type MediaFileRow = {
 type TenantCreateForm = {
   details: FormGroup<TenantDetailsForm>;
   emergencyContact: FormGroup<TenantEmergencyForm>;
-  mediaFiles: FormArray<FormGroup<TenantMediaFileForm>>;
+  documents: FormArray<FormGroup<TenantMediaFileForm>>;
 };
 
 type TenantDetailsForm = {
@@ -110,6 +110,7 @@ export class TenantCreateComponent implements OnInit {
     @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
     @Inject(TENANT_SERVICE_TOKEN) private tenantService: TenantService,
     private fileStatusPollingService: MediaStatusPollingService,
+    private router: Router,
   ) {
     this.documentList$ = new BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>([]);
 
@@ -132,7 +133,7 @@ export class TenantCreateComponent implements OnInit {
         phoneNumber: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         email: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
       }),
-      mediaFiles: this.fb.array<FormGroup<TenantMediaFileForm>>([]),
+      documents: this.fb.array<FormGroup<TenantMediaFileForm>>([]),
     });
 
     this.tenantDocumentState = {
@@ -177,7 +178,21 @@ export class TenantCreateComponent implements OnInit {
 
     if (this.tenantDocumentState.newDocuments.size > 0) return;
 
-    console.log(this.tenantForm.getRawValue());
+    this.tenantService.createTenant(this.tenantForm.getRawValue()).subscribe({
+      next: (tenant) => {
+        this.disableActions = false;
+        this.router.navigate(this.routeService.tenant(tenant.id));
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        this.disableActions = false;
+      },
+    });
 
     this.disableActions = true;
     setTimeout(() => {
@@ -285,7 +300,7 @@ export class TenantCreateComponent implements OnInit {
           this.tenantDocumentState.documents.set(file.id, this.createDocumentRow(file));
 
           //Push to form
-          this.tenantForm.controls.mediaFiles.push(
+          this.tenantForm.controls.documents.push(
             this.fb.nonNullable.group<TenantMediaFileForm>({
               id: this.fb.nonNullable.control(file.id),
             }),
@@ -319,11 +334,11 @@ export class TenantCreateComponent implements OnInit {
         this.tenantDocumentState.documents.delete(deletedDoc.id);
 
         //Remove from form
-        const index = this.tenantForm.controls.mediaFiles.controls.findIndex(
+        const index = this.tenantForm.controls.documents.controls.findIndex(
           (x) => x.controls.id.value === deletedDoc.id,
         );
         if (index !== -1) {
-          this.tenantForm.controls.mediaFiles.removeAt(index);
+          this.tenantForm.controls.documents.removeAt(index);
         }
       },
       error: (err) => {

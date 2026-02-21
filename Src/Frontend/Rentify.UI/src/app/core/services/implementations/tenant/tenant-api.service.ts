@@ -14,6 +14,7 @@ import { EnvironmentConfigJsonService } from '../environement-config/environment
 import { ResponseWrapper } from '../../../models/response/response-wrapper.model';
 import { processResponse } from '../../../utils/process-response.util';
 import { MediaFile } from '../../../models/media-file/media-file.model';
+import { CreateTenant } from '../../../models/tenant/create-tenant.model';
 
 @Injectable()
 export class TenantApiService implements TenantService {
@@ -27,6 +28,12 @@ export class TenantApiService implements TenantService {
       .get<
         ResponseWrapper<PaginatedList<TenantSummary>>
       >(this.environmentConfigService.apiBaseURL + `tenants?page=${page}&pageSize=${pageSize}&asOfDate=${asOfDate.toISOString()}`)
+      .pipe(processResponse());
+  }
+
+  createTenant(tenant: CreateTenant): Observable<Tenant> {
+    return this.httpClient
+      .post<ResponseWrapper<Tenant>>(this.environmentConfigService.apiBaseURL + `tenants`, tenant)
       .pipe(processResponse());
   }
 
