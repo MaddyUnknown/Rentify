@@ -1,13 +1,5 @@
 import { Component, DestroyRef, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CircleX, FileText, Plus, Save, Download, Trash2, Phone, InfoIcon, Camera } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
@@ -27,48 +19,11 @@ import { MediaStatusPollingService } from '../../../shared/services/media-status
 import { ApiError } from '../../../core/exceptions/api-error';
 import { TenantService } from '../../../core/services/abstractions/tenant.service';
 import { TENANT_SERVICE_TOKEN } from '../../../core/services/tokens/tenant.token';
-
-type NewMediaFileRow = {
-  kind: 'new';
-  data: MediaFile;
-};
-
-type MediaFileRow = {
-  kind: 'existing';
-  data: MediaFile;
-  disableActions: boolean;
-  destoryPollingRef: LocalDestroyRef;
-};
-
-type TenantCreateForm = {
-  details: FormGroup<TenantDetailsForm>;
-  emergencyContact: FormGroup<TenantEmergencyForm>;
-  documents: FormArray<FormGroup<TenantMediaFileForm>>;
-};
-
-type TenantDetailsForm = {
-  name: FormControl<string>;
-  email: FormControl<string>;
-  phoneNumber: FormControl<string>;
-  dob: FormControl<string>;
-  employment: FormControl<string>;
-  streetName: FormControl<string>;
-  city: FormControl<string>;
-  state: FormControl<string>;
-  zipCode: FormControl<string>;
-  note: FormControl<string>;
-};
-
-type TenantEmergencyForm = {
-  name: FormControl<string>;
-  relationship: FormControl<string>;
-  phoneNumber: FormControl<string>;
-  email: FormControl<string>;
-};
-
-type TenantMediaFileForm = {
-  id: FormControl<number>;
-};
+import { NewMediaFileRow, MediaFileRow } from '../models/tenant-document-row.model';
+import { TenantDetailsForm } from '../models/tenant-details-form.model';
+import { TenantEmergencyContactForm } from '../models/tenant-emergency-contact-form.model';
+import { TenantCreateForm } from '../models/tenant-create-form.model';
+import { TenantMediaFileForm } from '../models/tenant-media-file-form.model';
 
 @Component({
   selector: 'app-tenant-create',
@@ -127,7 +82,7 @@ export class TenantCreateComponent implements OnInit {
         zipCode: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         note: this.fb.nonNullable.control<string>(''),
       }),
-      emergencyContact: this.fb.group<TenantEmergencyForm>({
+      emergencyContact: this.fb.group<TenantEmergencyContactForm>({
         name: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         relationship: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         phoneNumber: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),

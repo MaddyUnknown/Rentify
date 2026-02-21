@@ -9,13 +9,13 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { FileText, Plus, Download, Trash2, LucideAngularModule, View } from 'lucide-angular';
+import { FileText, Plus, Download, Trash2, LucideAngularModule } from 'lucide-angular';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { MediaFile } from '../../../../core/models/media-file/media-file.model';
 import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref';
-import { BehaviorSubject, debounceTime, merge, Observable, startWith } from 'rxjs';
+import { BehaviorSubject, debounceTime, merge, startWith } from 'rxjs';
 import { ObservableMap } from '../../../../shared/models/observable-map.model';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { FileSizePipe } from '../../../../shared/pipes/file-size.pipe';
@@ -26,18 +26,7 @@ import { ApiError } from '../../../../core/exceptions/api-error';
 import { TENANT_SERVICE_TOKEN } from '../../../../core/services/tokens/tenant.token';
 import { TenantService } from '../../../../core/services/abstractions/tenant.service';
 import { SpinnerLoaderComponent } from '../../../../shared/components/spinner-loader/spinner-loader.component';
-
-type NewMediaFileRow = {
-  kind: 'new';
-  data: MediaFile;
-};
-
-type MediaFileRow = {
-  kind: 'existing';
-  data: MediaFile;
-  disableActions: boolean;
-  destoryPollingRef: LocalDestroyRef;
-};
+import { NewMediaFileRow, MediaFileRow } from '../../models/tenant-document-row.model';
 
 @Component({
   selector: 'section[appTenantDocuments]',

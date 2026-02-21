@@ -3,7 +3,7 @@ import { Camera, CircleX, InfoIcon, Save, SquarePen, Trash2 } from 'lucide-angul
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditMode } from '../../../../shared/models/edit-mode.model';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouteService } from '../../../../core/services/abstractions/route.service';
 import { ROUTE_SERVICE_TOKEN } from '../../../../core/services/tokens/route.token';
 import { Router } from '@angular/router';
@@ -12,19 +12,7 @@ import { TENANT_SERVICE_TOKEN } from '../../../../core/services/tokens/tenant.to
 import { TenantService } from '../../../../core/services/abstractions/tenant.service';
 import { GetTenantDetails } from '../../../../core/models/tenant/get-tenant-details.model';
 import { ApiError } from '../../../../core/exceptions/api-error';
-
-type TenantDetailsForm = {
-  name: FormControl<string>;
-  email: FormControl<string>;
-  phoneNumber: FormControl<string>;
-  dob: FormControl<string>;
-  employment: FormControl<string>;
-  streetName: FormControl<string>;
-  city: FormControl<string>;
-  state: FormControl<string>;
-  zipCode: FormControl<string>;
-  note: FormControl<string>;
-};
+import { TenantDetailsForm } from '../../models/tenant-details-form.model';
 
 @Component({
   selector: 'section[appTenantDetails]',

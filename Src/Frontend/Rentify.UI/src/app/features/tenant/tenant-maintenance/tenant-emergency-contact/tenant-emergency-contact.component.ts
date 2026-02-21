@@ -1,5 +1,5 @@
 import { Component, DestroyRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CircleX, Phone, Save, SquarePen, Trash2 } from 'lucide-angular';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
@@ -10,13 +10,7 @@ import { TenantService } from '../../../../core/services/abstractions/tenant.ser
 import { TenantEmergencyContact } from '../../../../core/models/tenant/tenant-emergency-contact.model';
 import { ApiError } from '../../../../core/exceptions/api-error';
 import { Inject } from '@angular/core';
-
-type TenantEmergencyContactForm = {
-  name: FormControl<string>;
-  relationship: FormControl<string>;
-  phoneNumber: FormControl<string>;
-  email: FormControl<string>;
-};
+import { TenantEmergencyContactForm } from '../../models/tenant-emergency-contact-form.model';
 
 @Component({
   selector: 'section[appTenantEmergencyContact]',
