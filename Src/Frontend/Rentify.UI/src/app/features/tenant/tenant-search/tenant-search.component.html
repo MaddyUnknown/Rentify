@@ -40,7 +40,7 @@
           <main>
             <h3 [title]="tenant.name" class="app-tenants__card__title">{{ tenant.name }}</h3>
             <p class="app-tenants__card__subtitle">{{ tenant.email }}</p>
-            <p class="app-tenants__card__subtitle">{{ tenant.phone }}</p>
+            <p class="app-tenants__card__subtitle">{{ tenant.phoneNumber }}</p>
             <span
               class="app-tenants__card__status"
               [class.app-tenants__card__status--inactive]="tenant.status === 'inactive'"

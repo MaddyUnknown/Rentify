@@ -51,6 +51,7 @@ export type MockTenant = {
 };
 
 export type MockTenantEmergencyContact = {
+  id: number;
   tenantId: number;
   name: string;
   relationship: string;

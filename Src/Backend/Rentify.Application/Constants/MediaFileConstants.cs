@@ -23,6 +23,7 @@ namespace Rentify.Application.Constants
         {
             public static readonly string ImagePng = "image/png";
             public static readonly string ImageJpg = "image/jpeg";
+            public static readonly string Pdf = "application/pdf";
         }
     }
 }

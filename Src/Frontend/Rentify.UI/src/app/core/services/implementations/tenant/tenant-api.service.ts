@@ -57,20 +57,13 @@ export class TenantApiService implements TenantService {
 
   updateTenantEmergencyContact(
     tenantId: number,
+    tenantEmergencyContactId: number,
     contact: UpdateTenantEmergencyContact,
   ): Observable<TenantEmergencyContact> {
     return this.httpClient
       .put<
         ResponseWrapper<TenantEmergencyContact>
-      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/emergency-contact`, contact)
-      .pipe(processResponse());
-  }
-
-  deleteTenantEmergencyContact(tenantId: number): Observable<TenantEmergencyContact> {
-    return this.httpClient
-      .delete<
-        ResponseWrapper<TenantEmergencyContact>
-      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/emergency-contact`)
+      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/emergency-contact/${tenantEmergencyContactId}`, contact)
       .pipe(processResponse());
   }
 
@@ -81,7 +74,7 @@ export class TenantApiService implements TenantService {
     const requestUrl = tenantId ? `tenants/${tenantId}/documents` : 'tenants/documents';
 
     return this.httpClient
-      .post<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + requestUrl, document)
+      .post<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + requestUrl, formData)
       .pipe(processResponse());
   }
 

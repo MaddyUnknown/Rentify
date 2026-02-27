@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rentify.Core.Enums
+namespace Rentify.Application.Enums
 {
-    public enum MediaFileEntityEnum
+    public enum TenantStatusEnum
     {
-        None = 0,
-        Property = 1,
-        Tenant = 2
+        Unknown = 0,
+        Active = 1,
+        Inactive = 2
     }
 }

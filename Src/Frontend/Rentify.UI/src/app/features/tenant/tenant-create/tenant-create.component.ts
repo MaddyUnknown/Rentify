@@ -83,6 +83,7 @@ export class TenantCreateComponent implements OnInit {
         note: this.fb.nonNullable.control<string>(''),
       }),
       emergencyContact: this.fb.group<TenantEmergencyContactForm>({
+        id: this.fb.nonNullable.control<number>(0),
         name: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         relationship: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         phoneNumber: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),

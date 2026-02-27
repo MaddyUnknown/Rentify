@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ENVIRONMENT_CONFIG_SERVICE_TOKEN, useClass: EnvironmentConfigJsonService },
     { provide: MEDIA_SERVICE_TOKEN, useClass: MediaApiService },
     { provide: PROPERTY_SERVICE_TOKEN, useClass: PropertyApiService },
-    { provide: TENANT_SERVICE_TOKEN, useClass: TenantMockService },
+    { provide: TENANT_SERVICE_TOKEN, useClass: TenantApiService },
     { provide: ROUTE_SERVICE_TOKEN, useClass: RouteImplementationService },
   ],
 };

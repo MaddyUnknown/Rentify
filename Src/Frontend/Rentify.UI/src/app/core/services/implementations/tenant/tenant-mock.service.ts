@@ -26,7 +26,7 @@ export class TenantMockService implements TenantService {
             id,
             name,
             email,
-            phone: phoneNumber,
+            phoneNumber: phoneNumber,
             status: 'active' as TenantStatus,
           }));
 
@@ -40,6 +40,8 @@ export class TenantMockService implements TenantService {
     return new Observable<Tenant>((observer) => {
       setTimeout(() => {
         const nextTenantId = data.tenants.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1;
+        const nextTenantContactId =
+          data.tenantEmergencyContacts.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1;
 
         data.tenants.push({
           id: nextTenantId,
@@ -55,13 +57,16 @@ export class TenantMockService implements TenantService {
           note: tenant.details.note,
         });
 
-        data.tenantEmergencyContacts.push({
+        const emergencyContact = {
+          id: nextTenantContactId,
           tenantId: nextTenantId,
           name: tenant.emergencyContact.name,
           relationship: tenant.emergencyContact.relationship,
           phoneNumber: tenant.emergencyContact.phoneNumber,
           email: tenant.emergencyContact.email,
-        });
+        };
+
+        data.tenantEmergencyContacts.push(emergencyContact);
 
         const selectedDocumentIds = new Set(tenant.documents.map((document) => document.id));
         const documents = data.files
@@ -82,7 +87,7 @@ export class TenantMockService implements TenantService {
         observer.next({
           id: nextTenantId,
           details: { ...tenant.details },
-          emergencyContact: { ...tenant.emergencyContact },
+          emergencyContact: { ...emergencyContact },
           documents,
         });
         observer.complete();
@@ -119,6 +124,7 @@ export class TenantMockService implements TenantService {
           },
           emergencyContact: emergencyContact
             ? {
+                id: emergencyContact.id,
                 name: emergencyContact.name,
                 relationship: emergencyContact.relationship,
                 phoneNumber: emergencyContact.phoneNumber,
@@ -205,6 +211,7 @@ export class TenantMockService implements TenantService {
 
   updateTenantEmergencyContact(
     tenantId: number,
+    tenantEmergencyContactId: number,
     contact: UpdateTenantEmergencyContact,
   ): Observable<TenantEmergencyContact> {
     return new Observable<TenantEmergencyContact>((observer) => {
@@ -212,43 +219,22 @@ export class TenantMockService implements TenantService {
         const tenant = data.tenants.find((t) => t.id === tenantId);
 
         if (!tenant) {
-          observer.error('Tenant not found');
+          observer.error('Tenant emergency contact not found');
           return;
         }
 
         const existingIndex = data.tenantEmergencyContacts.findIndex((c) => c.tenantId === tenantId);
 
         if (existingIndex === -1) {
-          data.tenantEmergencyContacts.push({ tenantId, ...contact });
+          data.tenantEmergencyContacts.push({ tenantId, id: tenantEmergencyContactId, ...contact });
         } else {
-          data.tenantEmergencyContacts[existingIndex] = { tenantId, ...contact };
+          if (data.tenantEmergencyContacts[existingIndex].id !== tenantEmergencyContactId) {
+            observer.error('Tenant emergency contact not found');
+          }
+          data.tenantEmergencyContacts[existingIndex] = { tenantId, id: tenantEmergencyContactId, ...contact };
         }
 
-        observer.next({ ...contact });
-        observer.complete();
-      }, data.apiLatency);
-    });
-  }
-
-  deleteTenantEmergencyContact(tenantId: number): Observable<TenantEmergencyContact> {
-    return new Observable<TenantEmergencyContact>((observer) => {
-      setTimeout(() => {
-        const index = data.tenantEmergencyContacts.findIndex((c) => c.tenantId === tenantId);
-
-        if (index === -1) {
-          observer.error('Emergency contact not found');
-          return;
-        }
-
-        const deleted = data.tenantEmergencyContacts[index];
-        data.tenantEmergencyContacts.splice(index, 1);
-
-        observer.next({
-          name: deleted.name,
-          relationship: deleted.relationship,
-          phoneNumber: deleted.phoneNumber,
-          email: deleted.email,
-        });
+        observer.next({ id: tenantEmergencyContactId, ...contact });
         observer.complete();
       }, data.apiLatency);
     });

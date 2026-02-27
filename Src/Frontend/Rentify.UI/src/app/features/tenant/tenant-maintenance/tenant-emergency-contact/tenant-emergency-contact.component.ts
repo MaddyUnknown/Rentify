@@ -37,6 +37,7 @@ export class TenantEmergencyContactComponent implements OnInit, OnChanges {
     @Inject(TENANT_SERVICE_TOKEN) private tenantService: TenantService,
   ) {
     this.form = this.fb.group<TenantEmergencyContactForm>({
+      id: this.fb.nonNullable.control<number>(0),
       name: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
       relationship: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
       phoneNumber: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
@@ -95,32 +96,11 @@ export class TenantEmergencyContactComponent implements OnInit, OnChanges {
   private updateEmergencyContact(data: TenantEmergencyContact) {
     this.disableActions = true;
 
-    this.tenantService.updateTenantEmergencyContact(this.tenantId, data).subscribe({
+    this.tenantService.updateTenantEmergencyContact(this.tenantId, data.id, data).subscribe({
       next: (contact) => {
         this.originalState = contact;
         this.form.reset(contact);
         this.mode.state = 'view';
-        this.disableActions = false;
-      },
-      error: (err) => {
-        if (err instanceof ApiError) {
-          console.log('API Error', err.Errors);
-        } else {
-          console.error(err);
-        }
-
-        this.disableActions = false;
-      },
-    });
-  }
-
-  private removeEmergencyContact() {
-    this.disableActions = true;
-
-    this.tenantService.deleteTenantEmergencyContact(this.tenantId).subscribe({
-      next: () => {
-        this.form.reset({});
-        this.originalState = undefined;
         this.disableActions = false;
       },
       error: (err) => {

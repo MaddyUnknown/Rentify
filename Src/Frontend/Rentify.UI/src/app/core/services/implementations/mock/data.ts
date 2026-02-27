@@ -276,6 +276,7 @@ export const data: {
   ],
   tenantEmergencyContacts: [
     {
+      id: 1,
       tenantId: 1,
       name: 'Harper Rivers',
       relationship: 'Sibling',
@@ -283,6 +284,7 @@ export const data: {
       email: 'harper.rivers@example.com',
     },
     {
+      id: 2,
       tenantId: 2,
       name: 'Evan Chen',
       relationship: 'Partner',
@@ -290,6 +292,7 @@ export const data: {
       email: 'evan.chen@example.com',
     },
     {
+      id: 3,
       tenantId: 3,
       name: 'Nina Ortiz',
       relationship: 'Parent',

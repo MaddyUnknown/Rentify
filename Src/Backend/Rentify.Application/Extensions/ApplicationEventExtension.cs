@@ -19,6 +19,8 @@ namespace Rentify.Application.Extensions
         {
             // Add Validator
             serviceCollection.AddTransient<IMediaFileValidator, PropertyMediaFileValidator>();
+            serviceCollection.AddTransient<IMediaFileValidator, TenantMediaFileValidator>();
+
 
             // Add Resolver
             serviceCollection.AddTransient<IMediaFileValidatorResolver, MediaFileValidatorResolver>();
@@ -27,6 +29,7 @@ namespace Rentify.Application.Extensions
             serviceCollection.AddScoped<IMediaFileService, MediaFileService>();
             serviceCollection.AddScoped<IPropertyService, PropertyService>();
             serviceCollection.AddScoped<IUnitService, UnitService>();
+            serviceCollection.AddTransient<ITenantService, TenantService>();
         }
     }
 }

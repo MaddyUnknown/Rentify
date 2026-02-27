@@ -20,9 +20,9 @@ export interface TenantService {
 
   updateTenantEmergencyContact(
     tenantId: number,
+    tenanteEmergencyContactId: number,
     contact: UpdateTenantEmergencyContact,
   ): Observable<TenantEmergencyContact>;
-  deleteTenantEmergencyContact(tenantId: number): Observable<TenantEmergencyContact>;
 
   uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile>;
   deleteTenantDocument(mediaId: number): Observable<MediaFile>;
