@@ -11,6 +11,7 @@ namespace Rentify.Event.Application.Constants
         public static readonly string MediaFileDeleteForStatusError = "Media file with id '{0}' cannot be deleted as current status is '{1}'";
         public static readonly string MediaFileProcessingForStatusError = "Media file with id '{0}' cannot be processed as current status is '{1}'";
         public static readonly string MediaFileProcessorNotFound = "No processor found for entity type '{0}', content type '{1}', usage '{2}'";
+        public static readonly string MediaFileVariantNotSupported = "Media file variant not supported '{0}'";
 
         public static readonly string MediaFileLinkMissmatchError = "Media file with id '{0}' is not linked to media file link '1'";
 

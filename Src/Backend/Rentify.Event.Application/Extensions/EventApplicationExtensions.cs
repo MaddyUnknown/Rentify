@@ -33,7 +33,6 @@ namespace Rentify.Event.Application.Extensions
             serviceCollection.AddTransient<IMediaProcessorResolver, MediaProcessorResolver>();
 
             // Add Media File processor
-            serviceCollection.AddTransient<IMediaProcessor, ImageCoverProcessor>();
             serviceCollection.AddTransient<IMediaProcessor, ImageThumbnailProcessor>();
         }
     }

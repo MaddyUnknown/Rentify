@@ -103,11 +103,23 @@
 }
 
 .app-tenants__non_found {
-  display: grid;
-  place-items: center;
-  gap: 0.6rem;
-  padding: 2.8rem 0;
-  color: var(--muted-text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  margin-top: 0.8rem;
+
+  grid-column: 1 / -1;
+
+  width: 100%;
+
+  color: var(--text-color--muted);
+}
+
+.app-tenants__non_found > div {
+  font-weight: 600;
 }
 
 .app-tenants__pagination {
