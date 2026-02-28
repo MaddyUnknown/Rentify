@@ -88,7 +88,7 @@ export class TenantMockService implements TenantService {
           id: nextTenantId,
           details: { ...tenant.details },
           emergencyContact: { ...emergencyContact },
-          documents,
+          mediaFiles: documents,
         });
         observer.complete();
       }, data.apiLatency);
@@ -131,7 +131,7 @@ export class TenantMockService implements TenantService {
                 email: emergencyContact.email,
               }
             : undefined,
-          documents: documents.map(({ id, name, contentType, uploadedDate, size, processingStatus }) => ({
+          mediaFiles: documents.map(({ id, name, contentType, uploadedDate, size, processingStatus }) => ({
             id,
             name,
             contentType,
@@ -280,7 +280,7 @@ export class TenantMockService implements TenantService {
           name: document.name,
           contentType: document.contentType,
           processingStatus: document.processingStatus,
-          size: document.size,
+          length: document.size,
           uploadedDate: document.uploadedDate,
           markedAsCover: false,
           thumbnail:

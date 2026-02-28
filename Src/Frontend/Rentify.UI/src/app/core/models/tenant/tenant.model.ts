@@ -6,5 +6,5 @@ export interface Tenant {
   id: number;
   details: GetTenantDetails;
   emergencyContact?: TenantEmergencyContact;
-  documents: MediaFile[];
+  mediaFiles: MediaFile[];
 }

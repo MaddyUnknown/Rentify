@@ -152,7 +152,14 @@ public class TenantController : ApiControllerBase
 
         try
         {
-            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityId = tenantId, EntityType = MediaFileEntityEnum.Tenant };
+            var mediaFileDto = new UploadMediaFileDto { 
+                MediaStream = stream, 
+                Length = file.Length, 
+                FileName = file.FileName, 
+                EntityId = tenantId, 
+                EntityType = MediaFileEntityEnum.Tenant 
+            };
+
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }
@@ -173,7 +180,13 @@ public class TenantController : ApiControllerBase
 
         try
         {
-            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityType = MediaFileEntityEnum.Tenant };
+            var mediaFileDto = new UploadMediaFileDto { 
+                MediaStream = stream, 
+                Length = file.Length, 
+                FileName = file.FileName, 
+                EntityType = MediaFileEntityEnum.Tenant 
+            };
+
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }

@@ -205,7 +205,7 @@
               <div class="app-tenant-documents__meta">
                 <h4 class="app-tenant-documents__title">{{ row.data.name }}</h4>
                 <div class="app-tenant-documents__subtext">
-                  {{ row.data.contentType ?? '' | fileType }} &middot; {{ row.data.size | fileSize }} &middot;
+                  {{ row.data.contentType ?? '' | fileType }} &middot; {{ row.data.length | fileSize }} &middot;
                   {{ row.data.uploadedDate | date: 'dd/MM/yyyy' }}
                 </div>
               </div>

@@ -80,7 +80,7 @@ export class TenantApiService implements TenantService {
 
   deleteTenantDocument(mediaFile: number): Observable<MediaFile> {
     return this.httpClient
-      .delete<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + `tenants/documents/${mediaFile}`)
+      .delete<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + `tenants/media/${mediaFile}`)
       .pipe(processResponse());
   }
 }

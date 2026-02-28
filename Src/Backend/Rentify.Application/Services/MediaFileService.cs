@@ -5,6 +5,7 @@ using Rentify.Application.Interfaces.Resolvers;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Application.Mappers;
 using Rentify.Application.Utils;
+using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
 using Rentify.Core.Events;
@@ -179,6 +180,7 @@ namespace Rentify.Application.Services
                 {
                     Name = uploadMediaDto.FileName,
                     ContentType = result.MimeType,
+                    Length = uploadMediaDto.Length,
                     FileKey = generatedFileKey,
                     Status = MediaFileStatusEnum.Uploaded
                 };
@@ -201,7 +203,13 @@ namespace Rentify.Application.Services
                 await _unitOfWork.SaveChangesAsync();
 
                 // Save event record in DB - Transactional outbox pattern
-                var eventData = new MediaFileCreateEvent { MediaFileId = mediaFile.Id };
+                var eventData = new MediaFileCreateEvent { 
+                    MediaFileId = mediaFile.Id, 
+                    ContentType = mediaFile.ContentType, 
+                    MediaFileEntity = uploadMediaDto.EntityType, 
+                    Usage = uploadMediaDto.Usage 
+                };
+
                 var eventOutbox = new EventOutbox
                 {
                     EventObjectType = EventTypeHelper.GetEventObjectType<MediaFileCreateEvent>(),

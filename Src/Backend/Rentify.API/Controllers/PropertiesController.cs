@@ -176,7 +176,16 @@ public class PropertiesController : ApiControllerBase
 
         try
         {
-            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
+            var mediaFileDto = new UploadMediaFileDto
+            {
+                MediaStream = stream,
+                Length = file.Length,
+                FileName = file.FileName,
+                EntityId = propertyId,
+                EntityType = MediaFileEntityEnum.Property,
+                Usage = [MediaFileUsageEnum.Thumbnail]
+            };
+
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }
@@ -197,7 +206,14 @@ public class PropertiesController : ApiControllerBase
 
         try
         {
-            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityType = MediaFileEntityEnum.Property };
+            var mediaFileDto = new UploadMediaFileDto { 
+                MediaStream = stream, 
+                Length = file.Length, 
+                FileName = file.FileName, 
+                EntityType = MediaFileEntityEnum.Property,
+                Usage = [MediaFileUsageEnum.Thumbnail]
+            };
+
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }

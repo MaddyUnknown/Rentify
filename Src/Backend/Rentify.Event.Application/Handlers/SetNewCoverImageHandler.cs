@@ -1,4 +1,5 @@
-﻿using Rentify.Core.Entities;
+﻿using Rentify.Core.Constants;
+using Rentify.Core.Entities;
 using Rentify.Core.Enums;
 using Rentify.Core.Events;
 using Rentify.DataAccess.Core.Repositories;
@@ -63,7 +64,7 @@ namespace Rentify.Event.Application.Handlers
                 {
                     VariantType = MediaFileVariantEnum.Cover,
                     FileKey = coverImageKey,
-                    ContentType = MediaFileConstants.ContentType.ImageJpg,
+                    ContentType = MediaContentType.ImageJpg,
                     MediaFileId = message.MediaFileId,
                     Status = MediaFileVariantStatusEnum.Processed
                 };

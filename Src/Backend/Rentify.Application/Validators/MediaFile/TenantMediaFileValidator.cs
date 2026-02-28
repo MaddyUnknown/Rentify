@@ -1,6 +1,7 @@
 ﻿using Rentify.Application.Constants;
 using Rentify.Application.Interfaces.Validators;
 using Rentify.Application.Utils;
+using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
 using Rentify.DataAccess.Core.Repositories;
@@ -16,7 +17,7 @@ namespace Rentify.Application.Validators.MediaFile
 {
     public class TenantMediaFileValidator : IMediaFileValidator
     {
-        private readonly ImmutableArray<string> AllowedMimeType = [MediaFileConstants.ContentType.Pdf];
+        private readonly ImmutableArray<string> AllowedMimeType = [MediaContentType.Pdf];
 
         private readonly IRepository<Tenant> _tenantCRUDRepo;
 

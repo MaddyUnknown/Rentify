@@ -33,7 +33,9 @@ namespace Rentify.Application.Mappers
             {
                 Id = file.Id,
                 Name = file.Name,
+                Length = file.Length,
                 ContentType = file.ContentType,
+                UploadedDate = file.CreatedDate,
                 ProcessingStatus = file.Status,
                 MarkedAsCover = checkCoverRequested ? file?.MediaFileLink?.MarkAsCoverRequested : file?.MediaFileLink?.MarkedAsCover,
                 Thumbnail = thumbnailDto,

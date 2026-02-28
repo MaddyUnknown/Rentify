@@ -21,6 +21,9 @@ namespace Rentify.Core.Entities
         public string FileKey { get; set; } = string.Empty;
 
         [Required]
+        public long Length { get; set; } = 0;
+
+        [Required]
         public MediaFileStatusEnum Status { get; set; }
 
         // Foreign keys

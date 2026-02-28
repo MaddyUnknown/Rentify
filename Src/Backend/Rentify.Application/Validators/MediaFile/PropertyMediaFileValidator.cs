@@ -1,6 +1,7 @@
 ﻿using Rentify.Application.Constants;
 using Rentify.Application.Interfaces.Validators;
 using Rentify.Application.Utils;
+using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
 using Rentify.DataAccess.Core.Repositories;
@@ -16,7 +17,7 @@ namespace Rentify.Application.Validators.MediaFile
 {
     public class PropertyMediaFileValidator : IMediaFileValidator
     {
-        private readonly ImmutableArray<string> AllowedMimeType =  [ MediaFileConstants.ContentType.ImagePng, MediaFileConstants.ContentType.ImageJpg ];
+        private readonly ImmutableArray<string> AllowedMimeType =  [ MediaContentType.ImagePng, MediaContentType.ImageJpg ];
 
         private readonly IRepository<Property> _propertyCRUDRepo;
 

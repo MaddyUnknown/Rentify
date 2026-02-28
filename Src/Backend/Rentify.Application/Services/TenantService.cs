@@ -198,7 +198,7 @@ namespace Rentify.Application.Services
                     {
                         MediaFileId = media.Id,
                         EntityId = tenantEntity.Id,
-                        EntityType = MediaFileEntityEnum.Property,
+                        EntityType = MediaFileEntityEnum.Tenant,
                     };
 
                     _mediaFileLinkCRUDRepo.Add(mediaFileLink);
