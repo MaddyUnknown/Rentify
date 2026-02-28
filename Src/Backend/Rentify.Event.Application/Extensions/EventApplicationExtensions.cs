@@ -3,6 +3,7 @@ using Rentify.Core.Events;
 using Rentify.Event.Application.Handlers;
 using Rentify.Event.Application.Interfaces;
 using Rentify.Event.Application.Processors;
+using Rentify.Event.Application.Resolvers;
 using Rentify.Event.Application.Services;
 using Rentify.Event.Core;
 using System;
@@ -32,6 +33,7 @@ namespace Rentify.Event.Application.Extensions
             serviceCollection.AddTransient<IMediaProcessorResolver, MediaProcessorResolver>();
 
             // Add Media File processor
+            serviceCollection.AddTransient<IMediaProcessor, ImageCoverProcessor>();
             serviceCollection.AddTransient<IMediaProcessor, ImageThumbnailProcessor>();
         }
     }

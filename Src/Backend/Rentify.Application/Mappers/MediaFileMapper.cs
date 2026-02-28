@@ -22,7 +22,7 @@ namespace Rentify.Application.Mappers
                 }).FirstOrDefault();
 
             var coverDto = file.MediaFileVariants
-                .Where(f => f.VariantType == MediaFileVariantEnum.Cover)
+                .Where(f => f.VariantType == MediaFileVariantEnum.CoverPic)
                 .Select(v => new MediaFileVariantsDto
                 {
                     ContentType = v.ContentType,

@@ -183,7 +183,7 @@ public class PropertiesController : ApiControllerBase
                 FileName = file.FileName,
                 EntityId = propertyId,
                 EntityType = MediaFileEntityEnum.Property,
-                Usage = [MediaFileUsageEnum.Thumbnail]
+                Variants = [MediaFileVariantEnum.Thumbnail]
             };
 
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
@@ -211,7 +211,7 @@ public class PropertiesController : ApiControllerBase
                 Length = file.Length, 
                 FileName = file.FileName, 
                 EntityType = MediaFileEntityEnum.Property,
-                Usage = [MediaFileUsageEnum.Thumbnail]
+                Variants = [MediaFileVariantEnum.Thumbnail]
             };
 
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);

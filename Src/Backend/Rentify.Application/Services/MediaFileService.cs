@@ -108,7 +108,7 @@ namespace Rentify.Application.Services
                 var type = mediaFileSearchDto.VariantType switch
                 {
                     MediaFileVariantDTOEnum.Thumbnail => MediaFileVariantEnum.Thumbnail,
-                    MediaFileVariantDTOEnum.Cover => MediaFileVariantEnum.Cover,
+                    MediaFileVariantDTOEnum.Cover => MediaFileVariantEnum.CoverPic,
                     _ => MediaFileVariantEnum.None
                 };
 
@@ -202,12 +202,13 @@ namespace Rentify.Application.Services
                 
                 await _unitOfWork.SaveChangesAsync();
 
+                Console.WriteLine($"uploadMediaDto count: {uploadMediaDto.Variants.Count()}");
+
                 // Save event record in DB - Transactional outbox pattern
                 var eventData = new MediaFileCreateEvent { 
-                    MediaFileId = mediaFile.Id, 
-                    ContentType = mediaFile.ContentType, 
+                    MediaFileId = mediaFile.Id,
                     MediaFileEntity = uploadMediaDto.EntityType, 
-                    Usage = uploadMediaDto.Usage 
+                    Variants = uploadMediaDto.Variants.ToArray()
                 };
 
                 var eventOutbox = new EventOutbox

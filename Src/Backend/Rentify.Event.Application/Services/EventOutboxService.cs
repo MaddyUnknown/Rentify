@@ -1,4 +1,5 @@
-﻿using Rentify.Core.Abstractions.Events;
+﻿using Microsoft.Extensions.Logging;
+using Rentify.Core.Abstractions.Events;
 using Rentify.Core.Entities;
 using Rentify.Core.Events;
 using Rentify.Core.Exceptions;
@@ -21,7 +22,6 @@ namespace Rentify.Event.Application.Services
     public class EventOutboxService : IEventOutboxService
     {
         private readonly ConcurrentDictionary<Type, Func<EventOutbox, Task>> _handlerCache;
-
         private readonly IMessagePublisher _publisher;
 
         public EventOutboxService(IMessagePublisher publisher)

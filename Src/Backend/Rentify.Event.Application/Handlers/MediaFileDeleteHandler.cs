@@ -22,17 +22,15 @@ namespace Rentify.Event.Application.Handlers
         private readonly IRepository<MediaFile> _mediaFileCRUDRepository;
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
-        private readonly IMediaFileVariantRepository _mediaFileVariantRepository;
         private readonly IFileStorageService _fileStorageService;
 
-        public MediaFileDeleteHandler(IUnitOfWork unitOfWork, IRepository<MediaFileLink> mediaFileLink, IRepository<MediaFile> mediaFileCRUDRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IMediaFileRepository mediaFileRepository, IMediaFileVariantRepository mediaFileVariantRepository, IFileStorageService fileStorageService)
+        public MediaFileDeleteHandler(IUnitOfWork unitOfWork, IRepository<MediaFileLink> mediaFileLink, IRepository<MediaFile> mediaFileCRUDRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IMediaFileRepository mediaFileRepository, IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _mediaFileLinkRepository = mediaFileLink;
             _mediaFileCRUDRepository = mediaFileCRUDRepository;
             _mediaFileRepository = mediaFileRepository;
             _mediaFileVariantCRUDRepository = mediaFileVariantCRUDRepository;
-            _mediaFileVariantRepository = mediaFileVariantRepository;
             _fileStorageService = fileStorageService;
         }
 

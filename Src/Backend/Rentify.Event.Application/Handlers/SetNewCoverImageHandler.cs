@@ -5,6 +5,8 @@ using Rentify.Core.Events;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
 using Rentify.Event.Application.Constants;
+using Rentify.Event.Application.Contexts;
+using Rentify.Event.Application.Interfaces;
 using Rentify.Event.Application.Utils;
 using Rentify.Event.Core;
 using Rentify.Event.Core.Contexts;
@@ -22,21 +24,15 @@ namespace Rentify.Event.Application.Handlers
     {
         private IUnitOfWork _unitOfWork;
         private IMediaFileRepository _mediaFileRepository;
-        private IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
         private IMediaFileLinkRepository _mediaFileLinkRepository;
-        private IImageThumbnailGenerator _thumbnailGenerator;
-        private IFileStorageService _fileStorage;
-        private (int width, int height) _coverImageDimension;
+        private IMediaProcessorResolver _mediaProcessorResolver;
 
-        public SetNewCoverImageHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IMediaFileLinkRepository mediaFileLinkRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
+        public SetNewCoverImageHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IMediaProcessorResolver mediaProcessorResolver, IMediaFileLinkRepository mediaFileLinkRepository)
         {
             _unitOfWork = unitOfWork;
             _mediaFileRepository = mediaFileRepository;
-            _mediaFileVariantCRUDRepository = mediaFileVariantCRUDRepository;
             _mediaFileLinkRepository = mediaFileLinkRepository;
-            _thumbnailGenerator = imageThumbnailGenerator;
-            _fileStorage = fileStorageService;
-            _coverImageDimension = (540, 320); //TO-DO: Replace in config
+            _mediaProcessorResolver = mediaProcessorResolver;
         }
 
         public async Task HandleAsync(SetNewCoverImageEvent message, IMessageProcessingContext context)
@@ -48,33 +44,15 @@ namespace Rentify.Event.Application.Handlers
             if (mediaFileLink == null || mediaFile.MediaFileLink.Id != message.MediaFileLinkId) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileLinkMissmatchError, message.MediaFileId, message.MediaFileLinkId));
             if (mediaFile.Status != MediaFileStatusEnum.Processed) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileProcessingForStatusError, mediaFile.Id, mediaFile.Status));
 
-            //Cover Image generation and save
-            if (mediaFile.MediaFileVariants?.Any(m => m.VariantType == MediaFileVariantEnum.Cover) == false)
-            {
-                using var imageStream = await _fileStorage.ReadAsync(mediaFile.FileKey);
-
-                var coverImageKey = StorageKeyHelper.GenerateFileKeyForMediaFileVariant(mediaFile.FileKey, MediaFileVariantEnum.Cover);
-                using var coverImageStream = _thumbnailGenerator.Generate(imageStream, _coverImageDimension.width, _coverImageDimension.height);
-
-                await _fileStorage.DeleteAsync(coverImageKey); //Delete if any
-                await _fileStorage.WriteAsync(coverImageKey, coverImageStream);
-
-                //Save cover to DB
-                var coverImageVariant = new MediaFileVariant
-                {
-                    VariantType = MediaFileVariantEnum.Cover,
-                    FileKey = coverImageKey,
-                    ContentType = MediaContentType.ImageJpg,
-                    MediaFileId = message.MediaFileId,
-                    Status = MediaFileVariantStatusEnum.Processed
-                };
-
-                _mediaFileVariantCRUDRepository.Add(coverImageVariant);
-                await _unitOfWork.SaveChangesAsync();
-            }
+            // Generate cover picture
+            var processorContext = new MediaProcessingContext { ContentType = mediaFile.ContentType, MediaFileEntity = mediaFileLink.EntityType, Variant = MediaFileVariantEnum.CoverPic };
+            var processor = _mediaProcessorResolver.Resolve(processorContext);
+            await processor.ProcessAsync(_unitOfWork, mediaFile, processorContext);
 
             //Commit media file as cover pic, this update takes into account if the mediaFile was first marked as requested or not, if not then update is skipped
             await _mediaFileLinkRepository.CommitRequestedCoverForEntityAsync(mediaFileLink.Id, mediaFileLink.EntityType, mediaFileLink.EntityId);
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

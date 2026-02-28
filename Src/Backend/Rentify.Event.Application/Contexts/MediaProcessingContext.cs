@@ -11,6 +11,6 @@ namespace Rentify.Event.Application.Contexts
     {
         public MediaFileEntityEnum MediaFileEntity { get; set; }
         public string ContentType { get; set; } = string.Empty;
-        public MediaFileUsageEnum Usage { get; set; }
+        public MediaFileVariantEnum Variant { get; set; }
     }
 }

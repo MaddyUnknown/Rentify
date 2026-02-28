@@ -12,7 +12,6 @@ namespace Rentify.Core.Events
     {
         public int MediaFileId { get; set; }
         public MediaFileEntityEnum MediaFileEntity { get; set; }
-        public string ContentType { get; set; } = string.Empty;
-        public IEnumerable<MediaFileUsageEnum> Usage { get; set; } = Enumerable.Empty<MediaFileUsageEnum>();
+        public MediaFileVariantEnum[] Variants { get; set; } = Array.Empty<MediaFileVariantEnum>();
     }
 }

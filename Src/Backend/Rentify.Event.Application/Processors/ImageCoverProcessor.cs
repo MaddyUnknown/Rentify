@@ -1,7 +1,6 @@
 ﻿using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
-using Rentify.Core.Events;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
 using Rentify.Event.Application.Contexts;
@@ -17,24 +16,23 @@ using System.Threading.Tasks;
 
 namespace Rentify.Event.Application.Processors
 {
-    public class ImageThumbnailProcessor : IMediaProcessor
+    public class ImageCoverProcessor : IMediaProcessor
     {
         private IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
         private IImageThumbnailGenerator _thumbnailGenerator;
         private IFileStorageService _fileStorage;
-        private (int width, int height) _thumbnailDimension;
-
-        public ImageThumbnailProcessor(IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
+        private (int width, int height) _coverImageDimension;
+        public ImageCoverProcessor(IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
         {
-            _fileStorage = fileStorageService;
-            _thumbnailDimension = (200, 200);
-            _thumbnailGenerator = imageThumbnailGenerator;
             _mediaFileVariantCRUDRepository = mediaFileVariantCRUDRepository;
+            _thumbnailGenerator = imageThumbnailGenerator;
+            _fileStorage = fileStorageService;
+            _coverImageDimension = (540, 320); //TO-DO: Replace in config
         }
 
         public bool CanProcess(MediaProcessingContext mediaFileMessage)
         {
-            return mediaFileMessage.Variant == MediaFileVariantEnum.Thumbnail 
+            return mediaFileMessage.Variant == MediaFileVariantEnum.CoverPic
                 && (
                     mediaFileMessage.ContentType == MediaContentType.ImageJpg
                     || mediaFileMessage.ContentType == MediaContentType.ImagePng
@@ -43,28 +41,28 @@ namespace Rentify.Event.Application.Processors
 
         public async Task ProcessAsync(IUnitOfWork unitOfWork, MediaFile mediaFile, MediaProcessingContext mediaProcessingContext)
         {
-            //Thumbnail generation
-            if (mediaFile.MediaFileVariants?.Any(m => m.VariantType == MediaFileVariantEnum.Thumbnail) == false)
+            //Cover Image generation and save
+            if (mediaFile.MediaFileVariants?.Any(m => m.VariantType == MediaFileVariantEnum.CoverPic) == false)
             {
                 using var imageStream = await _fileStorage.ReadAsync(mediaFile.FileKey);
 
-                var thumbnailKey = StorageKeyHelper.GenerateFileKeyForMediaFileVariant(mediaFile.FileKey, MediaFileVariantEnum.Thumbnail);
-                using var thumbnailStream = _thumbnailGenerator.Generate(imageStream, _thumbnailDimension.width, _thumbnailDimension.height);
+                var coverImageKey = StorageKeyHelper.GenerateFileKeyForMediaFileVariant(mediaFile.FileKey, MediaFileVariantEnum.CoverPic);
+                using var coverImageStream = _thumbnailGenerator.Generate(imageStream, _coverImageDimension.width, _coverImageDimension.height);
 
-                await _fileStorage.DeleteAsync(thumbnailKey); //Delete if any
-                await _fileStorage.WriteAsync(thumbnailKey, thumbnailStream);
+                await _fileStorage.DeleteAsync(coverImageKey); //Delete if any
+                await _fileStorage.WriteAsync(coverImageKey, coverImageStream);
 
-                //Save to DB
-                var thumbnailVariant = new MediaFileVariant
+                //Save cover to DB
+                var coverImageVariant = new MediaFileVariant
                 {
-                    VariantType = MediaFileVariantEnum.Thumbnail,
-                    FileKey = thumbnailKey,
+                    VariantType = MediaFileVariantEnum.CoverPic,
+                    FileKey = coverImageKey,
                     ContentType = MediaContentType.ImageJpg,
                     MediaFileId = mediaFile.Id,
                     Status = MediaFileVariantStatusEnum.Processed
                 };
 
-                _mediaFileVariantCRUDRepository.Add(thumbnailVariant);
+                _mediaFileVariantCRUDRepository.Add(coverImageVariant);
                 await unitOfWork.SaveChangesAsync();
             }
         }

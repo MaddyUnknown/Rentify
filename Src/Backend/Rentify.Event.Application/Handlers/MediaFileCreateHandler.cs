@@ -1,4 +1,5 @@
-﻿using Rentify.Core.Enums;
+﻿using Microsoft.Extensions.Logging;
+using Rentify.Core.Enums;
 using Rentify.Core.Entities;
 using Rentify.Core.Events;
 using Rentify.DataAccess.Core.Repositories;
@@ -43,10 +44,10 @@ namespace Rentify.Event.Application.Handlers
 
             try
             {
-                //Usage processing
-                foreach(var usage in message.Usage)
+                //Variant processing
+                foreach(var variant in message.Variants)
                 {
-                    var processingContext = new MediaProcessingContext { ContentType = message.ContentType, MediaFileEntity = message.MediaFileEntity, Usage = usage };
+                    var processingContext = new MediaProcessingContext { ContentType = mediaFile.ContentType, MediaFileEntity = message.MediaFileEntity, Variant = variant };
                     var processor = _mediaProcessorResolver.Resolve(processingContext);
 
                     await processor.ProcessAsync(_unitOfWork, mediaFile, processingContext);
