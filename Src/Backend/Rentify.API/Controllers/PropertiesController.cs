@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
 using Rentify.API.DTOs;
+using Rentify.API.Enums;
 using Rentify.Application.DTOs;
 using Rentify.Application.DTOs.Location;
 using Rentify.Application.DTOs.MediaFile;
@@ -228,11 +229,15 @@ public class PropertiesController : ApiControllerBase
     /// Upload media file
     /// </summary>
     [HttpGet("media/{mediaId}")]
-    public async Task<IActionResult> GetPropertyMediaStream(int mediaId, [FromQuery] MediaFileVariantDTOEnum? variantType, CancellationToken ct)
+    public async Task<IActionResult> GetPropertyMediaStream(int mediaId, [FromQuery] MediaFileVariantDtoEnum? variantType, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new MediaFileStreamSearchDto { Id = mediaId, EntityType = MediaFileEntityEnum.Property, VariantType = variantType };
+            var mediaFileDto = new MediaFileStreamSearchDto { 
+                Id = mediaId, 
+                EntityType = MediaFileEntityEnum.Property, 
+                VariantType = variantType.HasValue ? MediaFileVariantDtoEnumConverter.ToMediaFilVariantEnum(variantType.Value) : null
+            };
             var result = await _mediaFileService.GetMediaFileStreamAsync(mediaFileDto, ct);
 
             Response.Headers["X-Content-Type-Options"] = "nosniff";

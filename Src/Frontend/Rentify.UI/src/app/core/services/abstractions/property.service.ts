@@ -25,7 +25,7 @@ export interface PropertyService {
   uploadMediaFile(file: File, propertyId?: number): Observable<MediaFile>;
   deleteMediaFile(mediaId: number): Observable<MediaFile>;
   markMediaFileAsCover(propertyId: number, mediaId: number): Observable<MediaFile>;
-  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType): string;
+  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string;
 
   createUnit(propertyId: number, unit: CreateUnit): Observable<Unit>;
   updateUnit(propertyId: number, unitId: number, unit: UpdateUnit): Observable<Unit>;

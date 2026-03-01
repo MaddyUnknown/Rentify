@@ -1,6 +1,8 @@
 ﻿using Rentify.Application.Constants;
 using Rentify.Application.DTOs;
+using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Tenant;
+using Rentify.Application.Interfaces.Resolvers;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Application.Mappers;
 using Rentify.Application.Utils;
@@ -12,6 +14,8 @@ using Rentify.Core.Utils;
 using Rentify.Core.ValueObjects;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
+using Rentify.FileWorkflow.Core.Inspectors;
+using Rentify.Storage.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +34,10 @@ namespace Rentify.Application.Services
         private readonly ITenantEmergencyContactRepository _tenantEmergencyContactRepo;
         private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
         private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
+        private readonly IFileInspector _fileInspector;
+        private readonly IMediaFileValidatorResolver _mediaFileValidatorResolver;
+        private readonly IFileStorageService _fileStorageService;
+        private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
 
         public TenantService(
             IUnitOfWork unitOfWork,
@@ -39,7 +47,11 @@ namespace Rentify.Application.Services
             ITenantEmergencyContactRepository tenantEmergencyContactRepo,
             ITenantRepository tenantRepository,
             IMediaFileRepository mediaFileRepo,
-            IRepository<EventOutbox> eventOutboxCRUDRepo)
+            IRepository<EventOutbox> eventOutboxCRUDRepo,
+            IFileInspector fileInspector,
+            IMediaFileValidatorResolver mediaFileValidatorResolver,
+            IFileStorageService fileStorageService,
+            IRepository<MediaFile> mediaFileCRUDRepo)
         {
             _unitOfWork = unitOfWork;
             _tenantCRUDRepo = tenantCRUDRepo;
@@ -49,6 +61,11 @@ namespace Rentify.Application.Services
             _tenantEmergencyContactRepo = tenantEmergencyContactRepo;
             _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
             _eventOutboxCRUDRepo = eventOutboxCRUDRepo;
+            _fileInspector = fileInspector;
+            _mediaFileValidatorResolver = mediaFileValidatorResolver;
+            _fileStorageService = fileStorageService;
+            _fileStorageService = fileStorageService;
+            _mediaFileCRUDRepo = mediaFileCRUDRepo;
         }
 
         public async Task<PaginatedList<TenantSummaryDto>> GetAllTenantAsync(TenantSearchDto tenantSearchDto)
@@ -212,6 +229,72 @@ namespace Rentify.Application.Services
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task<MediaFileDto> UpdateProfilePic(UpdateTenantProfilePicDto updateTenantProfilePic, CancellationToken ct = default)
+        {
+            //TO-DO: Add max file length check - To be done with other request validation
+            var result = _fileInspector.Inspect(updateTenantProfilePic.MediaStream);
+            if (result.MimeType == null) throw new AppValidationException(MediaFileConstants.MediaTypeNotResolved);
+
+            var validator = _mediaFileValidatorResolver.Resolve(MediaFileEntityEnum.Tenant);
+            var errors = await validator.ValidateEntityAsync(updateTenantProfilePic.FileName, result);
+            if (errors.Count() > 0) throw new AppValidationException(errors);
+
+            var generatedFileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile();
+
+            // Uploading file to storage
+            await _fileStorageService.WriteAsync(generatedFileKey, updateTenantProfilePic.MediaStream, ct);
+
+            try
+            {
+                // Start transaction
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Save media file to DB
+                var mediaFile = new MediaFile
+                {
+                    Name = updateTenantProfilePic.FileName,
+                    ContentType = result.MimeType,
+                    Length = updateTenantProfilePic.Length,
+                    FileKey = generatedFileKey,
+                    Status = MediaFileStatusEnum.Uploaded
+                };
+
+                _mediaFileCRUDRepo.Add(mediaFile);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                // Save event record in DB - Transactional outbox pattern
+                var eventData = new MediaFileCreateEvent
+                {
+                    MediaFileId = mediaFile.Id,
+                    MediaFileEntity = MediaFileEntityEnum.Tenant,
+                    Variants = [MediaFileVariantEnum.ProfilePic]
+                };
+
+                var eventOutbox = new EventOutbox
+                {
+                    EventObjectType = EventTypeHelper.GetEventObjectType<MediaFileCreateEvent>(),
+                    EventData = JsonSerializerHelper.Serialize(eventData)
+                };
+
+                _eventOutboxCRUDRepo.Add(eventOutbox);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Commit changes
+                await _unitOfWork.CommitTransactionAsync();
+
+                return MediaFileMapper.MapToMediaFileDto(mediaFile);
+            }
+            catch
+            {
+                // Rollback changes
+                await _unitOfWork.RollbackTransactionAsync();
+                await _fileStorageService.DeleteAsync(generatedFileKey, ct);
+
                 throw;
             }
         }

@@ -98,21 +98,14 @@ namespace Rentify.Application.Services
             if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
             if (mediaFile.MediaFileLink != null && mediaFile.MediaFileLink.EntityType != mediaFileSearchDto.EntityType) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType?.ToString() ?? "Original"));
 
-            if (mediaFileSearchDto.VariantType == null)
+            if (mediaFileSearchDto.VariantType == null || mediaFileSearchDto.VariantType == MediaFileVariantEnum.None)
             {
                 var fileStream = await _fileStorageService.ReadAsync(mediaFile.FileKey, ct);
                 return MediaFileMapper.MapToMediaFileStreamDto(mediaFile, fileStream);
             }
             else
             {
-                var type = mediaFileSearchDto.VariantType switch
-                {
-                    MediaFileVariantDTOEnum.Thumbnail => MediaFileVariantEnum.Thumbnail,
-                    MediaFileVariantDTOEnum.Cover => MediaFileVariantEnum.CoverPic,
-                    _ => MediaFileVariantEnum.None
-                };
-
-                var mediaFileVariant = await _mediaFileVariantRepo.GetByMediaFileIdAndVariantTypeAsync(mediaFileSearchDto.Id, type);
+                var mediaFileVariant = await _mediaFileVariantRepo.GetByMediaFileIdAndVariantTypeAsync(mediaFileSearchDto.Id, mediaFileSearchDto.VariantType.Value);
                 if (mediaFileVariant == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileVariantNotFound, mediaFileSearchDto.Id, mediaFileSearchDto.VariantType.ToString()));
 
                 var fileStream = await _fileStorageService.ReadAsync(mediaFileVariant.FileKey, ct);
@@ -201,8 +194,6 @@ namespace Rentify.Application.Services
 
                 
                 await _unitOfWork.SaveChangesAsync();
-
-                Console.WriteLine($"uploadMediaDto count: {uploadMediaDto.Variants.Count()}");
 
                 // Save event record in DB - Transactional outbox pattern
                 var eventData = new MediaFileCreateEvent { 

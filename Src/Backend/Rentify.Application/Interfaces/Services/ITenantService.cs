@@ -19,5 +19,6 @@ namespace Rentify.Application.Interfaces.Services
         Task<TenantDetailsDto> DeleteTenantAsync(int id);
         Task<TenantEmergencyContactDto> UpdateTenantEmergencyContactAsync(int tenantId, int tenantEmergencyContactId, UpdateTenantEmergencyContactDto updateTenantEmergencyContactDto);
         Task<TenantDto> CreateTenantAsync(CreateTenantDto createTenantDto);
+        Task<MediaFileDto> UpdateProfilePic(UpdateTenantProfilePicDto updateTenantProfilePic, CancellationToken ct = default);
     }
 }

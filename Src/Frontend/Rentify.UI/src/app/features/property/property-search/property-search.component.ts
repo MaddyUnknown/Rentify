@@ -57,7 +57,7 @@ export class PropertySearchComponent implements OnInit {
   }
 
   generatePropertyCoverUrl(property: PropertySummary, variant: MediaFileVariantType): string {
-    return property.coverImage?.cover?.processingStatus === 'processed'
+    return property.coverImage?.variants?.['cover_pic']?.processingStatus === 'processed'
       ? this.propertyService.generatePropertyMediaUrl(property.coverImage.id, variant)
       : this.DEFAULT_COVER_IMAGE;
   }

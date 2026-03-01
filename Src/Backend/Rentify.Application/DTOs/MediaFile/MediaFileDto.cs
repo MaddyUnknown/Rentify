@@ -18,7 +18,6 @@ namespace Rentify.Application.DTOs.MediaFile
         public bool? MarkedAsCover { get; set; }
         public MediaFileStatusEnum ProcessingStatus { get; set; }
 
-        public MediaFileVariantsDto? Thumbnail { get; set; }
-        public MediaFileVariantsDto? Cover { get; set; }
+        public IDictionary<MediaFileVariantEnum, MediaFileVariantsDto>? Variants { get; set; }
     }
 }

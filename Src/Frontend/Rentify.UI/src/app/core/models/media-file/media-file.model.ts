@@ -1,4 +1,5 @@
 import { MediaFileStatus } from './media-file-status.model';
+import { MediaFileVariantType } from './media-file-variant-type.model';
 import { MediaFileVariant } from './media-file-variant.model';
 
 export interface MediaFile {
@@ -9,6 +10,5 @@ export interface MediaFile {
   length?: number;
   markedAsCover?: boolean;
   processingStatus: MediaFileStatus;
-  thumbnail?: MediaFileVariant;
-  cover?: MediaFileVariant;
+  variants?: Partial<Record<MediaFileVariantType, MediaFileVariant>>;
 }

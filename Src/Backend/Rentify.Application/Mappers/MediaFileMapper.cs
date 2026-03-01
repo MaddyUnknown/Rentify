@@ -13,21 +13,14 @@ namespace Rentify.Application.Mappers
     {
         public static MediaFileDto MapToMediaFileDto(MediaFile file, bool checkCoverRequested = true)
         {
-            var thumbnailDto = file.MediaFileVariants
-                .Where(f => f.VariantType == MediaFileVariantEnum.Thumbnail)
-                .Select(v => new MediaFileVariantsDto
+            var variants = file.MediaFileVariants.ToDictionary(
+                v => v.VariantType,
+                v => new MediaFileVariantsDto
                 {
                     ContentType = v.ContentType,
-                    ProcessingStatus = v.Status
-                }).FirstOrDefault();
-
-            var coverDto = file.MediaFileVariants
-                .Where(f => f.VariantType == MediaFileVariantEnum.CoverPic)
-                .Select(v => new MediaFileVariantsDto
-                {
-                    ContentType = v.ContentType,
-                    ProcessingStatus = v.Status
-                }).FirstOrDefault();
+                    ProcessingStatus = v.Status,
+                }
+            );
 
             return new MediaFileDto
             {
@@ -38,8 +31,7 @@ namespace Rentify.Application.Mappers
                 UploadedDate = file.CreatedDate,
                 ProcessingStatus = file.Status,
                 MarkedAsCover = checkCoverRequested ? file?.MediaFileLink?.MarkAsCoverRequested : file?.MediaFileLink?.MarkedAsCover,
-                Thumbnail = thumbnailDto,
-                Cover = coverDto
+                Variants = variants
             };
         }
 

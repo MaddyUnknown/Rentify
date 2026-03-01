@@ -14,6 +14,8 @@ import { MockFiles } from '../mock/data.model';
 import { MediaFileStatus } from '../../../models/media-file/media-file-status.model';
 import { TenantStatus } from '../../../models/tenant/tenant-status.model';
 import { CreateTenant } from '../../../models/tenant/create-tenant.model';
+import { MediaFileVariant } from '../../../models/media-file/media-file-variant.model';
+import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 
 @Injectable()
 export class TenantMockService implements TenantService {
@@ -275,6 +277,14 @@ export class TenantMockService implements TenantService {
           document.thumbnailProcessingStatus = 'processed';
         }, data.apiLatency * 6);
 
+        let variants: Partial<Record<MediaFileVariantType, MediaFileVariant>> = {};
+        if (document.thumbnailType && document.thumbnailProcessingStatus) {
+          variants['thumbnail'] = {
+            contentType: document.thumbnailType,
+            processingStatus: document.thumbnailProcessingStatus,
+          };
+        }
+
         observer.next({
           id: document.id,
           name: document.name,
@@ -283,13 +293,7 @@ export class TenantMockService implements TenantService {
           length: document.size,
           uploadedDate: document.uploadedDate,
           markedAsCover: false,
-          thumbnail:
-            document.thumbnailType && document.thumbnailProcessingStatus
-              ? {
-                  contentType: document.thumbnailType,
-                  processingStatus: document.thumbnailProcessingStatus,
-                }
-              : undefined,
+          variants: variants,
         });
         observer.complete();
       }, data.apiLatency);
@@ -304,19 +308,21 @@ export class TenantMockService implements TenantService {
         const deletedFile = data.files[id];
         data.files.splice(id, 1);
 
+        let variants: Partial<Record<MediaFileVariantType, MediaFileVariant>> = {};
+        if (deletedFile.thumbnailType && deletedFile.thumbnailProcessingStatus) {
+          variants['thumbnail'] = {
+            contentType: deletedFile.thumbnailType,
+            processingStatus: deletedFile.thumbnailProcessingStatus,
+          };
+        }
+
         observer.next({
           id: deletedFile.id,
           name: deletedFile.name,
           contentType: deletedFile.contentType,
           processingStatus: deletedFile.processingStatus,
           markedAsCover: false,
-          thumbnail:
-            deletedFile.thumbnailType && deletedFile.thumbnailProcessingStatus
-              ? {
-                  contentType: deletedFile.thumbnailType,
-                  processingStatus: deletedFile.thumbnailProcessingStatus,
-                }
-              : undefined,
+          variants: variants,
         });
         observer.complete();
       }, data.apiLatency);

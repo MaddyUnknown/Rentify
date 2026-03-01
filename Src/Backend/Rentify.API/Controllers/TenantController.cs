@@ -141,6 +141,33 @@ public class TenantController : ApiControllerBase
 
 
     #region Tenant Media Endpoint
+    /// <summary>
+    /// Upload profile pic
+    /// </summary>
+    [HttpPost("profile-pic")]
+    public async Task<ActionResult<MediaFileDto>> UploadTenantProfilePic(IFormFile file, CancellationToken ct)
+    {
+        await using Stream stream = file.OpenReadStream();
+
+        try
+        {
+            var mediaFileDto = new UpdateTenantProfilePicDto
+            {
+                MediaStream = stream,
+                Length = file.Length,
+                FileName = file.FileName
+            };
+
+            var result = await _tenantService.UpdateProfilePic(mediaFileDto, ct);
+            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading tenant profile pic media");
+            return HandleException(ex);
+        }
+    }
+
 
     /// <summary>
     /// Upload media file
@@ -174,7 +201,7 @@ public class TenantController : ApiControllerBase
     /// Upload media file
     /// </summary>
     [HttpPost("documents")]
-    public async Task<ActionResult<MediaFileDto>> UploadTenantMedia(IFormFile file, CancellationToken ct)
+    public async Task<ActionResult<MediaFileDto>> UploadTenantDocumentMedia(IFormFile file, CancellationToken ct)
     {
         await using Stream stream = file.OpenReadStream();
 
@@ -201,7 +228,7 @@ public class TenantController : ApiControllerBase
     /// Get media file
     /// </summary>
     [HttpGet("media/{mediaId}")]
-    public async Task<IActionResult> GetTenantMediaStream(int mediaId, [FromQuery] MediaFileVariantDTOEnum? variantType, CancellationToken ct)
+    public async Task<IActionResult> GetTenantMediaStream(int mediaId, [FromQuery] MediaFileVariantEnum? variantType, CancellationToken ct)
     {
         try
         {
