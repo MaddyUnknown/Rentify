@@ -12,6 +12,7 @@ using Rentify.Core.Events;
 using Rentify.Core.Exceptions;
 using Rentify.Core.Utils;
 using Rentify.Core.ValueObjects;
+using Rentify.DataAccess.Core.Options;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
 using Rentify.Storage.Core;
@@ -78,7 +79,10 @@ public class PropertyService : IPropertyService
         if (property == null) throw new AppValidationException(string.Format(PropertyConstants.PropertyNotFound, id));
 
         var units = await _unitRepo.GetByPropertyIdAsync(id);
-        var files = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, true);
+        var files = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, new MediaFileFilterOption
+        {
+            FilterDeletedRecords = true
+        });
 
         return PropertyMapper.MapToPropertyDto(property, units, files);
     }
@@ -114,7 +118,10 @@ public class PropertyService : IPropertyService
         if (unitCount != 0) throw new AppValidationException(PropertyConstants.PropertyDeleteFailForActiveUnits);
 
         // Delete property media
-        var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, true);
+        var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, new MediaFileFilterOption
+        {
+            FilterDeletedRecords = true
+        });
         foreach(var mediaFile in mediaFiles)
         {
             // Transactional outbox pattern

@@ -26,10 +26,43 @@
       <div appPanelDesc class="app-form" formGroupName="details">
         <div class="form-row app-tenant__user-details">
           <div class="app-tenant__user-pic">
-            <div class="app-tenant__user-pic_hover-box">
-              <button appButton type="inline" iconClass="app-panel__icon" [input]="{ icon: ICONS.Camera }"></button>
-            </div>
-            <img src="img\thumbnails\thumbnail-image.png" alt="profile pic" />
+            @if (!tenantProfilePicState.profilePic) {
+              <div class="app-tenant__user-pic_hover-box">
+                <button
+                  appButton
+                  type="inline"
+                  iconClass="app-panel__icon"
+                  [input]="{ icon: ICONS.Camera }"
+                  (click)="onProfilePicClick()"
+                ></button>
+              </div>
+              <img src="img\thumbnails\thumbnail-image.png" alt="user profile pic" />
+            } @else if (
+              tenantProfilePicState.profilePic.kind === 'new' ||
+              tenantProfilePicState.profilePic.data.processingStatus === 'uploading' ||
+              tenantProfilePicState.profilePic.data.processingStatus === 'uploaded'
+            ) {
+              <div class="app-tenant-profile-pic__item--spinner">
+                <div class="app-tenant-profile-pic__item--spinner__inner">
+                  <app-spinner-loader></app-spinner-loader>
+                </div>
+              </div>
+            } @else {
+              <div class="app-tenant__user-pic_hover-box">
+                <button
+                  appButton
+                  type="inline"
+                  iconClass="app-panel__icon"
+                  [input]="{ icon: ICONS.Camera }"
+                  (click)="onProfilePicClick()"
+                ></button>
+              </div>
+              <img
+                [src]="generateTenantMediaUrl(tenantProfilePicState.profilePic.data, 'profile_pic')"
+                alt="profile pic"
+              />
+            }
+            <input type="file" hidden #profilePicInput (change)="onProfilePicSelected()" />
           </div>
           <div class="app-tenant__user-name form-group">
             <label for="tenant-name">Full Name</label>
@@ -180,13 +213,13 @@
   <section class="app-tenant-create__documents">
     <app-panel [icon]="ICONS.FileText" heading="Documents">
       <div appPanelButtons>
-        <input type="file" #fileInput hidden multiple (change)="onFileSelected()" />
+        <input type="file" #fileInput hidden multiple (change)="onDocumentFileSelected()" />
         <button
           appButton
           type="normal"
           color="primary"
           [input]="{ icon: ICONS.Plus, label: 'Add' }"
-          (click)="onAddClick()"
+          (click)="onAddDocumentClick()"
         ></button>
       </div>
       <div appPanelDesc class="app-tenant-documents__list">

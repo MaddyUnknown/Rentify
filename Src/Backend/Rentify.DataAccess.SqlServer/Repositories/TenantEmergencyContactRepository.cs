@@ -21,7 +21,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
 
         public async Task<IEnumerable<TenantEmergencyContact>> GetAllByTenantId(int tenantId)
         {
-            return await _context.TenantEmergencyContacts.Where(p => p.TenantId <= tenantId).ToListAsync();
+            return await _context.TenantEmergencyContacts.Where(p => p.TenantId == tenantId).ToListAsync();
         }
     }
 }

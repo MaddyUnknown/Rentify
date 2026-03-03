@@ -11,6 +11,7 @@ import { TENANT_SERVICE_TOKEN } from '../../../core/services/tokens/tenant.token
 import { TenantService } from '../../../core/services/abstractions/tenant.service';
 import { PaginatedList } from '../../../core/models/response/paginated-list.model';
 import { ApiError } from '../../../core/exceptions/api-error';
+import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
 
 @Component({
   selector: 'app-tenant-search',
@@ -21,6 +22,7 @@ import { ApiError } from '../../../core/exceptions/api-error';
 })
 export class TenantSearchComponent implements OnInit {
   readonly ICONS = { Plus, SquarePen, SearchX };
+  readonly DEFAULT_COVER_IMAGE = 'img/thumbnails/thumbnail-image.png';
 
   readonly ITEMS_PER_PAGE = 12;
   readonly DATE_SNAPSHOT: Date;
@@ -52,6 +54,12 @@ export class TenantSearchComponent implements OnInit {
 
   tenantCreateRoute() {
     return this.routeService.tenantCreate();
+  }
+
+  generatePropertyProfilePicUrl(property: TenantSummary): string {
+    return property.profilePic?.variants?.['profile_pic']?.processingStatus === 'processed'
+      ? this.tenantService.generateTenantMediaUrl(property.profilePic.id, 'profile_pic')
+      : this.DEFAULT_COVER_IMAGE;
   }
 
   private syncUpTenants(currentPage: number, { enableLoading = false, enableActionDisable = false } = {}) {

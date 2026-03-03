@@ -7,4 +7,5 @@ export interface Tenant {
   details: GetTenantDetails;
   emergencyContact?: TenantEmergencyContact;
   mediaFiles: MediaFile[];
+  profilePic?: MediaFile;
 }

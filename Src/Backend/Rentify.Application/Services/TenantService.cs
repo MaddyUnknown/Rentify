@@ -12,6 +12,7 @@ using Rentify.Core.Events;
 using Rentify.Core.Exceptions;
 using Rentify.Core.Utils;
 using Rentify.Core.ValueObjects;
+using Rentify.DataAccess.Core.Options;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
 using Rentify.FileWorkflow.Core.Inspectors;
@@ -91,7 +92,10 @@ namespace Rentify.Application.Services
             if (tenant == null) throw new AppValidationException(string.Format(TenantConstants.TenantNotFound, id));
 
             var tenantEmergencyContacts = await _tenantEmergencyContactRepo.GetAllByTenantId(id);
-            var files = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Tenant, id, true);
+            var files = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Tenant, id, new MediaFileFilterOption
+            {
+                FilterDeletedRecords = true
+            });
 
             return TenantMapper.MapToTenantDto(tenant, tenantEmergencyContacts, files);
         }
@@ -129,7 +133,11 @@ namespace Rentify.Application.Services
             _tenantEmergencyContactCRUDRepo.RemoveRange(tenantEmergencyContacts);
 
             // Delete tenant media
-            var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Tenant, id, true);
+            var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Tenant, id, new MediaFileFilterOption
+            {
+                FilterDeletedRecords = true
+            });
+
             foreach (var mediaFile in mediaFiles)
             {
                 // Transactional outbox pattern
@@ -207,6 +215,26 @@ namespace Rentify.Application.Services
                 _tenantEmergencyContactCRUDRepo.Add(tenantEmergencyContact);
                 await _unitOfWork.SaveChangesAsync();
 
+                //Add Profile Pic Link
+                if (createTenantDto.ProfilePicId.HasValue)
+                {
+                    var mediaFileTags = new List<MediaFileLinkTag>
+                    {
+                        new MediaFileLinkTag {
+                            Tag = MediaFileLinkTagEnum.ProfilePic
+                        }
+                    };
+
+                    var mediaFileLink = new MediaFileLink
+                    {
+                        MediaFileId = createTenantDto.ProfilePicId.Value,
+                        EntityId = tenantEntity.Id,
+                        EntityType = MediaFileEntityEnum.Tenant,
+                        Tags = mediaFileTags
+                    };
+
+                    _mediaFileLinkCRUDRepo.Add(mediaFileLink);
+                }
 
                 //Add Media Link
                 foreach (var media in createTenantDto.Documents)
@@ -240,7 +268,7 @@ namespace Rentify.Application.Services
             if (result.MimeType == null) throw new AppValidationException(MediaFileConstants.MediaTypeNotResolved);
 
             var validator = _mediaFileValidatorResolver.Resolve(MediaFileEntityEnum.Tenant);
-            var errors = await validator.ValidateEntityAsync(updateTenantProfilePic.FileName, result);
+            var errors = await validator.ValidateEntityAsync(updateTenantProfilePic.FileName, result, updateTenantProfilePic.TenantId);
             if (errors.Count() > 0) throw new AppValidationException(errors);
 
             var generatedFileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile();
@@ -253,7 +281,32 @@ namespace Rentify.Application.Services
                 // Start transaction
                 await _unitOfWork.BeginTransactionAsync();
 
-                // Save media file to DB
+                if(updateTenantProfilePic.TenantId.HasValue)
+                {
+                    var oldProfilePics = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Tenant, updateTenantProfilePic.TenantId.Value, new MediaFileFilterOption
+                    {
+                        FilterDeletedRecords = true,
+                        TagsAttached = [MediaFileLinkTagEnum.ProfilePic]
+                    });
+
+                    foreach(var oldProfilePic in  oldProfilePics)
+                    {
+                        var deleteEventData = new MediaFileDeleteEvent { MediaFileId = oldProfilePic.Id };
+                        var deleteEventOutbox = new EventOutbox
+                        {
+                            EventObjectType = EventTypeHelper.GetEventObjectType<MediaFileDeleteEvent>(),
+                            EventData = JsonSerializerHelper.Serialize(deleteEventData)
+                        };
+
+                        //Save media status and event record in DB
+                        oldProfilePic.Status = MediaFileStatusEnum.Deleted;
+                        _eventOutboxCRUDRepo.Add(deleteEventOutbox);
+                    }
+
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                //Save media file to DB
                 var mediaFile = new MediaFile
                 {
                     Name = updateTenantProfilePic.FileName,
@@ -264,6 +317,27 @@ namespace Rentify.Application.Services
                 };
 
                 _mediaFileCRUDRepo.Add(mediaFile);
+
+                // Save media file link to DB
+                if (updateTenantProfilePic.TenantId.HasValue)
+                {
+                    var mediaFileTags = new List<MediaFileLinkTag>
+                    {
+                        new MediaFileLinkTag {
+                            Tag = MediaFileLinkTagEnum.ProfilePic
+                        }
+                    };
+
+                    var mediaFileLink = new MediaFileLink
+                    {
+                        EntityId = updateTenantProfilePic.TenantId.Value,
+                        EntityType = MediaFileEntityEnum.Tenant,
+                        MediaFile = mediaFile,
+                        Tags = mediaFileTags
+                    };
+
+                    _mediaFileLinkCRUDRepo.Add(mediaFileLink);
+                }
 
                 await _unitOfWork.SaveChangesAsync();
 

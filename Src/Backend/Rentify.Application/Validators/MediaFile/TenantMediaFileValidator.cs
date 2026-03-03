@@ -17,7 +17,7 @@ namespace Rentify.Application.Validators.MediaFile
 {
     public class TenantMediaFileValidator : IMediaFileValidator
     {
-        private readonly ImmutableArray<string> AllowedMimeType = [MediaContentType.Pdf];
+        private readonly ImmutableArray<string> AllowedMimeType = [ MediaContentType.Pdf, MediaContentType.ImagePng, MediaContentType.ImageJpg ];
 
         private readonly IRepository<Tenant> _tenantCRUDRepo;
 

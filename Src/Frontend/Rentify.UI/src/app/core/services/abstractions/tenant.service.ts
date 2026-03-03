@@ -8,6 +8,7 @@ import { TenantEmergencyContact } from '../../models/tenant/tenant-emergency-con
 import { UpdateTenantEmergencyContact } from '../../models/tenant/update-tenant-emergency-contact.model';
 import { MediaFile } from '../../models/media-file/media-file.model';
 import { CreateTenant } from '../../models/tenant/create-tenant.model';
+import { MediaFileVariantType } from '../../models/media-file/media-file-variant-type.model';
 
 export interface TenantService {
   getPaginatedTenants(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<TenantSummary>>;
@@ -24,6 +25,9 @@ export interface TenantService {
     contact: UpdateTenantEmergencyContact,
   ): Observable<TenantEmergencyContact>;
 
+  updateTenantProfilePic(file: File, tenantId?: number): Observable<MediaFile>;
   uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile>;
-  deleteTenantDocument(mediaId: number): Observable<MediaFile>;
+  deleteTenantMedia(mediaId: number): Observable<MediaFile>;
+
+  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string;
 }

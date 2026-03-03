@@ -9,6 +9,7 @@ namespace Rentify.Application.DTOs.Tenant
 {
     public class CreateTenantDto
     {
+        public int? ProfilePicId { get; set; }
         public CreateTenantDetailsDto Details { get; set; } = CreateTenantDetailsDto.Empty;
         public CreateTenantEmergencyContactDto EmergencyContact { get; set; } = CreateTenantEmergencyContactDto.Empty;
         public IEnumerable<CreateMediaFileLink> Documents { get; set; } = Enumerable.Empty<CreateMediaFileLink>();

@@ -61,6 +61,20 @@ button[appButton] {
   flex-grow: 1;
 }
 
+.app-tenant-profile-pic__item--spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 5.6rem;
+  height: 5.6rem;
+}
+
+.app-tenant-profile-pic__item--spinner__inner {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
 /* Shadow loader style */
 .app-tenant__user-pic__loader {
   margin: 0;

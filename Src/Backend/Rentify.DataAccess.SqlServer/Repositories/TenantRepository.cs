@@ -31,7 +31,15 @@ namespace Rentify.DataAccess.SqlServer.Repositories
                     Id = t.Id,
                     Name = t.Name,
                     Email = t.Email,
-                    PhoneNumber = t.PhoneNumber
+                    PhoneNumber = t.PhoneNumber,
+                    ProfilePic = _context.MediaFileLinks
+                                .Include(m => m.MediaFile).ThenInclude(m => m.MediaFileVariants)
+                                .Include(m => m.Tags)
+                                .Where(
+                                    l => l.Tags.Any(t => t.Tag == MediaFileLinkTagEnum.ProfilePic)
+                                    && l.EntityType == MediaFileEntityEnum.Tenant && l.EntityId == t.Id)
+                                .Select(l => l.MediaFile)
+                                .FirstOrDefault()
                 })
                 .AsNoTracking()
                 .ToListAsync();

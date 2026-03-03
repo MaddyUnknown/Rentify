@@ -57,6 +57,7 @@ export class TenantMockService implements TenantService {
           state: tenant.details.state,
           zipCode: tenant.details.zipCode,
           note: tenant.details.note,
+          profilePicFileId: undefined,
         });
 
         const emergencyContact = {
@@ -85,6 +86,12 @@ export class TenantMockService implements TenantService {
               processingStatus: file.processingStatus,
             };
           });
+
+        const profilePic = data.files.find((file) => file.id === tenant.profilePicId);
+        if (profilePic) {
+          profilePic.tenantId = nextTenantId;
+          profilePic.markedAsProfilePic = true;
+        }
 
         observer.next({
           id: nextTenantId,
@@ -242,6 +249,43 @@ export class TenantMockService implements TenantService {
     });
   }
 
+  updateTenantProfilePic(file: File): Observable<MediaFile> {
+    return new Observable<MediaFile>((observer) => {
+      setTimeout(() => {
+        const nextId = data.files.reduce((maxId, img) => Math.max(maxId, img.id), 0) + 1;
+
+        const profilePicture: MockFiles = {
+          id: nextId,
+          name: file.name,
+          contentType: file.type,
+          processingStatus: 'uploaded' as MediaFileStatus,
+          size: file.size,
+          uploadedDate: new Date(),
+        };
+
+        data.files.push(profilePicture);
+
+        setTimeout(() => {
+          profilePicture.processingStatus = 'processed';
+          profilePicture.thumbnailType = file.type;
+          profilePicture.thumbnailProcessingStatus = 'processed';
+        }, data.apiLatency * 6);
+
+        observer.next({
+          id: profilePicture.id,
+          name: profilePicture.name,
+          contentType: profilePicture.contentType,
+          processingStatus: profilePicture.processingStatus,
+          length: profilePicture.size,
+          uploadedDate: profilePicture.uploadedDate,
+          markedAsCover: false,
+          variants: {},
+        });
+        observer.complete();
+      }, data.apiLatency);
+    });
+  }
+
   uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile> {
     const formData = new FormData();
     formData.append('file', file);
@@ -300,7 +344,7 @@ export class TenantMockService implements TenantService {
     });
   }
 
-  deleteTenantDocument(mediaId: number): Observable<MediaFile> {
+  deleteTenantMedia(mediaId: number): Observable<MediaFile> {
     return new Observable((observer) => {
       setTimeout(() => {
         const id = data.files.findIndex((u) => u.id === mediaId);
@@ -327,5 +371,9 @@ export class TenantMockService implements TenantService {
         observer.complete();
       }, data.apiLatency);
     });
+  }
+
+  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
+    return './img/thumbnails/thumbnail-image.png';
   }
 }

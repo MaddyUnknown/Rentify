@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
+using Rentify.DataAccess.Core.Options;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.SqlServer.Data;
 using System;
@@ -20,11 +21,14 @@ namespace Rentify.DataAccess.SqlServer.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<MediaFile>> GetMediaFilesByEntityAsync(MediaFileEntityEnum entityType, int entityId, bool filterDeletedRecords = false)
+        public async Task<IEnumerable<MediaFile>> GetMediaFilesByEntityAsync(MediaFileEntityEnum entityType, int entityId, MediaFileFilterOption? options = null)
         {
+            options ??= MediaFileFilterOption.Empty;
+
             return await _context.MediaFileLinks
-                .Where(l => l.EntityType == entityType && l.EntityId == entityId && (filterDeletedRecords == false || l.MediaFile.Status != MediaFileStatusEnum.Deleted))
-                .Include(l => l.MediaFile).ThenInclude(f => f.MediaFileLink)
+                .Where(l => l.EntityType == entityType && l.EntityId == entityId && (options.FilterDeletedRecords == false || l.MediaFile.Status != MediaFileStatusEnum.Deleted))
+                .Where(l => options.TagsAttached.All(filterTag => l.Tags.Any(t => t.Tag == filterTag)))
+                .Include(l => l.MediaFile).ThenInclude(f => f.MediaFileLink).ThenInclude(l => l.Tags)
                 .Include(l => l.MediaFile).ThenInclude(f => f.MediaFileVariants)
                 .Select(l => l.MediaFile)
                 .ToListAsync();
@@ -34,7 +38,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         {
             return await _context.MediaFiles
                 .Where(f => f.Id == id)
-                .Include(f => f.MediaFileLink)
+                .Include(f => f.MediaFileLink).ThenInclude(f => f.Tags)
                 .Include(f => f.MediaFileVariants)
                 .FirstOrDefaultAsync();
         }
@@ -43,7 +47,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         {
             return await _context.MediaFiles
                 .Where(f => ids.Contains(f.Id))
-                .Include(f => f.MediaFileLink)
+                .Include(f => f.MediaFileLink).ThenInclude(f => f.Tags)
                 .Include(f => f.MediaFileVariants)
                 .ToListAsync();
         }

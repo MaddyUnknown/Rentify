@@ -214,7 +214,7 @@ export class TenantDocumentsComponent implements OnInit, OnChanges {
       row.disableActions = true;
     }
 
-    this.tenantService.deleteTenantDocument(doc.data.id).subscribe({
+    this.tenantService.deleteTenantMedia(doc.data.id).subscribe({
       next: (deletedDoc) => {
         const row = this.documents.get(deletedDoc.id);
         if (row) this.deleteDocumentRow(row);

@@ -15,6 +15,7 @@ namespace Rentify.Application.DTOs.Tenant
         public int Id { get; set; }
         public GetTenantDetailsDto Details { get; set; } = GetTenantDetailsDto.Empty;
         public TenantEmergencyContactDto EmergencyContact { get; set; } = TenantEmergencyContactDto.Empty;
+        public MediaFileDto? ProfilePic { get; set; }
         public IEnumerable<MediaFileDto> MediaFiles { get; set; } = Enumerable.Empty<MediaFileDto>();
     }
 }

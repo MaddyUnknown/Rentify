@@ -34,7 +34,7 @@
         <article class="app-tenants__card">
           <header>
             <div class="app-tenants__card__avatar">
-              <img src="/img/thumbnails/thumbnail-image.png" [alt]="tenant.name" />
+              <img [src]="generatePropertyProfilePicUrl(tenant)" [alt]="tenant.name" />
             </div>
           </header>
           <main>

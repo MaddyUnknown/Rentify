@@ -30,6 +30,7 @@ export type MockFiles = {
   size: number;
   processingStatus: MediaFileStatus;
   markedAsCover?: boolean;
+  markedAsProfilePic?: boolean;
   thumbnailType?: string;
   thumbnailProcessingStatus?: MediaFileVariantStatus;
   propertyId?: number;
@@ -48,6 +49,7 @@ export type MockTenant = {
   state: string;
   zipCode: string;
   note: string;
+  profilePicFileId?: number;
 };
 
 export type MockTenantEmergencyContact = {

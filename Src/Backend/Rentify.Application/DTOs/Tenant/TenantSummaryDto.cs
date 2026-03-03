@@ -15,5 +15,6 @@ namespace Rentify.Application.DTOs.Tenant
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public TenantStatusEnum Status { get; set; }
+        public MediaFileDto? ProfilePic { get; set; }
     }
 }

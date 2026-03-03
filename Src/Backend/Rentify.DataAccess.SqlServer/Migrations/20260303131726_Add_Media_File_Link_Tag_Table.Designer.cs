@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rentify.DataAccess.SqlServer.Data;
 
@@ -11,9 +12,11 @@ using Rentify.DataAccess.SqlServer.Data;
 namespace Rentify.DataAccess.SqlServer.Migrations
 {
     [DbContext(typeof(RentifyDbContext))]
-    partial class RentifyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260303131726_Add_Media_File_Link_Tag_Table")]
+    partial class Add_Media_File_Link_Tag_Table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -414,8 +417,7 @@ namespace Rentify.DataAccess.SqlServer.Migrations
                 {
                     b.HasOne("Rentify.Core.Entities.MediaFileLink", null)
                         .WithMany("Tags")
-                        .HasForeignKey("MediaFileLinkId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("MediaFileLinkId");
                 });
 
             modelBuilder.Entity("Rentify.Core.Entities.MediaFileVariant", b =>

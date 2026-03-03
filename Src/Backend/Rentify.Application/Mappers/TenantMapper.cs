@@ -1,6 +1,7 @@
 ﻿using Rentify.Application.DTOs.Tenant;
 using Rentify.Application.Enums;
 using Rentify.Core.Entities;
+using Rentify.Core.Enums;
 using Rentify.Core.ValueObjects;
 using Rentify.DataAccess.Core.QueryResults;
 using System;
@@ -30,13 +31,24 @@ namespace Rentify.Application.Mappers
             };
 
             var emergencyContactDto = tenantEmergencyContacts.Select(c => MapToTenantEmergencyContactDto(c)).First();
-            var filesDtos = files.Select(f => MediaFileMapper.MapToMediaFileDto(f));
+
+            var filesDtos = files
+                            .Where(f => !f.MediaFileLink.Tags.Any(f => f.Tag == MediaFileLinkTagEnum.ProfilePic)
+                            )
+                            .Select(f => MediaFileMapper.MapToMediaFileDto(f))
+                            .ToList();
+
+            var profilePic = files
+                            .Where(f => f.MediaFileLink.Tags.Any(f => f.Tag == MediaFileLinkTagEnum.ProfilePic))
+                            .Select(f => MediaFileMapper.MapToMediaFileDto(f))
+                            .FirstOrDefault();
 
             return new TenantDto
             {
                 Id = tenant.Id,
                 Details = detailsDto,
                 EmergencyContact = emergencyContactDto,
+                ProfilePic = profilePic,
                 MediaFiles = filesDtos
             };
         }
@@ -79,7 +91,8 @@ namespace Rentify.Application.Mappers
                 Name = tenantSummaryQueryResult.Name,
                 Email = tenantSummaryQueryResult.Email,
                 PhoneNumber = tenantSummaryQueryResult.PhoneNumber,
-                Status = TenantStatusEnum.Active
+                Status = TenantStatusEnum.Active,
+                ProfilePic = tenantSummaryQueryResult.ProfilePic == null ? null : MediaFileMapper.MapToMediaFileDto(tenantSummaryQueryResult.ProfilePic)
             };
         }
     }

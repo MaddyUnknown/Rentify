@@ -1,4 +1,14 @@
-import { Component, DestroyRef, Inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  Inject,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { Camera, CircleX, InfoIcon, Save, SquarePen, Trash2 } from 'lucide-angular';
 import { PanelComponent } from '../../../../shared/components/panel/panel.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
@@ -13,13 +23,19 @@ import { TenantService } from '../../../../core/services/abstractions/tenant.ser
 import { GetTenantDetails } from '../../../../core/models/tenant/get-tenant-details.model';
 import { ApiError } from '../../../../core/exceptions/api-error';
 import { TenantDetailsForm } from '../../models/tenant-details-form.model';
+import { MediaFile } from '../../../../core/models/media-file/media-file.model';
+import { MediaFileRow, NewMediaFileRow } from '../../models/tenant-document-row.model';
+import { MediaFileVariantType } from '../../../../core/models/media-file/media-file-variant-type.model';
+import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref';
+import { MediaStatusPollingService } from '../../../../shared/services/media-status-polling.service';
+import { SpinnerLoaderComponent } from '../../../../shared/components/spinner-loader/spinner-loader.component';
 
 @Component({
   selector: 'section[appTenantDetails]',
   templateUrl: './tenant-details.component.html',
   styleUrl: './tenant-details.component.css',
   standalone: true,
-  imports: [PanelComponent, ButtonComponent, SkeletonLoaderComponent, ReactiveFormsModule],
+  imports: [PanelComponent, ButtonComponent, SkeletonLoaderComponent, ReactiveFormsModule, SpinnerLoaderComponent],
 })
 export class TenantDetailsComponent implements OnInit, OnChanges {
   readonly ICONS = { Camera, CircleX, InfoIcon, Save, SquarePen, Trash2 };
@@ -27,10 +43,15 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
   mode = EditMode.from('view');
   disableActions = false;
   form: FormGroup<TenantDetailsForm>;
+  profilePicState: NewMediaFileRow | MediaFileRow | undefined;
+
   private originalState?: GetTenantDetails;
+
+  @ViewChild('profilePicInput') profilePicInput?: ElementRef<HTMLInputElement>;
 
   @Input({ required: true }) tenantId!: number;
   @Input({ alias: 'appTenantDetails' }) details?: GetTenantDetails;
+  @Input({ required: false }) profilePic?: MediaFile;
   @Input({ required: false }) loading: boolean = false;
 
   constructor(
@@ -38,6 +59,7 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
     private fb: FormBuilder,
     @Inject(TENANT_SERVICE_TOKEN) private tenantService: TenantService,
     @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
+    private fileStatusPollingService: MediaStatusPollingService,
     private router: Router,
   ) {
     this.form = this.fb.group<TenantDetailsForm>({
@@ -75,6 +97,71 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
       this.originalState = value ?? {};
       if (this.mode.isView) this.form.reset(value ?? {});
     }
+
+    if (changes['profilePic']) {
+      const value = changes['profilePic'].currentValue;
+
+      if (this.profilePicState?.kind == 'existing') this.deleteMediaRow(this.profilePicState);
+      this.profilePicState = value ? this.createMediaRow(value) : undefined;
+    }
+  }
+  //#endregion
+
+  //#region Helper methods
+  generateTenantMediaUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
+    return this.tenantService.generateTenantMediaUrl(mediaFile.id, variant);
+  }
+
+  private createNewMediaRow(mediaFile: MediaFile): NewMediaFileRow {
+    const data: NewMediaFileRow = { kind: 'new', data: mediaFile };
+    return data;
+  }
+
+  private createMediaRow(mediaFile: MediaFile): MediaFileRow {
+    const data: MediaFileRow = {
+      kind: 'existing',
+      data: mediaFile,
+      disableActions: false,
+      destoryPollingRef: new LocalDestroyRef(),
+    };
+
+    this.setupProfilePicPolling(data);
+    return data;
+  }
+
+  private deleteMediaRow(mediaFileRow: MediaFileRow) {
+    mediaFileRow.destoryPollingRef.destroy();
+  }
+
+  private setupProfilePicPolling(mediaFileRow: MediaFileRow) {
+    if (mediaFileRow.data.processingStatus !== 'uploading' && mediaFileRow.data.processingStatus !== 'uploaded') return;
+
+    const subscription = this.fileStatusPollingService.getStatusObservable(mediaFileRow.data.id).subscribe({
+      next: (data) => {
+        if (data.processingStatus === 'deleted' || data.processingStatus === 'failed') {
+          if (this.profilePicState?.kind == 'existing') this.deleteMediaRow(this.profilePicState);
+        } else {
+          if (this.profilePicState !== undefined) {
+            this.profilePicState.data = { ...this.profilePicState.data, ...data };
+          } else {
+            this.profilePicState = mediaFileRow;
+          }
+        }
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        // Only stop polling
+        if (this.profilePicState?.kind === 'existing') this.profilePicState.destoryPollingRef.destroy();
+      },
+    });
+
+    if (this.profilePicState?.kind === 'existing')
+      this.profilePicState.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
   }
   //#endregion
 
@@ -143,6 +230,46 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
         }
 
         this.disableActions = false;
+      },
+    });
+  }
+
+  onProfilePicClick() {
+    // Placeholder for add action
+    this.profilePicInput?.nativeElement.click();
+  }
+
+  onProfilePicSelected() {
+    const files = this.profilePicInput?.nativeElement.files;
+    console.log(files);
+    if (!files || files.length === 0) return;
+
+    const file = files.item(0);
+    if (!file) return;
+
+    const newFileId = -1;
+    const newMediaFile: MediaFile = {
+      id: newFileId,
+      name: file.name,
+      processingStatus: 'uploading',
+    };
+
+    const deletedProfilePicState = this.profilePicState;
+    this.profilePicState = this.createNewMediaRow(newMediaFile);
+
+    // Update profile pic
+    this.tenantService.updateTenantProfilePic(file, this.tenantId).subscribe({
+      next: (file) => {
+        this.profilePicState = this.createMediaRow(file);
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        this.profilePicState = deletedProfilePicState;
       },
     });
   }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
 using Rentify.API.DTOs;
+using Rentify.API.Enums;
 using Rentify.Application.DTOs;
 using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Tenant;
@@ -168,6 +169,34 @@ public class TenantController : ApiControllerBase
         }
     }
 
+    /// <summary>
+    /// Upload profile pic
+    /// </summary>
+    [HttpPost("{tenantId}/profile-pic")]
+    public async Task<ActionResult<MediaFileDto>> UploadTenantProfilePic(IFormFile file, int tenantId, CancellationToken ct)
+    {
+        await using Stream stream = file.OpenReadStream();
+
+        try
+        {
+            var mediaFileDto = new UpdateTenantProfilePicDto
+            {
+                TenantId = tenantId,
+                MediaStream = stream,
+                Length = file.Length,
+                FileName = file.FileName
+            };
+
+            var result = await _tenantService.UpdateProfilePic(mediaFileDto, ct);
+            return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading tenant profile pic media for tenantId '{tenantId}'", tenantId);
+            return HandleException(ex);
+        }
+    }
+
 
     /// <summary>
     /// Upload media file
@@ -228,11 +257,14 @@ public class TenantController : ApiControllerBase
     /// Get media file
     /// </summary>
     [HttpGet("media/{mediaId}")]
-    public async Task<IActionResult> GetTenantMediaStream(int mediaId, [FromQuery] MediaFileVariantEnum? variantType, CancellationToken ct)
+    public async Task<IActionResult> GetTenantMediaStream(int mediaId, [FromQuery] MediaFileVariantDtoEnum? variantType, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new MediaFileStreamSearchDto { Id = mediaId, EntityType = MediaFileEntityEnum.Tenant, VariantType = variantType };
+            var mediaFileDto = new MediaFileStreamSearchDto { 
+                Id = mediaId, 
+                EntityType = MediaFileEntityEnum.Tenant, 
+                VariantType = variantType.HasValue ? MediaFileVariantDtoEnumConverter.ToMediaFilVariantEnum(variantType.Value) : null };
             var result = await _mediaFileService.GetMediaFileStreamAsync(mediaFileDto, ct);
 
             Response.Headers["X-Content-Type-Options"] = "nosniff";

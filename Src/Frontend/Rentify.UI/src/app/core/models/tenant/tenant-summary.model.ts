@@ -1,3 +1,4 @@
+import { MediaFile } from '../media-file/media-file.model';
 import { TenantStatus } from './tenant-status.model';
 
 export interface TenantSummary {
@@ -5,5 +6,6 @@ export interface TenantSummary {
   name: string;
   email: string;
   phoneNumber: string;
+  profilePic?: MediaFile;
   status: TenantStatus;
 }

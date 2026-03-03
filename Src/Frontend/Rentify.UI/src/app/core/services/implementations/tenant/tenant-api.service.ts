@@ -15,6 +15,7 @@ import { ResponseWrapper } from '../../../models/response/response-wrapper.model
 import { processResponse } from '../../../utils/process-response.util';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { CreateTenant } from '../../../models/tenant/create-tenant.model';
+import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 
 @Injectable()
 export class TenantApiService implements TenantService {
@@ -67,6 +68,17 @@ export class TenantApiService implements TenantService {
       .pipe(processResponse());
   }
 
+  updateTenantProfilePic(file: File, tenantId?: number): Observable<MediaFile> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const requestUrl = tenantId ? `tenants/${tenantId}/profile-pic` : 'tenants/profile-pic';
+
+    return this.httpClient
+      .post<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + requestUrl, formData)
+      .pipe(processResponse());
+  }
+
   uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile> {
     const formData = new FormData();
     formData.append('file', file);
@@ -78,9 +90,17 @@ export class TenantApiService implements TenantService {
       .pipe(processResponse());
   }
 
-  deleteTenantDocument(mediaFile: number): Observable<MediaFile> {
+  deleteTenantMedia(mediaFile: number): Observable<MediaFile> {
     return this.httpClient
       .delete<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + `tenants/media/${mediaFile}`)
       .pipe(processResponse());
+  }
+
+  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
+    return (
+      this.environmentConfigService.apiBaseURL +
+      `tenants/media/${mediaId}` +
+      (variant === undefined ? '' : `?variantType=${variant}`)
+    );
   }
 }

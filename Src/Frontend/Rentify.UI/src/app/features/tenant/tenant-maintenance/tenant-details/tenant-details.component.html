@@ -77,10 +77,40 @@
     <form appPanelDesc [formGroup]="form" class="app-form">
       <div class="form-row app-tenant__user-details">
         <div class="app-tenant__user-pic">
-          <div class="app-tenant__user-pic_hover-box">
-            <button appButton type="inline" iconClass="app-panel__icon" [input]="{ icon: ICONS.Camera }"></button>
-          </div>
-          <img src="img\thumbnails\thumbnail-image.png" alt="profile pic" />
+          @if (!profilePicState) {
+            <div class="app-tenant__user-pic_hover-box">
+              <button
+                appButton
+                type="inline"
+                iconClass="app-panel__icon"
+                [input]="{ icon: ICONS.Camera }"
+                (click)="onProfilePicClick()"
+              ></button>
+            </div>
+            <img src="img\thumbnails\thumbnail-image.png" alt="user profile pic" />
+          } @else if (
+            profilePicState.kind === 'new' ||
+            profilePicState.data.processingStatus === 'uploading' ||
+            profilePicState.data.processingStatus === 'uploaded'
+          ) {
+            <div class="app-tenant-profile-pic__item--spinner">
+              <div class="app-tenant-profile-pic__item--spinner__inner">
+                <app-spinner-loader></app-spinner-loader>
+              </div>
+            </div>
+          } @else {
+            <div class="app-tenant__user-pic_hover-box">
+              <button
+                appButton
+                type="inline"
+                iconClass="app-panel__icon"
+                [input]="{ icon: ICONS.Camera }"
+                (click)="onProfilePicClick()"
+              ></button>
+            </div>
+            <img [src]="generateTenantMediaUrl(profilePicState.data, 'profile_pic')" alt="profile pic" />
+          }
+          <input type="file" hidden #profilePicInput (change)="onProfilePicSelected()" />
         </div>
         <div class="app-tenant__user-name form-group">
           <label for="tenant-name">Full Name</label>
