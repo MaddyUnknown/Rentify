@@ -6,6 +6,7 @@ using Rentify.Application.Interfaces.Resolvers;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Application.Mappers;
 using Rentify.Application.Utils;
+using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
 using Rentify.Core.Events;
@@ -27,6 +28,8 @@ namespace Rentify.Application.Services
 {
     public class TenantService : ITenantService
     {
+        private readonly IEnumerable<string> ACCEPTED_PROFILE_PIC_CONTENTS = [MediaContentType.ImagePng, MediaContentType.ImageJpg];
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepository<Tenant> _tenantCRUDRepo;
         private readonly IRepository<TenantEmergencyContact> _tenantEmergencyContactCRUDRepo;
@@ -268,7 +271,7 @@ namespace Rentify.Application.Services
             if (result.MimeType == null) throw new AppValidationException(MediaFileConstants.MediaTypeNotResolved);
 
             var validator = _mediaFileValidatorResolver.Resolve(MediaFileEntityEnum.Tenant);
-            var errors = await validator.ValidateEntityAsync(updateTenantProfilePic.FileName, result, updateTenantProfilePic.TenantId);
+            var errors = await validator.ValidateEntityAsync(updateTenantProfilePic.FileName, result, updateTenantProfilePic.TenantId, ACCEPTED_PROFILE_PIC_CONTENTS);
             if (errors.Count() > 0) throw new AppValidationException(errors);
 
             var generatedFileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile();

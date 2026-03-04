@@ -28,7 +28,7 @@ namespace Rentify.Application.Validators.MediaFile
 
         public MediaFileEntityEnum EntityType => MediaFileEntityEnum.Tenant;
 
-        public async Task<IEnumerable<string>> ValidateEntityAsync(string fileName, FileInspectionInfo fileInfo, int? entityId = null)
+        public async Task<IEnumerable<string>> ValidateEntityAsync(string fileName, FileInspectionInfo fileInfo, int? entityId = null, IEnumerable<string> ? acceptedContentTypes = null)
         {
             var errorList = new List<string>();
 

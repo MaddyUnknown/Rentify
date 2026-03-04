@@ -155,7 +155,7 @@ namespace Rentify.Application.Services
             if (result.MimeType == null) throw new AppValidationException(MediaFileConstants.MediaTypeNotResolved);
 
             var validator = _mediaFileValidatorResolver.Resolve(uploadMediaDto.EntityType);
-            var errors = await validator.ValidateEntityAsync(uploadMediaDto.FileName, result, uploadMediaDto.EntityId);
+            var errors = await validator.ValidateEntityAsync(uploadMediaDto.FileName, result, uploadMediaDto.EntityId, uploadMediaDto.AcceptedContentTypes);
             if (errors.Count() > 0) throw new AppValidationException(errors);
 
             var generatedFileKey = StorageKeyHelper.GenerateNewFileKeyForMediaFile();

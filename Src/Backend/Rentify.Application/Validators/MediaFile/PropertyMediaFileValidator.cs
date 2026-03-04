@@ -4,6 +4,7 @@ using Rentify.Application.Utils;
 using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.Core.Enums;
+using Rentify.Core.Exceptions;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.FileWorkflow.Core.DTOs;
 using System;
@@ -28,7 +29,7 @@ namespace Rentify.Application.Validators.MediaFile
 
         public MediaFileEntityEnum EntityType => MediaFileEntityEnum.Property;
 
-        public async Task<IEnumerable<string>> ValidateEntityAsync(string fileName, FileInspectionInfo fileInfo, int? entityId = null)
+        public async Task<IEnumerable<string>> ValidateEntityAsync(string fileName, FileInspectionInfo fileInfo, int? entityId = null, IEnumerable<string>? acceptedContentTypes = null)
         {
             var errorList = new List<string>();
 
@@ -37,6 +38,8 @@ namespace Rentify.Application.Validators.MediaFile
                 var property = await _propertyCRUDRepo.GetByIdAsync(entityId.Value);
                 if (property == null) errorList.Add(string.Format(PropertyConstants.PropertyNotFound, entityId));
             }
+
+            if (acceptedContentTypes != null && !acceptedContentTypes.Any(t => t == fileInfo.MimeType)) throw new AppValidationException(string.Format(MediaFileConstants.InvalidMediaTypeProvided, string.Join(", ", acceptedContentTypes.Select(x => $"'{x}'"))));
 
             if (fileInfo.MimeType == null || !AllowedMimeType.Contains(fileInfo.MimeType)) errorList.Add(string.Format(MediaFileConstants.InvalidMediaTypeProvided, string.Join(", ", AllowedMimeType.Select(x => $"'{x}'"))));
 

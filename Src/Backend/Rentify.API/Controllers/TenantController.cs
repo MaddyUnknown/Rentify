@@ -7,6 +7,7 @@ using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Tenant;
 using Rentify.Application.Enums;
 using Rentify.Application.Interfaces.Services;
+using Rentify.Core.Constants;
 using Rentify.Core.Enums;
 
 namespace Rentify.API.Controllers;
@@ -213,7 +214,8 @@ public class TenantController : ApiControllerBase
                 Length = file.Length, 
                 FileName = file.FileName, 
                 EntityId = tenantId, 
-                EntityType = MediaFileEntityEnum.Tenant 
+                EntityType = MediaFileEntityEnum.Tenant,
+                AcceptedContentTypes = [MediaContentType.Pdf]
             };
 
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
@@ -240,7 +242,8 @@ public class TenantController : ApiControllerBase
                 MediaStream = stream, 
                 Length = file.Length, 
                 FileName = file.FileName, 
-                EntityType = MediaFileEntityEnum.Tenant 
+                EntityType = MediaFileEntityEnum.Tenant,
+                AcceptedContentTypes = [MediaContentType.Pdf]
             };
 
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
