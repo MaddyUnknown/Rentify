@@ -23,7 +23,9 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         public async Task<IEnumerable<TenantSummaryQueryResult>> GetAllTenantSummaryAsync(int skipItems, int featchItems, DateTime asOfDate)
         {
             return await _context
-                .Tenants.Where(p => p.CreatedDate <= asOfDate)
+                .Tenants.Where(t => t.CreatedDate <= asOfDate)
+                .Include(t => t.ProfilePic).ThenInclude(p => p!.MediaFileVariants)
+                .OrderBy(t => t.Id)
                 .Skip(skipItems)
                 .Take(featchItems)
                 .Select(t => new TenantSummaryQueryResult
@@ -32,14 +34,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
                     Name = t.Name,
                     Email = t.Email,
                     PhoneNumber = t.PhoneNumber,
-                    ProfilePic = _context.MediaFileLinks
-                                .Include(m => m.MediaFile).ThenInclude(m => m.MediaFileVariants)
-                                .Include(m => m.Tags)
-                                .Where(
-                                    l => l.Tags.Any(t => t.Tag == MediaFileLinkTagEnum.ProfilePic)
-                                    && l.EntityType == MediaFileEntityEnum.Tenant && l.EntityId == t.Id)
-                                .Select(l => l.MediaFile)
-                                .FirstOrDefault()
+                    ProfilePic = t.ProfilePic,
                 })
                 .AsNoTracking()
                 .ToListAsync();

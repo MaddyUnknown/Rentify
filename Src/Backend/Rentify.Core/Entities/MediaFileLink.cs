@@ -23,6 +23,5 @@ namespace Rentify.Core.Entities
 
         // Navigation properties
         public MediaFile MediaFile { get; set; } = null!;
-        public ICollection<MediaFileLinkTag> Tags { get; set; } = null!;
     }
 }

@@ -39,8 +39,10 @@ namespace Rentify.Core.Entities
         // Foreign Key
         [Required]
         public int OwnerId { get; private set; }
+        public int? ProfilePicId { get; set; }
 
         // Navigation Property
         public Owner Owner { get; private set; } = null!;
+        public MediaFile? ProfilePic { get; set; }
     }
 }

@@ -33,13 +33,12 @@ namespace Rentify.Application.Mappers
             var emergencyContactDto = tenantEmergencyContacts.Select(c => MapToTenantEmergencyContactDto(c)).First();
 
             var filesDtos = files
-                            .Where(f => !f.MediaFileLink.Tags.Any(f => f.Tag == MediaFileLinkTagEnum.ProfilePic)
-                            )
+                            .Where(f => f.Id != tenant.ProfilePicId)
                             .Select(f => MediaFileMapper.MapToMediaFileDto(f))
                             .ToList();
 
             var profilePic = files
-                            .Where(f => f.MediaFileLink.Tags.Any(f => f.Tag == MediaFileLinkTagEnum.ProfilePic))
+                            .Where(f => f.Id == tenant.ProfilePicId)
                             .Select(f => MediaFileMapper.MapToMediaFileDto(f))
                             .FirstOrDefault();
 

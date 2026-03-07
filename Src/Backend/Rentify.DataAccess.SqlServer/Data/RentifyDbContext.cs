@@ -17,7 +17,6 @@ public class RentifyDbContext : DbContext
     // DbSets for 'dbo' entities
     public DbSet<MediaFile> MediaFiles { get; set; }
     public DbSet<MediaFileLink> MediaFileLinks { get; set; }
-    public DbSet<MediaFileLinkTag> MediaFileLinkTags { get; set; }
     public DbSet<MediaFileVariant> MediaFileVariants { get; set; }
     public DbSet<Owner> Owners { get; set; }
     public DbSet<Property> Properties { get; set; }
