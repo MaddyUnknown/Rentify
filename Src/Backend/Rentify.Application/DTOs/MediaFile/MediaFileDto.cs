@@ -15,7 +15,6 @@ namespace Rentify.Application.DTOs.MediaFile
         public long? Length { get; set; }
         public string? ContentType { get; set; }
         public DateTime? UploadedDate { get; set; }
-        public bool? MarkedAsCover { get; set; }
         public MediaFileStatusEnum ProcessingStatus { get; set; }
 
         public IDictionary<MediaFileVariantEnum, MediaFileVariantsDto>? Variants { get; set; }

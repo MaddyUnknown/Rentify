@@ -61,10 +61,12 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
   private newImages: ObservableMap<number, NewMediaFileRow>;
 
   imageList$: BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>;
+  coverPicMediaFileId?: number;
 
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
   @Input({ alias: 'appPropertyMedia' }) imageList?: MediaFile[];
+  @Input({ required: false }) coverPicId?: number;
   @Input({ required: true }) propertyId!: number;
   @Input({ required: false }) loading: boolean = false;
 
@@ -102,6 +104,11 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
         this.mergeImageRow.bind(this),
         this.deleteImageRow.bind(this),
       );
+    }
+
+    if (changes['coverPicId']) {
+      const value: number | undefined = changes['coverPicId'].currentValue ?? undefined;
+      this.coverPicMediaFileId = value;
     }
   }
 
@@ -227,16 +234,10 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
 
     this.propertyService.markMediaFileAsCover(this.propertyId, row.data.id).subscribe({
       next: (image) => {
-        for (let [_, image] of this.images) {
-          image.data.markedAsCover = false;
-        }
-
         const existingRow = this.images.get(row.data.id);
-        if (existingRow) {
-          existingRow.data.markedAsCover = true;
-          existingRow.disableActions = false;
-          console.log(existingRow);
-        }
+        this.coverPicMediaFileId = image.id;
+
+        if (existingRow) existingRow.disableActions = false;
       },
       error: (err) => {
         if (err instanceof ApiError) {

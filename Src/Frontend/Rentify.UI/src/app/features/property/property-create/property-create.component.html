@@ -114,7 +114,7 @@
           } @else {
             <div class="app-property-media__galary_img" [class.disabled]="file.disableActions">
               <div class="app-property-media__galary_img__action-overlay">
-                @if (file.data.markedAsCover) {
+                @if (file.data.id === requestedCoverPicId) {
                   <lucide-icon
                     [img]="ICONS.Star"
                     class="app-property-media__galary_img__action__cover app-button__icon--inline app-button__icon--filled"
@@ -127,7 +127,7 @@
                     iconClass="app-button__icon--inline"
                     class="app-property-media__galary_img__action__icon"
                     [input]="{ icon: ICONS.Star }"
-                    [disabled]="file.disableActions || file.data.markedAsCover || disableActions"
+                    [disabled]="file.disableActions || disableActions"
                     (click)="onMarkAsCover(file)"
                   ></button>
                 }

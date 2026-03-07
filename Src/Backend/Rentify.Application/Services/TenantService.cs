@@ -240,11 +240,11 @@ namespace Rentify.Application.Services
                 }
 
                 //Add Media Link
-                foreach (var media in createTenantDto.Documents)
+                foreach (var mediaFileId in createTenantDto.DocumentIds)
                 {
                     var mediaFileLink = new MediaFileLink
                     {
-                        MediaFileId = media.Id,
+                        MediaFileId = mediaFileId,
                         EntityId = tenantEntity.Id,
                         EntityType = MediaFileEntityEnum.Tenant,
                     };

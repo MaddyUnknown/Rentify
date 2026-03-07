@@ -66,6 +66,9 @@ export class PropertyMockService implements PropertyService {
             }),
           );
 
+        const coverPicId =
+          data.files.filter((img) => img.propertyId === propertyId).find((img) => img.markedAsCover)?.id ?? undefined;
+
         if (!property) {
           observer.error('Property not found');
           return;
@@ -84,6 +87,7 @@ export class PropertyMockService implements PropertyService {
           mediaFiles: fileList,
           location: property.location ? { ...property.location } : undefined,
           units: unitList,
+          coverPicMetadata: { activeCoverPicId: coverPicId, requestedCoverPicId: coverPicId },
         });
         observer.complete();
       }, data.apiLatency);
@@ -216,7 +220,6 @@ export class PropertyMockService implements PropertyService {
           name: image.name,
           contentType: image.contentType,
           processingStatus: image.processingStatus,
-          markedAsCover: false,
           variants: variants,
         });
         observer.complete();
@@ -245,7 +248,6 @@ export class PropertyMockService implements PropertyService {
           name: deletedFile.name,
           contentType: deletedFile.contentType,
           processingStatus: deletedFile.processingStatus,
-          markedAsCover: false,
           variants: variants,
         });
         observer.complete();
@@ -280,7 +282,6 @@ export class PropertyMockService implements PropertyService {
           name: mediaFile.name,
           contentType: mediaFile.contentType,
           processingStatus: mediaFile.processingStatus,
-          markedAsCover: mediaFile.markedAsCover,
           variants: variants,
         });
         observer.complete();

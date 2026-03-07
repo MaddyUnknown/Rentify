@@ -11,7 +11,7 @@ namespace Rentify.Application.Mappers
 {
     public static class MediaFileMapper
     {
-        public static MediaFileDto MapToMediaFileDto(MediaFile file, bool checkCoverRequested = true)
+        public static MediaFileDto MapToMediaFileDto(MediaFile file)
         {
             var variants = file.MediaFileVariants.ToDictionary(
                 v => v.VariantType,
@@ -30,7 +30,6 @@ namespace Rentify.Application.Mappers
                 ContentType = file.ContentType,
                 UploadedDate = file.CreatedDate,
                 ProcessingStatus = file.Status,
-                MarkedAsCover = checkCoverRequested ? file?.MediaFileLink?.MarkAsCoverRequested : file?.MediaFileLink?.MarkedAsCover,
                 Variants = variants
             };
         }

@@ -152,12 +152,12 @@ public class PropertiesController : ApiControllerBase
     /// Delete media file
     /// </summary>
     [HttpPut("{propertyId}/cover-media")]
-    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdateCoverImageRequestDto request, CancellationToken ct)
+    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdatePropertyCoverRequestDto request, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new UpdateCoverImageDto { MediaFileId = request.MediaFileId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
-            var updatedMediaFileDto = await _mediaFileService.UpdateCoverImageAsync(mediaFileDto);
+            var mediaFileDto = new UpdatePropertyCoverRequestDto { MediaFileId = request.MediaFileId, PropertyId = propertyId };
+            var updatedMediaFileDto = await _propertyService.UpdatePropertyCoverPicAsync(mediaFileDto);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(updatedMediaFileDto));
         }
         catch (Exception ex)
@@ -254,12 +254,11 @@ public class PropertiesController : ApiControllerBase
     /// Delete media file
     /// </summary>
     [HttpDelete("media/{mediaId}")]
-    public async Task<ActionResult<MediaFileDto>> DeletePropertyMedia(int mediaId, CancellationToken ct)
+    public async Task<ActionResult<MediaFileDto>> DeletePropertyMedia(int mediaId)
     {
         try
         {
-            var mediaFileDto = new DeleteMediaFileDto { Id = mediaId, EntityType = MediaFileEntityEnum.Property };
-            var deletedMediaFileDto = await _mediaFileService.DeleteMediaFileAsync(mediaFileDto, ct);
+            var deletedMediaFileDto = await _propertyService.DeleteMediaFileAsync(mediaId);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(deletedMediaFileDto));
         }
         catch (Exception ex)

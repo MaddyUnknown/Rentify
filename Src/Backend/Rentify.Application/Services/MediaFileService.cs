@@ -30,7 +30,6 @@ namespace Rentify.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediaFileValidatorResolver _mediaFileValidatorResolver;
         private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
-        private readonly IMediaFileLinkRepository _mediaFileLinkRepo;
         private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
         private readonly IMediaFileVariantRepository _mediaFileVariantRepo;
         private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
@@ -42,7 +41,6 @@ namespace Rentify.Application.Services
         IUnitOfWork unitOfWork,
         IMediaFileValidatorResolver mediaFileValidatorResolver,
         IRepository<MediaFileLink> mediaFileLinkCRUDRepo,
-        IMediaFileLinkRepository mediaFileLinkRepo,
         IRepository<MediaFile> mediaFileCRUDRepo,
         IMediaFileVariantRepository mediaFileVariantRepo,
         IRepository<EventOutbox> eventOutboxCRUDRepo,
@@ -53,7 +51,6 @@ namespace Rentify.Application.Services
             _unitOfWork = unitOfWork;
             _mediaFileValidatorResolver = mediaFileValidatorResolver;
             _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
-            _mediaFileLinkRepo = mediaFileLinkRepo;
             _mediaFileCRUDRepo = mediaFileCRUDRepo;
             _mediaFileVariantRepo = mediaFileVariantRepo;
             _eventOutboxCRUDRepo = eventOutboxCRUDRepo;
@@ -111,41 +108,6 @@ namespace Rentify.Application.Services
                 var fileStream = await _fileStorageService.ReadAsync(mediaFileVariant.FileKey, ct);
                 return MediaFileMapper.MapToMediaFileStreamDto(mediaFile, mediaFileVariant, fileStream);
             }
-        }
-
-        public async Task<MediaFileDto> UpdateCoverImageAsync(UpdateCoverImageDto updateCoverDto)
-        {
-            var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(updateCoverDto.MediaFileId);
-            if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, updateCoverDto.MediaFileId));
-            if (mediaFile.MediaFileLink?.EntityType != updateCoverDto.EntityType || mediaFile.MediaFileLink?.EntityId != updateCoverDto.EntityId) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, updateCoverDto.MediaFileId));
-
-            try
-            {
-                await _unitOfWork.BeginTransactionAsync();
-
-                await _mediaFileLinkRepo.UpdateRequestedCoverForEntityAsync(mediaFile.MediaFileLink.Id, mediaFile.MediaFileLink.EntityType, mediaFile.MediaFileLink.EntityId);
-
-                // Transactional outbox pattern
-                var eventData = new SetNewCoverImageEvent { MediaFileId = mediaFile.Id, MediaFileLinkId = mediaFile.MediaFileLink.Id };
-                var eventOutbox = new EventOutbox
-                {
-                    EventObjectType = EventTypeHelper.GetEventObjectType<SetNewCoverImageEvent>(),
-                    EventData = JsonSerializerHelper.Serialize(eventData)
-                };
-
-                _eventOutboxCRUDRepo.Add(eventOutbox);
-
-                await _unitOfWork.SaveChangesAsync();
-
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-
-            return MediaFileMapper.MapToMediaFileDto(mediaFile);
         }
 
         public async Task<MediaFileDto> UploadMediaFileAsync(UploadMediaFileDto uploadMediaDto, CancellationToken ct)

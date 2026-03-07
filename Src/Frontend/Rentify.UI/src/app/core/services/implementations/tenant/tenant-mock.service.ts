@@ -71,7 +71,7 @@ export class TenantMockService implements TenantService {
 
         data.tenantEmergencyContacts.push(emergencyContact);
 
-        const selectedDocumentIds = new Set(tenant.documents.map((document) => document.id));
+        const selectedDocumentIds = new Set(tenant.documentIds);
         const documents = data.files
           .filter((file) => selectedDocumentIds.has(file.id))
           .map((file) => {
@@ -278,7 +278,6 @@ export class TenantMockService implements TenantService {
           processingStatus: profilePicture.processingStatus,
           length: profilePicture.size,
           uploadedDate: profilePicture.uploadedDate,
-          markedAsCover: false,
           variants: {},
         });
         observer.complete();
@@ -336,7 +335,6 @@ export class TenantMockService implements TenantService {
           processingStatus: document.processingStatus,
           length: document.size,
           uploadedDate: document.uploadedDate,
-          markedAsCover: false,
           variants: variants,
         });
         observer.complete();
@@ -365,7 +363,6 @@ export class TenantMockService implements TenantService {
           name: deletedFile.name,
           contentType: deletedFile.contentType,
           processingStatus: deletedFile.processingStatus,
-          markedAsCover: false,
           variants: variants,
         });
         observer.complete();

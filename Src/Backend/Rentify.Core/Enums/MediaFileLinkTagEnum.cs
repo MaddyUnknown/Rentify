@@ -8,7 +8,8 @@ namespace Rentify.Core.Enums
 {
     public enum MediaFileLinkTagEnum
     {
-        // 1,2 reserved to be used for cover pic
+        CoverPicRequested = 1,
+        CoverPic = 2,
         ProfilePic = 3
     }
 }

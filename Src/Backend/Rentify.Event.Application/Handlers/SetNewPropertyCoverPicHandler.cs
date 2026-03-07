@@ -20,38 +20,38 @@ using System.Threading.Tasks;
 
 namespace Rentify.Event.Application.Handlers
 {
-    public class SetNewCoverImageHandler : IMessageHandler<SetNewCoverImageEvent>
+    public class SetNewPropertyCoverPicHandler : IMessageHandler<SetNewPropertyCoverPicEvent>
     {
         private IUnitOfWork _unitOfWork;
         private IMediaFileRepository _mediaFileRepository;
-        private IMediaFileLinkRepository _mediaFileLinkRepository;
+        private IPropertyRepository _propertyRepository;
         private IMediaProcessorResolver _mediaProcessorResolver;
 
-        public SetNewCoverImageHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IMediaProcessorResolver mediaProcessorResolver, IMediaFileLinkRepository mediaFileLinkRepository)
+        public SetNewPropertyCoverPicHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IPropertyRepository propertyRepository, IMediaProcessorResolver mediaProcessorResolver)
         {
             _unitOfWork = unitOfWork;
             _mediaFileRepository = mediaFileRepository;
-            _mediaFileLinkRepository = mediaFileLinkRepository;
+            _propertyRepository = propertyRepository;
             _mediaProcessorResolver = mediaProcessorResolver;
         }
 
-        public async Task HandleAsync(SetNewCoverImageEvent message, IMessageProcessingContext context)
+        public async Task HandleAsync(SetNewPropertyCoverPicEvent message, IMessageProcessingContext context)
         {
             var mediaFile = await _mediaFileRepository.GetMediaFileByIdAsync(message.MediaFileId);
             var mediaFileLink = mediaFile?.MediaFileLink;
 
             if (mediaFile == null) return; // Skip as the media file is deleted
-            if (mediaFileLink == null || mediaFile.MediaFileLink.Id != message.MediaFileLinkId) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileLinkMissmatchError, message.MediaFileId, message.MediaFileLinkId));
+            if (mediaFileLink == null || mediaFile.MediaFileLink.EntityId != message.PropertyId || mediaFile.MediaFileLink.EntityType != MediaFileEntityEnum.Property) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileLinkMissmatchError, message.MediaFileId, message.PropertyId, MediaFileEntityEnum.Property));
             if (mediaFile.Status != MediaFileStatusEnum.Processed) throw new InvalidOperationException(string.Format(MediaFileConstants.MediaFileProcessingForStatusError, mediaFile.Id, mediaFile.Status));
 
             // Generate cover picture
             var processorContext = new MediaProcessingContext { ContentType = mediaFile.ContentType, MediaFileEntity = mediaFileLink.EntityType, Variant = MediaFileVariantEnum.CoverPic };
             var processor = _mediaProcessorResolver.Resolve(processorContext);
             await processor.ProcessAsync(_unitOfWork, mediaFile, processorContext);
+            await _unitOfWork.SaveChangesAsync();
 
             //Commit media file as cover pic, this update takes into account if the mediaFile was first marked as requested or not, if not then update is skipped
-            await _mediaFileLinkRepository.CommitRequestedCoverForEntityAsync(mediaFileLink.Id, mediaFileLink.EntityType, mediaFileLink.EntityId);
-
+            await _propertyRepository.CommitActiveCoverPicAsync(message.PropertyId, message.MediaFileId);
             await _unitOfWork.SaveChangesAsync();
         }
     }

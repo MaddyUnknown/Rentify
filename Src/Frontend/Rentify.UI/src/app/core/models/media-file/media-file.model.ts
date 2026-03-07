@@ -8,7 +8,6 @@ export interface MediaFile {
   contentType?: string;
   uploadedDate?: Date;
   length?: number;
-  markedAsCover?: boolean;
   processingStatus: MediaFileStatus;
   variants?: Partial<Record<MediaFileVariantType, MediaFileVariant>>;
 }

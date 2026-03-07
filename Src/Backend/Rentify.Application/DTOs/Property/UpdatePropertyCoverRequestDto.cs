@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Rentify.Application.DTOs.MediaFile
 {
-    public class UpdateCoverImageRequestDto
+    public class UpdatePropertyCoverRequestDto
     {
+        public int PropertyId { get; set; }
         public int MediaFileId { get; set; }
     }
 }

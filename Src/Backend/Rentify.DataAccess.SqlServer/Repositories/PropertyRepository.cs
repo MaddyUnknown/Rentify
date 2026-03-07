@@ -25,6 +25,8 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         {
             return await _context
                 .Properties.Where(p => p.CreatedDate <= asOfDate)
+                .Include(p => p.ActiveCoverPic).ThenInclude(m => m!.MediaFileVariants)
+                .OrderBy(p => p.Id)
                 .Skip(skipItems)
                 .Take(featchItems)
                 .Select(p => new PropertySummaryQueryResult
@@ -33,7 +35,7 @@ namespace Rentify.DataAccess.SqlServer.Repositories
                     Name = p.Name,
                     Address = p.PropertyAddress,
                     NumberOfUnits = _context.Units.Where(u => u.PropertyId == p.Id).Count(),
-                    CoverImage = _context.MediaFileLinks.Include(m => m.MediaFile).ThenInclude(m => m.MediaFileVariants).Where(l => l.MarkedAsCover == true && l.EntityType == MediaFileEntityEnum.Property && l.EntityId == p.Id).Select(l => l.MediaFile).FirstOrDefault()
+                    ActiveCoverPic = p.ActiveCoverPic
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -42,6 +44,19 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         public async Task<int> CountAsync(DateTime asOfDate)
         {
             return await _context.Properties.Where(p => p.CreatedDate <= asOfDate).CountAsync();
+        }
+        
+        public async Task<bool> UpdateRequestedCoverPicAsync(int id, int mediaFileId)
+        {
+            int rowsAffected = await _context.Database.ExecuteSqlAsync($"UPDATE [Properties] SET RequestedCoverPicId = {mediaFileId}, ModifiedDate = {DateTime.Now} WHERE Id = {id}");
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> CommitActiveCoverPicAsync(int id, int mediaFileId)
+        {
+            int rowsAffected = await _context.Database.ExecuteSqlAsync($"UPDATE [Properties] SET ActiveCoverPicId = {mediaFileId}, ModifiedDate = {DateTime.Now} WHERE Id = {id} AND RequestedCoverPicId = {mediaFileId}");
+
+            return rowsAffected > 0;
         }
     }
 }

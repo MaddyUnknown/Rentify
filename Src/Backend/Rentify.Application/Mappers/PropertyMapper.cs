@@ -25,6 +25,12 @@ namespace Rentify.Application.Mappers
                 Description = property.Description ?? string.Empty,
             };
 
+            var coverPicDto = new GetPropertyCoverPicDto
+            {
+                RequestedCoverPicId = property.RequestedCoverPicId,
+                ActiveCoverPicId = property.ActiveCoverPicId,
+            };
+
             LocationDto? locationDto = (property.PropertyLocation?.Latitude == null || property.PropertyLocation?.Longitude == null)
                 ? null
                 : new LocationDto
@@ -40,6 +46,7 @@ namespace Rentify.Application.Mappers
             return new PropertyDto
             {
                 Id = property.Id,
+                CoverPicMetadata = coverPicDto,
                 GeneralDetails = propertyDetailDto,
                 MediaFiles = filesDtos,
                 Location = locationDto,
@@ -71,7 +78,7 @@ namespace Rentify.Application.Mappers
                 Address = $"{property.Address.StreetName}, {property.Address.City}, {property.Address.State}, {property.Address.ZipCode}",
                 NumberOfUnits = property.NumberOfUnits,
                 NumberOfVacantUnits = 1,
-                CoverImage = property.CoverImage == null ? null : MediaFileMapper.MapToMediaFileDto(property.CoverImage, false),
+                CoverPic = property.ActiveCoverPic == null ? null : MediaFileMapper.MapToMediaFileDto(property.ActiveCoverPic),
             };
         }
 

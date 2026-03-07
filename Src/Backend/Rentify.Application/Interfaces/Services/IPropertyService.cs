@@ -13,4 +13,6 @@ public interface IPropertyService
     Task<PropertyDetailsDto> DeletePropertyAsync(int id);
     Task<PropertyLocationDto> UpdatePropertyLocationAsync(int id, UpdatePropertyLocationDto updatePropertyLocationDto);
     Task<PropertyDto> CreatePropertyAsync(CreatePropertyDto createPropertyDto);
+    Task<MediaFileDto> UpdatePropertyCoverPicAsync(UpdatePropertyCoverRequestDto updateCoverDto);
+    Task<MediaFileDto> DeleteMediaFileAsync(int mediaFileId);
 }

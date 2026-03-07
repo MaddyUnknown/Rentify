@@ -1,5 +1,5 @@
 import { Component, DestroyRef, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CircleX, FileText, Plus, Save, Download, Trash2, Phone, InfoIcon, Camera } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
@@ -23,7 +23,6 @@ import { NewMediaFileRow, MediaFileRow } from '../models/tenant-document-row.mod
 import { TenantDetailsForm } from '../models/tenant-details-form.model';
 import { TenantEmergencyContactForm } from '../models/tenant-emergency-contact-form.model';
 import { TenantCreateForm } from '../models/tenant-create-form.model';
-import { TenantMediaFileForm } from '../models/tenant-media-file-form.model';
 import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
 
 @Component({
@@ -96,7 +95,7 @@ export class TenantCreateComponent implements OnInit {
         phoneNumber: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
         email: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
       }),
-      documents: this.fb.array<FormGroup<TenantMediaFileForm>>([]),
+      documentIds: this.fb.array<FormControl<number>>([]),
     });
 
     this.tenantDocumentState = {
@@ -341,11 +340,7 @@ export class TenantCreateComponent implements OnInit {
           this.tenantDocumentState.documents.set(file.id, this.createMediaRow(file, 'document'));
 
           //Push to form
-          this.tenantForm.controls.documents.push(
-            this.fb.nonNullable.group<TenantMediaFileForm>({
-              id: this.fb.nonNullable.control(file.id),
-            }),
-          );
+          this.tenantForm.controls.documentIds.push(this.fb.nonNullable.control(file.id));
         },
         error: (err) => {
           if (err instanceof ApiError) {
@@ -375,11 +370,9 @@ export class TenantCreateComponent implements OnInit {
         this.tenantDocumentState.documents.delete(deletedDoc.id);
 
         //Remove from form
-        const index = this.tenantForm.controls.documents.controls.findIndex(
-          (x) => x.controls.id.value === deletedDoc.id,
-        );
+        const index = this.tenantForm.controls.documentIds.controls.findIndex((x) => x.value === deletedDoc.id);
         if (index !== -1) {
-          this.tenantForm.controls.documents.removeAt(index);
+          this.tenantForm.controls.documentIds.removeAt(index);
         }
       },
       error: (err) => {

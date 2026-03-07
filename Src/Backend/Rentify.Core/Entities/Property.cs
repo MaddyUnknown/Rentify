@@ -21,7 +21,11 @@ public class Property : EntityBase, IOwnedEntity
     // Foreign Key
     [Required]
     public int OwnerId { get; private set; }
+    public int? RequestedCoverPicId { get; set; }
+    public int? ActiveCoverPicId { get; set; }
 
     // Navigation Property
     public Owner Owner { get; private set; } = null!;
+    public MediaFile? RequestedCoverPic { get; set; } = null;
+    public MediaFile? ActiveCoverPic { get; set; } = null;
 }

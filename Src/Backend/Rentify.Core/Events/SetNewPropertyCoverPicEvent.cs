@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Rentify.Core.Events
 {
-    public class SetNewCoverImageEvent : EventBase
+    public class SetNewPropertyCoverPicEvent : EventBase
     {
-        public int MediaFileLinkId { get; set; }
+        public int PropertyId { get; set; }
         public int MediaFileId { get; set; }
     }
 }

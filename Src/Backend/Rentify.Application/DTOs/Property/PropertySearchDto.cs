@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rentify.Application.DTOs.MediaFile
+namespace Rentify.Application.DTOs.Property
 {
     public class PropertySearchDto
     {
