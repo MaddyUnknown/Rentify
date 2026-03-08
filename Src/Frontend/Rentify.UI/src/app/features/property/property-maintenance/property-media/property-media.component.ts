@@ -26,6 +26,8 @@ import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref
 import { patchMapWithList } from '../../../../shared/utils/patch-util';
 import { AsyncPipe } from '@angular/common';
 import { ObservableMap } from '../../../../shared/models/observable-map.model';
+import { EnvironmentConfigService } from '../../../../core/services/abstractions/environment-config.service';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../../core/services/tokens/environement-config.token';
 
 type NewMediaFileRow = {
   kind: 'new';
@@ -62,6 +64,7 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
 
   imageList$: BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>;
   coverPicMediaFileId?: number;
+  propertyMediaProcessingImagePath: string;
 
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
@@ -74,10 +77,13 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
     private destroyRef: DestroyRef,
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
     private fileStatusPollingService: MediaStatusPollingService,
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
   ) {
     this.images = new ObservableMap<number, MediaFileRow>();
     this.newImages = new ObservableMap<number, NewMediaFileRow>();
     this.imageList$ = new BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>([]);
+
+    this.propertyMediaProcessingImagePath = envConfigService.thumbnailImagePath.propertyMediaProcessing;
   }
 
   // #region Lifecycle hooks

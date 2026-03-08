@@ -87,7 +87,7 @@
                 (click)="onProfilePicClick()"
               ></button>
             </div>
-            <img src="img\thumbnails\thumbnail-image.png" alt="user profile pic" />
+            <img [src]="tenantNotFoundImagePath" alt="user profile pic" />
           } @else if (
             profilePicState.kind === 'new' ||
             profilePicState.data.processingStatus === 'uploading' ||

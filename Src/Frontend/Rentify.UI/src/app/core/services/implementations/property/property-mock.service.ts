@@ -13,15 +13,21 @@ import { UnitStatus } from '../../../models/unit/unit-status.model';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { MediaFileStatus } from '../../../models/media-file/media-file-status.model';
 import { MockFiles } from '../mock/data.model';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
 import { PropertySummary } from '../../../models/property/property-summary.model';
 import { CreateProperty } from '../../../models/property/create-property.model';
 import { MediaFileVariant } from '../../../models/media-file/media-file-variant.model';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../tokens/environement-config.token';
+import { EnvironmentConfigJsonService } from '../environement-config/environment-config-json.service';
 
 @Injectable()
 export class PropertyMockService implements PropertyService {
+  constructor(
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private environmentConfigService: EnvironmentConfigJsonService,
+  ) {}
+
   getPaginatedProperties(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<PropertySummary>> {
     return new Observable<PaginatedList<PropertySummary>>((observer) => {
       setTimeout(() => {
@@ -374,6 +380,6 @@ export class PropertyMockService implements PropertyService {
   }
 
   generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
-    return './img/thumbnails/thumbnail-image.png';
+    return this.environmentConfigService.thumbnailImagePath.propertyNotFound;
   }
 }

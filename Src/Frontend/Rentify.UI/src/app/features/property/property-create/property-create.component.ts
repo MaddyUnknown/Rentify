@@ -122,6 +122,7 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
   mapLoading: boolean;
   propertyForm: FormGroup<PropertyForm>;
   disableActions: boolean;
+  propertyMediaProcessingImagePath: string;
 
   constructor(
     private destroyRef: DestroyRef,
@@ -160,6 +161,8 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
     this.propertyImageList$ = new BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>([]);
 
     this.disableActions = false;
+
+    this.propertyMediaProcessingImagePath = envConfigService.thumbnailImagePath.propertyMediaProcessing;
   }
 
   // #region Lifecycle hooks

@@ -29,6 +29,8 @@ import { MediaFileVariantType } from '../../../../core/models/media-file/media-f
 import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref';
 import { MediaStatusPollingService } from '../../../../shared/services/media-status-polling.service';
 import { SpinnerLoaderComponent } from '../../../../shared/components/spinner-loader/spinner-loader.component';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../../core/services/tokens/environement-config.token';
+import { EnvironmentConfigService } from '../../../../core/services/abstractions/environment-config.service';
 
 @Component({
   selector: 'section[appTenantDetails]',
@@ -44,6 +46,7 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
   disableActions = false;
   form: FormGroup<TenantDetailsForm>;
   profilePicState: NewMediaFileRow | MediaFileRow | undefined;
+  tenantNotFoundImagePath: string;
 
   private originalState?: GetTenantDetails;
 
@@ -57,6 +60,7 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
   constructor(
     private destroyRef: DestroyRef,
     private fb: FormBuilder,
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
     @Inject(TENANT_SERVICE_TOKEN) private tenantService: TenantService,
     @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
     private fileStatusPollingService: MediaStatusPollingService,
@@ -74,6 +78,8 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
       zipCode: this.fb.nonNullable.control<string>('', { validators: [Validators.required] }),
       note: this.fb.nonNullable.control<string>(''),
     });
+
+    this.tenantNotFoundImagePath = this.envConfigService.thumbnailImagePath.tenantNotFound;
   }
 
   //#region Helper methods

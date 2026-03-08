@@ -12,6 +12,8 @@ import { RouterLink } from '@angular/router';
 import { ROUTE_SERVICE_TOKEN } from '../../../core/services/tokens/route.token';
 import { RouteService } from '../../../core/services/abstractions/route.service';
 import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
+import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
 
 @Component({
   selector: 'app-property-search',
@@ -22,7 +24,6 @@ import { MediaFileVariantType } from '../../../core/models/media-file/media-file
 })
 export class PropertySearchComponent implements OnInit {
   readonly ICONS = { Plus, SquarePen, SearchX };
-  readonly DEFAULT_COVER_IMAGE = 'https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg';
 
   readonly ITEMS_PER_PAGE = 12;
   readonly DATE_SNAPSHOT: Date;
@@ -32,12 +33,15 @@ export class PropertySearchComponent implements OnInit {
   public properties?: PaginatedList<PropertySummary>;
   public loading = false;
   public disableActions = false;
+  propertyNotFoundImagePath: string;
 
   constructor(
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
     @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
   ) {
     this.DATE_SNAPSHOT = new Date();
+    this.propertyNotFoundImagePath = this.envConfigService.thumbnailImagePath.propertyNotFound;
   }
 
   ngOnInit(): void {
@@ -59,7 +63,7 @@ export class PropertySearchComponent implements OnInit {
   generatePropertyCoverUrl(property: PropertySummary, variant: MediaFileVariantType): string {
     return property.coverPic?.variants?.['cover_pic']?.processingStatus === 'processed'
       ? this.propertyService.generatePropertyMediaUrl(property.coverPic.id, variant)
-      : this.DEFAULT_COVER_IMAGE;
+      : this.propertyNotFoundImagePath;
   }
 
   private syncUpProperties(currentPage: number, { enableLoading = false, enableActionDisable = false } = {}) {

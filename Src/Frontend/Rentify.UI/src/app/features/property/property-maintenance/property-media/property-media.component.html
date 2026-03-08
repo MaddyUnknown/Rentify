@@ -29,7 +29,7 @@
               <!-- The status of uploaded is a but confusing for users, hence treading it as uploading and then would transition to processing -->
               <div>{{ file.data.processingStatus === 'uploaded' ? 'uploading' : file.data.processingStatus }}</div>
             </div>
-            <img src="/img/thumbnails/placeholder-house-2.jpg" [alt]="file.data.name" />
+            <img [src]="propertyMediaProcessingImagePath" [alt]="file.data.name" />
           </div>
         } @else {
           <div class="app-property-media__galary_img" [class.disabled]="file.disableActions">

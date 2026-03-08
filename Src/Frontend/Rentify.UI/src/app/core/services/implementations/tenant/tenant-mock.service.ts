@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TenantService } from '../../abstractions/tenant.service';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
@@ -16,9 +16,15 @@ import { TenantStatus } from '../../../models/tenant/tenant-status.model';
 import { CreateTenant } from '../../../models/tenant/create-tenant.model';
 import { MediaFileVariant } from '../../../models/media-file/media-file-variant.model';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../tokens/environement-config.token';
+import { EnvironmentConfigJsonService } from '../environement-config/environment-config-json.service';
 
 @Injectable()
 export class TenantMockService implements TenantService {
+  constructor(
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private environmentConfigService: EnvironmentConfigJsonService,
+  ) {}
+
   getPaginatedTenants(page: number, pageSize: number, _asOfDate: Date): Observable<PaginatedList<TenantSummary>> {
     return new Observable<PaginatedList<TenantSummary>>((observer) => {
       setTimeout(() => {
@@ -371,6 +377,6 @@ export class TenantMockService implements TenantService {
   }
 
   generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
-    return './img/thumbnails/thumbnail-image.png';
+    return this.environmentConfigService.thumbnailImagePath.tenantNotFound;
   }
 }

@@ -13,4 +13,8 @@ export class EnvironmentConfigJsonService {
   get apiBaseURL(): string {
     return environement.apiBaseURL;
   }
+
+  get thumbnailImagePath(): { propertyMediaProcessing: string; propertyNotFound: string; tenantNotFound: string } {
+    return environement.thumbnailImagePath;
+  }
 }

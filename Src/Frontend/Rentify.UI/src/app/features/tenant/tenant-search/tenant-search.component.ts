@@ -12,6 +12,8 @@ import { TenantService } from '../../../core/services/abstractions/tenant.servic
 import { PaginatedList } from '../../../core/models/response/paginated-list.model';
 import { ApiError } from '../../../core/exceptions/api-error';
 import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
+import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
 
 @Component({
   selector: 'app-tenant-search',
@@ -22,7 +24,6 @@ import { MediaFileVariantType } from '../../../core/models/media-file/media-file
 })
 export class TenantSearchComponent implements OnInit {
   readonly ICONS = { Plus, SquarePen, SearchX };
-  readonly DEFAULT_COVER_IMAGE = 'img/thumbnails/thumbnail-image.png';
 
   readonly ITEMS_PER_PAGE = 12;
   readonly DATE_SNAPSHOT: Date;
@@ -32,12 +33,15 @@ export class TenantSearchComponent implements OnInit {
   public tenants?: PaginatedList<TenantSummary>;
   public loading = false;
   public disableActions = false;
+  tenantNotFoundImagePath: string;
 
   constructor(
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
     @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
     @Inject(TENANT_SERVICE_TOKEN) private tenantService: TenantService,
   ) {
     this.DATE_SNAPSHOT = new Date();
+    this.tenantNotFoundImagePath = this.envConfigService.thumbnailImagePath.tenantNotFound;
   }
 
   ngOnInit(): void {
@@ -59,7 +63,7 @@ export class TenantSearchComponent implements OnInit {
   generatePropertyProfilePicUrl(property: TenantSummary): string {
     return property.profilePic?.variants?.['profile_pic']?.processingStatus === 'processed'
       ? this.tenantService.generateTenantMediaUrl(property.profilePic.id, 'profile_pic')
-      : this.DEFAULT_COVER_IMAGE;
+      : this.tenantNotFoundImagePath;
   }
 
   private syncUpTenants(currentPage: number, { enableLoading = false, enableActionDisable = false } = {}) {

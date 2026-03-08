@@ -24,6 +24,8 @@ import { TenantDetailsForm } from '../models/tenant-details-form.model';
 import { TenantEmergencyContactForm } from '../models/tenant-emergency-contact-form.model';
 import { TenantCreateForm } from '../models/tenant-create-form.model';
 import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
+import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
 
 @Component({
   selector: 'app-tenant-create',
@@ -64,9 +66,12 @@ export class TenantCreateComponent implements OnInit {
 
   documentList$: BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>;
 
+  tenantNotFoundImagePath: string;
+
   constructor(
     private fb: FormBuilder,
     private destroyRef: DestroyRef,
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
     @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
     @Inject(TENANT_SERVICE_TOKEN) private tenantService: TenantService,
     private fileStatusPollingService: MediaStatusPollingService,
@@ -107,6 +112,8 @@ export class TenantCreateComponent implements OnInit {
     this.tenantProfilePicState = {
       profilePic: undefined,
     };
+
+    this.tenantNotFoundImagePath = this.envConfigService.thumbnailImagePath.tenantNotFound;
   }
 
   // #region Lifecycle hooks
