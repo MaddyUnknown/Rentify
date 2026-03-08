@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
 using Rentify.API.DTOs;
+using Rentify.API.Enums;
 using Rentify.Application.DTOs;
 using Rentify.Application.DTOs.Location;
 using Rentify.Application.DTOs.MediaFile;
@@ -151,12 +152,12 @@ public class PropertiesController : ApiControllerBase
     /// Delete media file
     /// </summary>
     [HttpPut("{propertyId}/cover-media")]
-    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdateCoverImageRequestDto request, CancellationToken ct)
+    public async Task<ActionResult<MediaFileDto>> UpdateCoverImage(int propertyId, UpdatePropertyCoverRequestDto request, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new UpdateCoverImageDto { MediaFileId = request.MediaFileId, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
-            var updatedMediaFileDto = await _mediaFileService.UpdateCoverImageAsync(mediaFileDto);
+            var mediaFileDto = new UpdatePropertyCoverRequestDto { MediaFileId = request.MediaFileId, PropertyId = propertyId };
+            var updatedMediaFileDto = await _propertyService.UpdatePropertyCoverPicAsync(mediaFileDto);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(updatedMediaFileDto));
         }
         catch (Exception ex)
@@ -176,7 +177,16 @@ public class PropertiesController : ApiControllerBase
 
         try
         {
-            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityId = propertyId, EntityType = MediaFileEntityEnum.Property };
+            var mediaFileDto = new UploadMediaFileDto
+            {
+                MediaStream = stream,
+                Length = file.Length,
+                FileName = file.FileName,
+                EntityId = propertyId,
+                EntityType = MediaFileEntityEnum.Property,
+                Variants = [MediaFileVariantEnum.Thumbnail]
+            };
+
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }
@@ -197,7 +207,14 @@ public class PropertiesController : ApiControllerBase
 
         try
         {
-            var mediaFileDto = new UploadMediaFileDto { MediaStream = stream, Length = file.Length, FileName = file.FileName, EntityType = MediaFileEntityEnum.Property };
+            var mediaFileDto = new UploadMediaFileDto { 
+                MediaStream = stream, 
+                Length = file.Length, 
+                FileName = file.FileName, 
+                EntityType = MediaFileEntityEnum.Property,
+                Variants = [MediaFileVariantEnum.Thumbnail]
+            };
+
             var result = await _mediaFileService.UploadMediaFileAsync(mediaFileDto, ct);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(result));
         }
@@ -212,11 +229,15 @@ public class PropertiesController : ApiControllerBase
     /// Upload media file
     /// </summary>
     [HttpGet("media/{mediaId}")]
-    public async Task<IActionResult> GetPropertyMediaStream(int mediaId, [FromQuery] MediaFileVariantDTOEnum? variantType, CancellationToken ct)
+    public async Task<IActionResult> GetPropertyMediaStream(int mediaId, [FromQuery] MediaFileVariantDtoEnum? variantType, CancellationToken ct)
     {
         try
         {
-            var mediaFileDto = new MediaFileStreamSearchDto { Id = mediaId, EntityType = MediaFileEntityEnum.Property, VariantType = variantType };
+            var mediaFileDto = new MediaFileStreamSearchDto { 
+                Id = mediaId, 
+                EntityType = MediaFileEntityEnum.Property, 
+                VariantType = variantType.HasValue ? MediaFileVariantDtoEnumConverter.ToMediaFilVariantEnum(variantType.Value) : null
+            };
             var result = await _mediaFileService.GetMediaFileStreamAsync(mediaFileDto, ct);
 
             Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -233,12 +254,11 @@ public class PropertiesController : ApiControllerBase
     /// Delete media file
     /// </summary>
     [HttpDelete("media/{mediaId}")]
-    public async Task<ActionResult<MediaFileDto>> DeletePropertyMedia(int mediaId, CancellationToken ct)
+    public async Task<ActionResult<MediaFileDto>> DeletePropertyMedia(int mediaId)
     {
         try
         {
-            var mediaFileDto = new DeleteMediaFileDto { Id = mediaId, EntityType = MediaFileEntityEnum.Property };
-            var deletedMediaFileDto = await _mediaFileService.DeleteMediaFileAsync(mediaFileDto, ct);
+            var deletedMediaFileDto = await _propertyService.DeleteMediaFileAsync(mediaId);
             return Ok(ResponseWrapper<MediaFileDto>.SuccessResponse(deletedMediaFileDto));
         }
         catch (Exception ex)

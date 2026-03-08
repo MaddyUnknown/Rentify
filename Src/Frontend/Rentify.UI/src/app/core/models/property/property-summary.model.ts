@@ -6,5 +6,5 @@ export interface PropertySummary {
   address: string;
   numberOfUnits: number;
   numberOfVacantUnits: number;
-  coverImage?: MediaFile;
+  coverPic?: MediaFile;
 }

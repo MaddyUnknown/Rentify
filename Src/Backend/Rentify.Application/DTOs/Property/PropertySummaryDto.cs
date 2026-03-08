@@ -15,6 +15,6 @@ namespace Rentify.Application.DTOs.Property
         public string Address { get; set; } = string.Empty;
         public int NumberOfUnits { get; set; }
         public int NumberOfVacantUnits { get; set; }
-        public MediaFileDto? CoverImage { get; set; }
+        public MediaFileDto? CoverPic { get; set; }
     }
 }

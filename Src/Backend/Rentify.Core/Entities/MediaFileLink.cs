@@ -9,17 +9,13 @@ using System.Threading.Tasks;
 
 namespace Rentify.Core.Entities
 {
-    public class MediaFileLink: EntityBase
+    public class MediaFileLink : EntityBase
     {
         [Required]
         public int EntityId { get; set; }
 
         [Required]
         public MediaFileEntityEnum EntityType { get; set; }
-
-        public bool MarkAsCoverRequested { get; set; }
-
-        public bool MarkedAsCover { get; set; }
 
         // Foreign keys
         [Required]

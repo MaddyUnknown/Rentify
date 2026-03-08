@@ -109,12 +109,12 @@
                 <!-- The status of uploaded is a but confusing for users, hence treading it as uploading and then would transition to processing -->
                 <div>{{ file.data.processingStatus === 'uploaded' ? 'uploading' : file.data.processingStatus }}</div>
               </div>
-              <img src="/img/thumbnails/placeholder-house-2.jpg" [alt]="file.data.name" />
+              <img [src]="propertyMediaProcessingImagePath" [alt]="file.data.name" />
             </div>
           } @else {
             <div class="app-property-media__galary_img" [class.disabled]="file.disableActions">
               <div class="app-property-media__galary_img__action-overlay">
-                @if (file.data.markedAsCover) {
+                @if (file.data.id === requestedCoverPicId) {
                   <lucide-icon
                     [img]="ICONS.Star"
                     class="app-property-media__galary_img__action__cover app-button__icon--inline app-button__icon--filled"
@@ -127,7 +127,7 @@
                     iconClass="app-button__icon--inline"
                     class="app-property-media__galary_img__action__icon"
                     [input]="{ icon: ICONS.Star }"
-                    [disabled]="file.disableActions || file.data.markedAsCover || disableActions"
+                    [disabled]="file.disableActions || disableActions"
                     (click)="onMarkAsCover(file)"
                   ></button>
                 }

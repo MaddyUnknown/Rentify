@@ -1,0 +1,66 @@
+<app-panel [icon]="ICONS.FileText" heading="Documents">
+  <div appPanelButtons>
+    <input type="file" #fileInput hidden multiple (change)="onFileSelected()" />
+    <button
+      appButton
+      type="normal"
+      color="primary"
+      [input]="{ icon: ICONS.Plus, label: 'Add' }"
+      [disabled]="loading"
+      (click)="onAddClick()"
+    ></button>
+  </div>
+
+  @if (loading) {
+    <div appPanelDesc class="app-tenant-documents__list">
+      @for (id of [1, 2]; track id) {
+        <div class="app-tenant-documents__item app-tenant-documents__item--loading">
+          <app-skeleton-loader type="box" class="app-tenant-documents__skeleton-title"></app-skeleton-loader>
+          <app-skeleton-loader type="box" class="app-tenant-documents__skeleton-meta"></app-skeleton-loader>
+        </div>
+      }
+    </div>
+  } @else {
+    <div appPanelDesc class="app-tenant-documents__list">
+      @for (row of documentList$ | async; track row.data.id) {
+        @if (
+          row.kind === 'new' || row.data.processingStatus === 'uploading' || row.data.processingStatus === 'uploaded'
+        ) {
+          <div class="app-tenant-documents__item app-tenant-documents__item--spinner">
+            <app-spinner-loader></app-spinner-loader>
+            <div class="app-tenant-documents_item__status">
+              {{ row.data.processingStatus === 'uploaded' ? 'uploading' : row.data.processingStatus }}
+            </div>
+          </div>
+        } @else {
+          <div class="app-tenant-documents__item">
+            <div class="app-tenant-documents__meta">
+              <h4 class="app-tenant-documents__title">{{ row.data.name }}</h4>
+              <div class="app-tenant-documents__subtext">
+                {{ row.data.contentType ?? '' | fileType }} &middot; {{ row.data.length | fileSize }} &middot;
+                {{ row.data.uploadedDate | date: 'dd/MM/yyyy' }}
+              </div>
+            </div>
+            <div class="app-tenant-documents__actions">
+              <button
+                appButton
+                type="inline"
+                color="text"
+                [input]="{ icon: ICONS.Download }"
+                [disabled]="row.disableActions"
+              ></button>
+              <button
+                appButton
+                type="inline"
+                color="danger"
+                [input]="{ icon: ICONS.Trash2 }"
+                (click)="onRemoveClick(row)"
+                [disabled]="row.disableActions"
+              ></button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+</app-panel>

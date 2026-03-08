@@ -1,4 +1,5 @@
-﻿using Rentify.Core.Enums;
+﻿using Microsoft.Extensions.Logging;
+using Rentify.Core.Enums;
 using Rentify.Core.Entities;
 using Rentify.Core.Events;
 using Rentify.DataAccess.Core.Repositories;
@@ -14,6 +15,9 @@ using System.Threading.Tasks;
 using Rentify.Event.Application.Constants;
 using Rentify.Event.Application.Utils;
 using Rentify.Event.Core.Contexts;
+using Rentify.Core.Constants;
+using Rentify.Event.Application.Contexts;
+using Rentify.Event.Application.Interfaces;
 
 namespace Rentify.Event.Application.Handlers
 {
@@ -21,19 +25,13 @@ namespace Rentify.Event.Application.Handlers
     {
         private IUnitOfWork _unitOfWork;
         private IMediaFileRepository _mediaFileRepository;
-        private IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
-        private IImageThumbnailGenerator _thumbnailGenerator;
-        private IFileStorageService _fileStorage;
-        private (int width, int height) _thumbnailDimension;
+        private IMediaProcessorResolver _mediaProcessorResolver;
 
-        public MediaFileCreateHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
+        public MediaFileCreateHandler(IUnitOfWork unitOfWork, IMediaFileRepository mediaFileRepository, IMediaProcessorResolver mediaProcessorResolver)
         {
             _unitOfWork = unitOfWork;
             _mediaFileRepository = mediaFileRepository;
-            _mediaFileVariantCRUDRepository = mediaFileVariantCRUDRepository;
-            _thumbnailGenerator = imageThumbnailGenerator;
-            _fileStorage = fileStorageService;
-            _thumbnailDimension = (200, 200);
+            _mediaProcessorResolver = mediaProcessorResolver;
         }
 
         public async Task HandleAsync(MediaFileCreateEvent message, IMessageProcessingContext context)
@@ -46,30 +44,15 @@ namespace Rentify.Event.Application.Handlers
 
             try
             {
-                //Thumbnail generation
-                if (mediaFile.MediaFileVariants?.Any(m => m.VariantType == MediaFileVariantEnum.Thumbnail) == false)
+                //Variant processing
+                foreach(var variant in message.Variants)
                 {
-                    using var imageStream = await _fileStorage.ReadAsync(mediaFile.FileKey);
+                    var processingContext = new MediaProcessingContext { ContentType = mediaFile.ContentType, MediaFileEntity = message.MediaFileEntity, Variant = variant };
+                    var processor = _mediaProcessorResolver.Resolve(processingContext);
 
-                    var thumbnailKey = StorageKeyHelper.GenerateFileKeyForMediaFileVariant(mediaFile.FileKey, MediaFileVariantEnum.Thumbnail);
-                    using var thumbnailStream = _thumbnailGenerator.Generate(imageStream, _thumbnailDimension.width, _thumbnailDimension.height);
-
-                    await _fileStorage.DeleteAsync(thumbnailKey); //Delete if any
-                    await _fileStorage.WriteAsync(thumbnailKey, thumbnailStream);
-
-                    //Save to DB
-                    var thumbnailVariant = new MediaFileVariant
-                    {
-                        VariantType = MediaFileVariantEnum.Thumbnail,
-                        FileKey = thumbnailKey,
-                        ContentType = MediaFileConstants.ContentType.ImageJpg,
-                        MediaFileId = message.MediaFileId,
-                        Status = MediaFileVariantStatusEnum.Processed
-                    };
-
-                    _mediaFileVariantCRUDRepository.Add(thumbnailVariant);
-                    await _unitOfWork.SaveChangesAsync();
+                    await processor.ProcessAsync(_unitOfWork, mediaFile, processingContext);
                 }
+
 
                 mediaFile.Status = MediaFileStatusEnum.Processed;
                 await _unitOfWork.SaveChangesAsync();

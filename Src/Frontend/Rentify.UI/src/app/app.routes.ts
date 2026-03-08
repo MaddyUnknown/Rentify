@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { BillingComponent } from './features/billing/billing.component';
 import { ContractsComponent } from './features/contracts/contracts.component';
-import { TenantsComponent } from './features/tenants/tenants.component';
-import { UnitsComponent } from './features/units/units.component';
+import { TenantSearchComponent } from './features/tenant/tenant-search/tenant-search.component';
 import { PropertyMaintenanceComponent } from './features/property/property-maintenance/property-maintenance.component';
 import { PropertySearchComponent } from './features/property/property-search/property-search.component';
 import { RoutesConstants } from './core/constants/routes.constants';
 import { PropertyCreateComponent } from './features/property/property-create/property-create.component';
+import { TenantMaintenanceComponent } from './features/tenant/tenant-maintenance/tenant-maintenance.component';
+import { TenantCreateComponent } from './features/tenant/tenant-create/tenant-create.component';
 
 export const routes: Routes = [
   {
@@ -36,10 +37,24 @@ export const routes: Routes = [
     },
   },
   {
-    path: RoutesConstants.Units,
-    component: UnitsComponent,
+    path: RoutesConstants.Tenants,
+    component: TenantSearchComponent,
     data: {
-      navName: 'units',
+      navName: 'tenants',
+    },
+  },
+  {
+    path: RoutesConstants.TenantCreate,
+    component: TenantCreateComponent,
+    data: {
+      navName: 'tenants',
+    },
+  },
+  {
+    path: `${RoutesConstants.Tenant}/:id`,
+    component: TenantMaintenanceComponent,
+    data: {
+      navName: 'tenants',
     },
   },
   {
@@ -54,13 +69,6 @@ export const routes: Routes = [
     component: BillingComponent,
     data: {
       navName: 'billing',
-    },
-  },
-  {
-    path: RoutesConstants.Tenants,
-    component: TenantsComponent,
-    data: {
-      navName: 'tenants',
     },
   },
 ];

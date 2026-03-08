@@ -116,7 +116,7 @@ export class PropertyApiService implements PropertyService {
       .pipe(processResponse());
   }
 
-  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType): string {
+  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
     return (
       this.environmentConfigService.apiBaseURL +
       `properties/media/${mediaId}` +

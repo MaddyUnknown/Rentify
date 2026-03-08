@@ -14,6 +14,6 @@ namespace Rentify.DataAccess.Core.QueryResults
         public string Name { get; set; } = string.Empty;
         public Address Address { get; set; } = Address.Empty;
         public int NumberOfUnits { get; set; }
-        public MediaFile? CoverImage { get; set; }
+        public MediaFile? ActiveCoverPic { get; set; }
     }
 }

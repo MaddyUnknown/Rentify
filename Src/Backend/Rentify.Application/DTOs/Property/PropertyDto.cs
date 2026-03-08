@@ -14,6 +14,7 @@ namespace Rentify.Application.DTOs.Property
         public int Id { get; set; }
         public GetPropertyDetailsDto GeneralDetails { get; set; } = GetPropertyDetailsDto.Empty;
         public IEnumerable<MediaFileDto> MediaFiles { get; set; } = Enumerable.Empty<MediaFileDto>();
+        public GetPropertyCoverPicDto CoverPicMetadata { get; set; } = GetPropertyCoverPicDto.Empty;
         public IEnumerable<UnitDto> Units { get; set; } = Enumerable.Empty<UnitDto>();
         public LocationDto? Location { get; set; }
 

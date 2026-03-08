@@ -49,8 +49,9 @@ import { CreateProperty } from '../../../core/models/property/create-property.mo
 type PropertyForm = {
   details: FormGroup<PropertyDetailsForm>;
   location: FormControl<Location | undefined>;
-  media: FormArray<FormGroup<PropertyMediaFileForm>>;
+  mediaFileIds: FormArray<FormControl<number>>;
   units: FormArray<FormGroup<PropertyUnitForm>>;
+  requestedCoverPicId: FormControl<number | undefined>;
 };
 
 type PropertyDetailsForm = {
@@ -66,11 +67,6 @@ type PropertyUnitForm = {
   name: FormControl<string>;
   type: FormControl<string>;
   size: FormControl<number>;
-};
-
-type PropertyMediaFileForm = {
-  id: FormControl<number>;
-  markAsCover: FormControl<boolean>;
 };
 
 type NewMediaFileRow = {
@@ -122,9 +118,11 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
   };
 
   propertyImageList$: BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>;
+  requestedCoverPicId?: number;
   mapLoading: boolean;
   propertyForm: FormGroup<PropertyForm>;
   disableActions: boolean;
+  propertyMediaProcessingImagePath: string;
 
   constructor(
     private destroyRef: DestroyRef,
@@ -146,8 +144,9 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
         description: this.fb.nonNullable.control(''),
       }),
       location: this.fb.nonNullable.control<Location | undefined>(undefined),
-      media: this.fb.array<FormGroup<PropertyMediaFileForm>>([]),
+      mediaFileIds: this.fb.array<FormControl<number>>([]),
       units: this.fb.array<FormGroup<PropertyUnitForm>>([]),
+      requestedCoverPicId: this.fb.nonNullable.control<number | undefined>(undefined),
     });
 
     this.propertyImageState = {
@@ -162,6 +161,8 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
     this.propertyImageList$ = new BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>([]);
 
     this.disableActions = false;
+
+    this.propertyMediaProcessingImagePath = envConfigService.thumbnailImagePath.propertyMediaProcessing;
   }
 
   // #region Lifecycle hooks
@@ -332,12 +333,7 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
           this.propertyImageState.images.set(image.id, this.createImageRow(image));
 
           //Push to form
-          this.propertyForm.controls.media.push(
-            this.fb.nonNullable.group<PropertyMediaFileForm>({
-              id: this.fb.nonNullable.control(image.id),
-              markAsCover: this.fb.nonNullable.control(false),
-            }),
-          );
+          this.propertyForm.controls.mediaFileIds.push(this.fb.nonNullable.control(image.id));
         },
         error: (err) => {
           if (err instanceof ApiError) {
@@ -362,12 +358,8 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
         this.propertyImageState.images.delete(deletedUnit.id);
 
         //Remove from form
-        const index = this.propertyForm.controls.media.controls.findIndex(
-          (x) => x.controls.id.value === deletedUnit.id,
-        );
-        if (index !== -1) {
-          this.propertyForm.controls.media.removeAt(index);
-        }
+        const index = this.propertyForm.controls.mediaFileIds.controls.findIndex((x) => x.value === deletedUnit.id);
+        if (index !== -1) this.propertyForm.controls.mediaFileIds.removeAt(index);
       },
       error: (err) => {
         if (err instanceof ApiError) {
@@ -382,20 +374,8 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
   }
 
   onMarkAsCover(row: MediaFileRow) {
-    for (let [_, image] of this.propertyImageState.images) {
-      if (image.data.markedAsCover) {
-        image.data.markedAsCover = false;
-        const item = this.propertyForm.controls.media.controls.find((x) => x.controls.id.value === image.data.id);
-        if (item) item.controls.markAsCover.setValue(false);
-      }
-    }
-
-    const existingRow = this.propertyImageState.images.get(row.data.id);
-    if (existingRow) {
-      existingRow.data.markedAsCover = true;
-      const item = this.propertyForm.controls.media.controls.find((x) => x.controls.id.value === row.data.id);
-      if (item) item.controls.markAsCover.setValue(true);
-    }
+    this.requestedCoverPicId = row.data.id;
+    this.propertyForm.controls.requestedCoverPicId.setValue(row.data.id);
   }
   // #endregion
 

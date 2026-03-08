@@ -12,6 +12,7 @@ using Rentify.Core.Events;
 using Rentify.Core.Exceptions;
 using Rentify.Core.Utils;
 using Rentify.Core.ValueObjects;
+using Rentify.DataAccess.Core.Options;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.Core.UnitOfWork;
 using Rentify.Storage.Core;
@@ -27,17 +28,13 @@ public class PropertyService : IPropertyService
     private readonly IPropertyRepository _propertyRepo;
     private readonly IUnitRepository _unitRepo;
     private readonly IRepository<MediaFileLink> _mediaFileLinkCRUDRepo;
-    private readonly IMediaFileLinkRepository _mediaFileLinkRepo;
-    private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
     private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
 
     public PropertyService(
         IUnitOfWork unitOfWork, 
         IRepository<Property> propertyCRUDRepo, 
         IRepository<Unit> unitCRUDRepo,
-        IRepository<MediaFileLink> mediaFileLinkCRUDRepo, 
-        IRepository<MediaFile> mediaFileCRUDRepo,
-        IMediaFileLinkRepository mediaFileLinkRepo,
+        IRepository<MediaFileLink> mediaFileLinkCRUDRepo,
         IUnitRepository unitRepo, 
         IPropertyRepository propertyRepository,
         IMediaFileRepository mediaFileRepo,
@@ -50,8 +47,6 @@ public class PropertyService : IPropertyService
         _propertyRepo = propertyRepository;
         _unitRepo = unitRepo;
         _mediaFileLinkCRUDRepo = mediaFileLinkCRUDRepo;
-        _mediaFileLinkRepo = mediaFileLinkRepo;
-        _mediaFileCRUDRepo = mediaFileCRUDRepo;
         _eventOutboxCRUDRepo = eventOutboxCRUDRepo;
     }
 
@@ -78,7 +73,10 @@ public class PropertyService : IPropertyService
         if (property == null) throw new AppValidationException(string.Format(PropertyConstants.PropertyNotFound, id));
 
         var units = await _unitRepo.GetByPropertyIdAsync(id);
-        var files = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, true);
+        var files = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, new MediaFileFilterOption
+        {
+            FilterDeletedRecords = true
+        });
 
         return PropertyMapper.MapToPropertyDto(property, units, files);
     }
@@ -113,8 +111,14 @@ public class PropertyService : IPropertyService
         var unitCount = await _unitRepo.CountByPropertyIdAsync(id);
         if (unitCount != 0) throw new AppValidationException(PropertyConstants.PropertyDeleteFailForActiveUnits);
 
+        _propertyCRUDRepo.Remove(property);
+        await _unitOfWork.SaveChangesAsync();
+
         // Delete property media
-        var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, true);
+        var mediaFiles = await _mediaFileRepo.GetMediaFilesByEntityAsync(MediaFileEntityEnum.Property, id, new MediaFileFilterOption
+        {
+            FilterDeletedRecords = true
+        });
         foreach(var mediaFile in mediaFiles)
         {
             // Transactional outbox pattern
@@ -129,9 +133,6 @@ public class PropertyService : IPropertyService
             mediaFile.Status = MediaFileStatusEnum.Deleted;
             _eventOutboxCRUDRepo.Add(eventOutbox);
         }
-
-        _propertyCRUDRepo.Remove(property);
-        await _unitOfWork.SaveChangesAsync();
 
         return PropertyMapper.MapToPropertyDetailsDto(property);
     }
@@ -199,29 +200,29 @@ public class PropertyService : IPropertyService
 
 
             //Add Media Link
-            foreach(var media in createPropertyDto.Media)
+            foreach(var mediaFileId in createPropertyDto.MediaFileIds)
             {
                 var mediaFileLink = new MediaFileLink
                 {
-                    MediaFileId = media.Id,
+                    MediaFileId = mediaFileId,
                     EntityId = propertyEntity.Id,
                     EntityType = MediaFileEntityEnum.Property,
                 };
 
                 _mediaFileLinkCRUDRepo.Add(mediaFileLink);
 
-                if(media.MarkAsCover)
+                if(mediaFileId == createPropertyDto.RequestedCoverPicId)
                 {
                     // Used to insert the row in DB else Media Link Id is not generated
                     await _unitOfWork.SaveChangesAsync();
 
-                    await _mediaFileLinkRepo.UpdateRequestedCoverForEntityAsync(mediaFileLink.Id, mediaFileLink.EntityType, mediaFileLink.EntityId);
+                    await _propertyRepo.UpdateRequestedCoverPicAsync(propertyEntity.Id, mediaFileId);
 
                     // Transactional outbox pattern
-                    var eventData = new SetNewCoverImageEvent { MediaFileId = media.Id, MediaFileLinkId = mediaFileLink.Id };
+                    var eventData = new SetNewPropertyCoverPicEvent { MediaFileId = mediaFileId, PropertyId = propertyEntity.Id };
                     var eventOutbox = new EventOutbox
                     {
-                        EventObjectType = EventTypeHelper.GetEventObjectType<SetNewCoverImageEvent>(),
+                        EventObjectType = EventTypeHelper.GetEventObjectType<SetNewPropertyCoverPicEvent>(),
                         EventData = JsonSerializerHelper.Serialize(eventData)
                     };
 
@@ -239,5 +240,86 @@ public class PropertyService : IPropertyService
             await _unitOfWork.RollbackTransactionAsync();
             throw;
         }
+    }
+
+    public async Task<MediaFileDto> UpdatePropertyCoverPicAsync(UpdatePropertyCoverRequestDto updateCoverDto)
+    {
+        var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(updateCoverDto.MediaFileId);
+        if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, updateCoverDto.MediaFileId));
+        if (mediaFile.MediaFileLink?.EntityType != MediaFileEntityEnum.Property || mediaFile.MediaFileLink?.EntityId != updateCoverDto.PropertyId) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, updateCoverDto.MediaFileId));
+
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+
+            await _propertyRepo.UpdateRequestedCoverPicAsync(updateCoverDto.PropertyId, updateCoverDto.MediaFileId);
+
+            // Transactional outbox pattern
+            var eventData = new SetNewPropertyCoverPicEvent { MediaFileId = mediaFile.Id, PropertyId = updateCoverDto.PropertyId };
+            var eventOutbox = new EventOutbox
+            {
+                EventObjectType = EventTypeHelper.GetEventObjectType<SetNewPropertyCoverPicEvent>(),
+                EventData = JsonSerializerHelper.Serialize(eventData)
+            };
+
+            _eventOutboxCRUDRepo.Add(eventOutbox);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
+        return MediaFileMapper.MapToMediaFileDto(mediaFile);
+    }
+
+    public async Task<MediaFileDto> DeleteMediaFileAsync(int mediaFileId)
+    {
+        //DB operation to set status as deleted (File/Variant is deleted in job asynchronously)
+        var mediaFile = await _mediaFileRepo.GetMediaFileByIdAsync(mediaFileId);
+        if (mediaFile == null) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, mediaFileId));
+        if (mediaFile.MediaFileLink != null && mediaFile.MediaFileLink.EntityType != MediaFileEntityEnum.Property) throw new AppValidationException(string.Format(MediaFileConstants.MediaFileNotFound, mediaFileId));
+
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+
+            var propertyId = mediaFile?.MediaFileLink?.EntityId;
+            var property = propertyId.HasValue ? await _propertyCRUDRepo.GetByIdAsync(propertyId.Value) : null;
+
+            if(property != null)
+            {
+                property.ActiveCoverPicId = (mediaFileId == property.ActiveCoverPicId) ? null : property.ActiveCoverPicId;
+                property.RequestedCoverPicId = (mediaFileId == property.RequestedCoverPicId) ? null : property.RequestedCoverPicId;
+
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            // Transactional outbox pattern
+            var eventData = new MediaFileDeleteEvent { MediaFileId = mediaFileId };
+            var eventOutbox = new EventOutbox
+            {
+                EventObjectType = EventTypeHelper.GetEventObjectType<MediaFileDeleteEvent>(),
+                EventData = JsonSerializerHelper.Serialize(eventData)
+            };
+
+            //Save media status and event record in DB (Not null due to guard claus)
+            mediaFile!.Status = MediaFileStatusEnum.Deleted;
+            _eventOutboxCRUDRepo.Add(eventOutbox);
+
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
+        return MediaFileMapper.MapToMediaFileDto(mediaFile);
     }
 }

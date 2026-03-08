@@ -10,6 +10,7 @@ namespace Rentify.Core.Enums
     {
         None = 0,
         Thumbnail = 1,
-        Cover = 2,
+        CoverPic = 2,
+        ProfilePic = 3
     }
 }

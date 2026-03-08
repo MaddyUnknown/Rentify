@@ -11,33 +11,26 @@ namespace Rentify.Application.Mappers
 {
     public static class MediaFileMapper
     {
-        public static MediaFileDto MapToMediaFileDto(MediaFile file, bool checkCoverRequested = true)
+        public static MediaFileDto MapToMediaFileDto(MediaFile file)
         {
-            var thumbnailDto = file.MediaFileVariants
-                .Where(f => f.VariantType == MediaFileVariantEnum.Thumbnail)
-                .Select(v => new MediaFileVariantsDto
+            var variants = file.MediaFileVariants.ToDictionary(
+                v => v.VariantType,
+                v => new MediaFileVariantsDto
                 {
                     ContentType = v.ContentType,
-                    ProcessingStatus = v.Status
-                }).FirstOrDefault();
-
-            var coverDto = file.MediaFileVariants
-                .Where(f => f.VariantType == MediaFileVariantEnum.Cover)
-                .Select(v => new MediaFileVariantsDto
-                {
-                    ContentType = v.ContentType,
-                    ProcessingStatus = v.Status
-                }).FirstOrDefault();
+                    ProcessingStatus = v.Status,
+                }
+            );
 
             return new MediaFileDto
             {
                 Id = file.Id,
                 Name = file.Name,
+                Length = file.Length,
                 ContentType = file.ContentType,
+                UploadedDate = file.CreatedDate,
                 ProcessingStatus = file.Status,
-                MarkedAsCover = checkCoverRequested ? file?.MediaFileLink?.MarkAsCoverRequested : file?.MediaFileLink?.MarkedAsCover,
-                Thumbnail = thumbnailDto,
-                Cover = coverDto
+                Variants = variants
             };
         }
 

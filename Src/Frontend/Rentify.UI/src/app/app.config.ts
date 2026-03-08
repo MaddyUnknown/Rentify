@@ -13,6 +13,9 @@ import { MediaApiService } from './core/services/implementations/media/media-api
 import { PropertyApiService } from './core/services/implementations/property/property-api.service';
 import { ROUTE_SERVICE_TOKEN } from './core/services/tokens/route.token';
 import { RouteImplementationService } from './core/services/implementations/route/route.implementation.service';
+import { TENANT_SERVICE_TOKEN } from './core/services/tokens/tenant.token';
+import { TenantApiService } from './core/services/implementations/tenant/tenant-api.service';
+import { TenantMockService } from './core/services/implementations/tenant/tenant-mock.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ENVIRONMENT_CONFIG_SERVICE_TOKEN, useClass: EnvironmentConfigJsonService },
     { provide: MEDIA_SERVICE_TOKEN, useClass: MediaApiService },
     { provide: PROPERTY_SERVICE_TOKEN, useClass: PropertyApiService },
+    { provide: TENANT_SERVICE_TOKEN, useClass: TenantApiService },
     { provide: ROUTE_SERVICE_TOKEN, useClass: RouteImplementationService },
   ],
 };

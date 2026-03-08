@@ -9,6 +9,7 @@ namespace Rentify.Core.Enums
     public enum MediaFileEntityEnum
     {
         None = 0,
-        Property = 1
+        Property = 1,
+        Tenant = 2
     }
 }

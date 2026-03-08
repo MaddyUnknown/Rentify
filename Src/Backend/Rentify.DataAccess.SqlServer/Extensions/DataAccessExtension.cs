@@ -40,9 +40,10 @@ namespace Rentify.DataAccess.SqlServer.Extensions
             serviceCollection.AddTransient(typeof(IRepository<>), typeof(Repository<>));
             serviceCollection.AddTransient<IMediaFileRepository, MediaFileRepository>();
             serviceCollection.AddTransient<IMediaFileVariantRepository, MediaFileVariantRepository>();
-            serviceCollection.AddTransient<IMediaFileLinkRepository, MediaFileLinkRepository>();
             serviceCollection.AddTransient<IUnitRepository, UnitRepository>();
             serviceCollection.AddTransient<IPropertyRepository, PropertyRepository>();
+            serviceCollection.AddTransient<ITenantEmergencyContactRepository, TenantEmergencyContactRepository>();
+            serviceCollection.AddTransient<ITenantRepository, TenantRepository>();
 
             // Add unit of work
             serviceCollection.AddTransient<IUnitOfWork, UOW.UnitOfWork>();

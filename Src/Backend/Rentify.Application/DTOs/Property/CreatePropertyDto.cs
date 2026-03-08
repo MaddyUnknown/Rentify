@@ -12,8 +12,9 @@ namespace Rentify.Application.DTOs.Property
     public class CreatePropertyDto
     {
         public CreatePropertyDetailsDto Details { get; set; } = CreatePropertyDetailsDto.Empty;
-        public IEnumerable<CreateMediaFileLink> Media { get; set; } = Enumerable.Empty<CreateMediaFileLink>();
+        public IEnumerable<int> MediaFileIds { get; set; } = Enumerable.Empty<int>();
         public IEnumerable<CreateUnitDto> Units { get; set; } = Enumerable.Empty<CreateUnitDto>();
         public LocationDto? Location { get; set; }
+        public int? RequestedCoverPicId { get; set; }
     }
 }

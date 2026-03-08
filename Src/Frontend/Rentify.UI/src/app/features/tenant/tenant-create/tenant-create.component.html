@@ -1,0 +1,268 @@
+<header class="app-tenant-create__header">
+  <h2>Add New Tenant</h2>
+  <button
+    appButton
+    type="normal"
+    color="primary"
+    class="app-tenant-create__header-btn"
+    (click)="onSaveClick()"
+    [disabled]="disableActions"
+    [input]="{ icon: ICONS.Save, label: 'Save' }"
+  ></button>
+  <button
+    appButton
+    type="normal"
+    color="danger"
+    class="app-tenant-create__header-btn"
+    [routerLink]="tenantsRoute()"
+    [disabled]="disableActions"
+    [input]="{ icon: ICONS.CircleX, label: 'Cancel' }"
+  ></button>
+</header>
+
+<form [formGroup]="tenantForm" class="app-tenant-create__main">
+  <section class="app-tenant-create__personal_details">
+    <app-panel [icon]="ICONS.InfoIcon" heading="Personal Details">
+      <div appPanelDesc class="app-form" formGroupName="details">
+        <div class="form-row app-tenant__user-details">
+          <div class="app-tenant__user-pic">
+            @if (!tenantProfilePicState.profilePic) {
+              <div class="app-tenant__user-pic_hover-box">
+                <button
+                  appButton
+                  type="inline"
+                  iconClass="app-panel__icon"
+                  [input]="{ icon: ICONS.Camera }"
+                  (click)="onProfilePicClick()"
+                ></button>
+              </div>
+              <img [src]="tenantNotFoundImagePath" alt="user profile pic" />
+            } @else if (
+              tenantProfilePicState.profilePic.kind === 'new' ||
+              tenantProfilePicState.profilePic.data.processingStatus === 'uploading' ||
+              tenantProfilePicState.profilePic.data.processingStatus === 'uploaded'
+            ) {
+              <div class="app-tenant-profile-pic__item--spinner">
+                <div class="app-tenant-profile-pic__item--spinner__inner">
+                  <app-spinner-loader></app-spinner-loader>
+                </div>
+              </div>
+            } @else {
+              <div class="app-tenant__user-pic_hover-box">
+                <button
+                  appButton
+                  type="inline"
+                  iconClass="app-panel__icon"
+                  [input]="{ icon: ICONS.Camera }"
+                  (click)="onProfilePicClick()"
+                ></button>
+              </div>
+              <img
+                [src]="generateTenantMediaUrl(tenantProfilePicState.profilePic.data, 'profile_pic')"
+                alt="profile pic"
+              />
+            }
+            <input type="file" hidden #profilePicInput (change)="onProfilePicSelected()" />
+          </div>
+          <div class="app-tenant__user-name form-group">
+            <label for="tenant-name">Full Name</label>
+            <input
+              id="tenant-name"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.name) ? '' : null"
+              formControlName="name"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tenant-phone">Phone</label>
+            <input
+              id="tenant-phone"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.phoneNumber) ? '' : null"
+              formControlName="phoneNumber"
+            />
+          </div>
+          <div class="form-group">
+            <label for="tenant-email">Email</label>
+            <input
+              id="tenant-email"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.email) ? '' : null"
+              formControlName="email"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tenant-dob">Date of Birth</label>
+            <input
+              id="tenant-dob"
+              type="date"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.dob) ? '' : null"
+              formControlName="dob"
+            />
+          </div>
+          <div class="form-group">
+            <label for="tenant-employement">Employement</label>
+            <input
+              id="tenant-employement"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.employment) ? '' : null"
+              formControlName="employment"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="tenant-street-name">Address</label>
+          <input
+            id="tenant-street-name"
+            type="text"
+            [attr.invalid]="isInvalid(tenantForm.controls.details.controls.streetName) ? '' : null"
+            formControlName="streetName"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="property-city">City</label>
+            <input
+              id="property-city"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.city) ? '' : null"
+              formControlName="city"
+            />
+          </div>
+          <div class="form-group">
+            <label for="property-state">State</label>
+            <input
+              id="property-state"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.state) ? '' : null"
+              formControlName="state"
+            />
+          </div>
+          <div class="form-group">
+            <label for="property-zip-code">Zip Code</label>
+            <input
+              id="property-zip-code"
+              type="text"
+              [attr.invalid]="isInvalid(tenantForm.controls.details.controls.zipCode) ? '' : null"
+              formControlName="zipCode"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="property-note">Note</label>
+          <textarea
+            id="property-note"
+            rows="4"
+            [attr.invalid]="isInvalid(tenantForm.controls.details.controls.note) ? '' : null"
+            formControlName="note"
+          ></textarea>
+        </div>
+      </div>
+    </app-panel>
+  </section>
+
+  <section class="app-tenant-create__emergency_contact">
+    <app-panel [icon]="ICONS.Phone" heading="Emergency Contact">
+      <div appPanelDesc class="app-form" formGroupName="emergencyContact">
+        <div class="form-group">
+          <label for="tenant-emergency-name">Full Name</label>
+          <input
+            id="tenant-emergency-name"
+            type="text"
+            formControlName="name"
+            [attr.invalid]="isInvalid(tenantForm.controls.emergencyContact.controls.name) ? '' : null"
+          />
+        </div>
+        <div class="form-group">
+          <label for="tenant-emergency-relationship">Relationship</label>
+          <input
+            id="tenant-emergency-relationship"
+            type="text"
+            formControlName="relationship"
+            [attr.invalid]="isInvalid(tenantForm.controls.emergencyContact.controls.relationship) ? '' : null"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tenant-emergency-phone">Phone</label>
+            <input
+              id="tenant-emergency-phone"
+              type="text"
+              formControlName="phoneNumber"
+              [attr.invalid]="isInvalid(tenantForm.controls.emergencyContact.controls.phoneNumber) ? '' : null"
+            />
+          </div>
+          <div class="form-group">
+            <label for="tenant-emergency-email">Email</label>
+            <input
+              id="tenant-emergency-email"
+              type="text"
+              formControlName="email"
+              [attr.invalid]="isInvalid(tenantForm.controls.emergencyContact.controls.email) ? '' : null"
+            />
+          </div>
+        </div>
+      </div>
+    </app-panel>
+  </section>
+
+  <section class="app-tenant-create__documents">
+    <app-panel [icon]="ICONS.FileText" heading="Documents">
+      <div appPanelButtons>
+        <input type="file" #fileInput hidden multiple (change)="onDocumentFileSelected()" />
+        <button
+          appButton
+          type="normal"
+          color="primary"
+          [input]="{ icon: ICONS.Plus, label: 'Add' }"
+          (click)="onAddDocumentClick()"
+        ></button>
+      </div>
+      <div appPanelDesc class="app-tenant-documents__list">
+        @for (row of documentList$ | async; track row.data.id) {
+          @if (
+            row.kind === 'new' || row.data.processingStatus === 'uploading' || row.data.processingStatus === 'uploaded'
+          ) {
+            <div class="app-tenant-documents__item app-tenant-documents__item--spinner">
+              <app-spinner-loader></app-spinner-loader>
+              <div class="app-tenant-documents_item__status">
+                {{ row.data.processingStatus === 'uploaded' ? 'uploading' : row.data.processingStatus }}
+              </div>
+            </div>
+          } @else {
+            <div class="app-tenant-documents__item">
+              <div class="app-tenant-documents__meta">
+                <h4 class="app-tenant-documents__title">{{ row.data.name }}</h4>
+                <div class="app-tenant-documents__subtext">
+                  {{ row.data.contentType ?? '' | fileType }} &middot; {{ row.data.length | fileSize }} &middot;
+                  {{ row.data.uploadedDate | date: 'dd/MM/yyyy' }}
+                </div>
+              </div>
+              <div class="app-tenant-documents__actions">
+                <button
+                  appButton
+                  type="inline"
+                  color="text"
+                  [input]="{ icon: ICONS.Download }"
+                  [disabled]="row.disableActions"
+                ></button>
+                <button
+                  appButton
+                  type="inline"
+                  color="danger"
+                  [input]="{ icon: ICONS.Trash2 }"
+                  (click)="onRemoveClick(row)"
+                  [disabled]="row.disableActions"
+                ></button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </app-panel>
+  </section>
+</form>

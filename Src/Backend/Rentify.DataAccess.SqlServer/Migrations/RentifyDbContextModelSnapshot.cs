@@ -68,6 +68,9 @@ namespace Rentify.DataAccess.SqlServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
@@ -104,12 +107,6 @@ namespace Rentify.DataAccess.SqlServer.Migrations
 
                     b.Property<int>("EntityType")
                         .HasColumnType("int");
-
-                    b.Property<bool>("MarkAsCoverRequested")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MarkedAsCover")
-                        .HasColumnType("bit");
 
                     b.Property<int>("MediaFileId")
                         .HasColumnType("int");
@@ -195,6 +192,9 @@ namespace Rentify.DataAccess.SqlServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ActiveCoverPicId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -213,11 +213,124 @@ namespace Rentify.DataAccess.SqlServer.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RequestedCoverPicId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActiveCoverPicId")
+                        .IsUnique()
+                        .HasFilter("[ActiveCoverPicId] IS NOT NULL");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("RequestedCoverPicId")
+                        .IsUnique()
+                        .HasFilter("[RequestedCoverPicId] IS NOT NULL");
+
+                    b.ToTable("Properties");
+                });
+
+            modelBuilder.Entity("Rentify.Core.Entities.Tenant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Dob")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Employment")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("ProfilePicId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Properties");
+                    b.HasIndex("ProfilePicId")
+                        .IsUnique()
+                        .HasFilter("[ProfilePicId] IS NOT NULL");
+
+                    b.ToTable("Tenants");
+                });
+
+            modelBuilder.Entity("Rentify.Core.Entities.TenantEmergencyContact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Relationship")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("TenantEmergencyContacts");
                 });
 
             modelBuilder.Entity("Rentify.Core.Entities.Unit", b =>
@@ -268,7 +381,7 @@ namespace Rentify.DataAccess.SqlServer.Migrations
                     b.HasOne("Rentify.Core.Entities.Owner", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Owner");
@@ -296,11 +409,19 @@ namespace Rentify.DataAccess.SqlServer.Migrations
 
             modelBuilder.Entity("Rentify.Core.Entities.Property", b =>
                 {
+                    b.HasOne("Rentify.Core.Entities.MediaFile", "ActiveCoverPic")
+                        .WithOne()
+                        .HasForeignKey("Rentify.Core.Entities.Property", "ActiveCoverPicId");
+
                     b.HasOne("Rentify.Core.Entities.Owner", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Rentify.Core.Entities.MediaFile", "RequestedCoverPic")
+                        .WithOne()
+                        .HasForeignKey("Rentify.Core.Entities.Property", "RequestedCoverPicId");
 
                     b.OwnsOne("Rentify.Core.ValueObjects.Address", "PropertyAddress", b1 =>
                         {
@@ -356,12 +477,80 @@ namespace Rentify.DataAccess.SqlServer.Migrations
                                 .HasForeignKey("PropertyId");
                         });
 
+                    b.Navigation("ActiveCoverPic");
+
                     b.Navigation("Owner");
 
                     b.Navigation("PropertyAddress")
                         .IsRequired();
 
                     b.Navigation("PropertyLocation");
+
+                    b.Navigation("RequestedCoverPic");
+                });
+
+            modelBuilder.Entity("Rentify.Core.Entities.Tenant", b =>
+                {
+                    b.HasOne("Rentify.Core.Entities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Rentify.Core.Entities.MediaFile", "ProfilePic")
+                        .WithOne()
+                        .HasForeignKey("Rentify.Core.Entities.Tenant", "ProfilePicId");
+
+                    b.OwnsOne("Rentify.Core.ValueObjects.Address", "TenantAddress", b1 =>
+                        {
+                            b1.Property<int>("TenantId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)");
+
+                            b1.Property<string>("State")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)");
+
+                            b1.Property<string>("StreetName")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)");
+
+                            b1.Property<string>("ZipCode")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)");
+
+                            b1.HasKey("TenantId");
+
+                            b1.ToTable("Tenants");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TenantId");
+                        });
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("ProfilePic");
+
+                    b.Navigation("TenantAddress")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Rentify.Core.Entities.TenantEmergencyContact", b =>
+                {
+                    b.HasOne("Rentify.Core.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Rentify.Core.Entities.Unit", b =>

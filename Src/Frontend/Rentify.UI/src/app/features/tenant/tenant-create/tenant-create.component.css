@@ -1,0 +1,175 @@
+app-panel {
+  height: 100%;
+}
+
+[appPanelButtons] button {
+  width: 11ch;
+}
+
+.app-tenant-create__header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  margin-bottom: 1.7rem;
+  padding: 2.8rem 2rem 1.8rem 2rem;
+  border-bottom: 0.1rem solid var(--border-color);
+
+  background-color: var(--background-color);
+}
+
+.app-tenant-create__header h2 {
+  flex-grow: 1;
+  padding-bottom: 0.2rem;
+  font-weight: 600;
+}
+
+.app-tenant-create__main {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr;
+  gap: 0.8rem;
+
+  padding: 0rem 1.2rem;
+}
+
+.app-tenant-create__personal_details {
+  grid-row: span 2;
+}
+
+.app-tenant-create__documents {
+  grid-column: 2;
+}
+
+/* Tenant Personal Details */
+.app-tenant__user-details {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.app-tenant__user-pic {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  height: 6.4rem;
+  width: 6.4rem;
+  padding: 0.4rem;
+  overflow: hidden;
+}
+
+.app-tenant__user-pic_hover-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 0.8rem);
+  height: calc(100% - 0.8rem);
+  margin: 0.4rem;
+  border-radius: 50%;
+  opacity: 0;
+
+  background-color: var(--background-color--overlay);
+
+  transition: opacity 0.3s ease-in-out;
+}
+
+.app-tenant__user-pic_hover-box button[appButton] {
+  color: var(--background-color);
+  cursor: pointer;
+}
+
+.app-tenant__user-pic:hover .app-tenant__user-pic_hover-box {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.app-tenant__user-pic img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.app-tenant__user-name {
+  width: auto;
+  flex-grow: 1;
+}
+
+.app-tenant-profile-pic__item--spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 5.6rem;
+  height: 5.6rem;
+}
+
+.app-tenant-profile-pic__item--spinner__inner {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+/* Tenant Documents */
+.app-tenant-documents__list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.8rem;
+  gap: 0.8rem;
+  height: 15rem;
+  overflow-y: auto;
+}
+
+.app-tenant-documents__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 0.1rem solid var(--border-color);
+  border-radius: 0.8rem;
+  background-color: var(--background-color);
+}
+
+.app-tenant-documents__meta h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.app-tenant-documents__subtext {
+  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--muted-text-color);
+}
+
+.app-tenant-documents__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.app-tenant-documents__item--loading {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.app-tenant-documents__item--spinner {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: start;
+
+  min-height: 5.4rem;
+}
+
+.app-tenant-documents__item--spinner app-spinner-loader {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.app-tenant-documents_item__status {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 1.2rem;
+}

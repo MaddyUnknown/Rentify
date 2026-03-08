@@ -14,5 +14,7 @@ namespace Rentify.Application.DTOs.MediaFile
         public string FileName { get; set; } = string.Empty;
         public Stream MediaStream { get; set; } = Stream.Null;
         public long Length { get; set; }
+        public IEnumerable<MediaFileVariantEnum> Variants { get; set; } = Enumerable.Empty<MediaFileVariantEnum>();
+        public IEnumerable<string>? AcceptedContentTypes { get; set; } = null;
     }
 }

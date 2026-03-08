@@ -26,6 +26,8 @@ import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref
 import { patchMapWithList } from '../../../../shared/utils/patch-util';
 import { AsyncPipe } from '@angular/common';
 import { ObservableMap } from '../../../../shared/models/observable-map.model';
+import { EnvironmentConfigService } from '../../../../core/services/abstractions/environment-config.service';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../../core/services/tokens/environement-config.token';
 
 type NewMediaFileRow = {
   kind: 'new';
@@ -61,10 +63,13 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
   private newImages: ObservableMap<number, NewMediaFileRow>;
 
   imageList$: BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>;
+  coverPicMediaFileId?: number;
+  propertyMediaProcessingImagePath: string;
 
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
   @Input({ alias: 'appPropertyMedia' }) imageList?: MediaFile[];
+  @Input({ required: false }) coverPicId?: number;
   @Input({ required: true }) propertyId!: number;
   @Input({ required: false }) loading: boolean = false;
 
@@ -72,10 +77,13 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
     private destroyRef: DestroyRef,
     @Inject(PROPERTY_SERVICE_TOKEN) private propertyService: PropertyService,
     private fileStatusPollingService: MediaStatusPollingService,
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private envConfigService: EnvironmentConfigService,
   ) {
     this.images = new ObservableMap<number, MediaFileRow>();
     this.newImages = new ObservableMap<number, NewMediaFileRow>();
     this.imageList$ = new BehaviorSubject<(NewMediaFileRow | MediaFileRow)[]>([]);
+
+    this.propertyMediaProcessingImagePath = envConfigService.thumbnailImagePath.propertyMediaProcessing;
   }
 
   // #region Lifecycle hooks
@@ -102,6 +110,11 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
         this.mergeImageRow.bind(this),
         this.deleteImageRow.bind(this),
       );
+    }
+
+    if (changes['coverPicId']) {
+      const value: number | undefined = changes['coverPicId'].currentValue ?? undefined;
+      this.coverPicMediaFileId = value;
     }
   }
 
@@ -227,16 +240,10 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
 
     this.propertyService.markMediaFileAsCover(this.propertyId, row.data.id).subscribe({
       next: (image) => {
-        for (let [_, image] of this.images) {
-          image.data.markedAsCover = false;
-        }
-
         const existingRow = this.images.get(row.data.id);
-        if (existingRow) {
-          existingRow.data.markedAsCover = true;
-          existingRow.disableActions = false;
-          console.log(existingRow);
-        }
+        this.coverPicMediaFileId = image.id;
+
+        if (existingRow) existingRow.disableActions = false;
       },
       error: (err) => {
         if (err instanceof ApiError) {

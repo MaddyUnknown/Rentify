@@ -1,0 +1,214 @@
+<app-panel [icon]="ICONS.InfoIcon" heading="Personal Details">
+  <div appPanelButtons>
+    <button
+      appButton
+      type="normal"
+      color="primary"
+      [input]="mode.isEdit ? { icon: ICONS.Save, label: 'Save' } : { icon: ICONS.SquarePen, label: 'Edit' }"
+      [disabled]="loading || disableActions"
+      (click)="onEditSaveClick()"
+    ></button>
+    <button
+      appButton
+      type="normal"
+      color="danger"
+      [input]="mode.isEdit ? { icon: ICONS.CircleX, label: 'Close' } : { icon: ICONS.Trash2, label: 'Delete' }"
+      [disabled]="loading || disableActions"
+      (click)="onCloseClearClick()"
+    ></button>
+  </div>
+
+  @if (loading) {
+    <div appPanelDesc class="app-form">
+      <div class="form-row app-tenant__user-details">
+        <div class="app-tenant__user-pic__loader">
+          <app-skeleton-loader type="box" />
+        </div>
+
+        <div class="form-group app-tenant__user-name">
+          <label>Full Name</label>
+          <app-skeleton-loader type="input" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone</label>
+          <app-skeleton-loader type="input" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <app-skeleton-loader type="input" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <app-skeleton-loader type="input" />
+        </div>
+        <div class="form-group">
+          <label>Employement</label>
+          <app-skeleton-loader type="input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Address</label>
+        <app-skeleton-loader type="input" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <app-skeleton-loader type="input" />
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          <app-skeleton-loader type="input" />
+        </div>
+        <div class="form-group">
+          <label>Zip Code</label>
+          <app-skeleton-loader type="input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Note</label>
+        <app-skeleton-loader type="box" class="app-tenant-details__shadow-text-box" />
+      </div>
+    </div>
+  } @else {
+    <form appPanelDesc [formGroup]="form" class="app-form">
+      <div class="form-row app-tenant__user-details">
+        <div class="app-tenant__user-pic">
+          @if (!profilePicState) {
+            <div class="app-tenant__user-pic_hover-box">
+              <button
+                appButton
+                type="inline"
+                iconClass="app-panel__icon"
+                [input]="{ icon: ICONS.Camera }"
+                (click)="onProfilePicClick()"
+              ></button>
+            </div>
+            <img [src]="tenantNotFoundImagePath" alt="user profile pic" />
+          } @else if (
+            profilePicState.kind === 'new' ||
+            profilePicState.data.processingStatus === 'uploading' ||
+            profilePicState.data.processingStatus === 'uploaded'
+          ) {
+            <div class="app-tenant-profile-pic__item--spinner">
+              <div class="app-tenant-profile-pic__item--spinner__inner">
+                <app-spinner-loader></app-spinner-loader>
+              </div>
+            </div>
+          } @else {
+            <div class="app-tenant__user-pic_hover-box">
+              <button
+                appButton
+                type="inline"
+                iconClass="app-panel__icon"
+                [input]="{ icon: ICONS.Camera }"
+                (click)="onProfilePicClick()"
+              ></button>
+            </div>
+            <img [src]="generateTenantMediaUrl(profilePicState.data, 'profile_pic')" alt="profile pic" />
+          }
+          <input type="file" hidden #profilePicInput (change)="onProfilePicSelected()" />
+        </div>
+        <div class="app-tenant__user-name form-group">
+          <label for="tenant-name">Full Name</label>
+          <input
+            id="tenant-name"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.name) ? '' : null"
+            formControlName="name"
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tenant-phone">Phone</label>
+          <input
+            id="tenant-phone"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.phoneNumber) ? '' : null"
+            formControlName="phoneNumber"
+          />
+        </div>
+        <div class="form-group">
+          <label for="tenant-email">Email</label>
+          <input
+            id="tenant-email"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.email) ? '' : null"
+            formControlName="email"
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tenant-dob">Date of Birth</label>
+          <input
+            id="tenant-dob"
+            type="date"
+            [attr.invalid]="isInvalid(form.controls.dob) ? '' : null"
+            formControlName="dob"
+          />
+        </div>
+        <div class="form-group">
+          <label for="tenant-employement">Employement</label>
+          <input
+            id="tenant-employement"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.employment) ? '' : null"
+            formControlName="employment"
+          />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="tenant-street-name">Address</label>
+        <input
+          id="tenant-street-name"
+          type="text"
+          [attr.invalid]="isInvalid(form.controls.streetName) ? '' : null"
+          formControlName="streetName"
+        />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="property-city">City</label>
+          <input
+            id="property-city"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.city) ? '' : null"
+            formControlName="city"
+          />
+        </div>
+        <div class="form-group">
+          <label for="property-state">State</label>
+          <input
+            id="property-state"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.state) ? '' : null"
+            formControlName="state"
+          />
+        </div>
+        <div class="form-group">
+          <label for="property-zip-code">Zip Code</label>
+          <input
+            id="property-zip-code"
+            type="text"
+            [attr.invalid]="isInvalid(form.controls.zipCode) ? '' : null"
+            formControlName="zipCode"
+          />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="property-note">Note</label>
+        <textarea
+          id="property-note"
+          rows="4"
+          [attr.invalid]="isInvalid(form.controls.note) ? '' : null"
+          formControlName="note"
+        ></textarea>
+      </div>
+    </form>
+  }
+</app-panel>

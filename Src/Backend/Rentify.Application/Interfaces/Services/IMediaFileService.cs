@@ -11,7 +11,6 @@ namespace Rentify.Application.Interfaces.Services
     {
         Task<MediaFileDto> DeleteMediaFileAsync(DeleteMediaFileDto deleteMediaDto, CancellationToken ct);
         Task<IEnumerable<MediaFileDto>> GetMediaFileStatusAsync(IEnumerable<int> ids);
-        Task<MediaFileDto> UpdateCoverImageAsync(UpdateCoverImageDto updateCoverDto);
         Task<MediaFileDto> UploadMediaFileAsync(UploadMediaFileDto uploadPropertyMediaDto, CancellationToken ct);
         Task<MediaFileStreamDto> GetMediaFileStreamAsync(MediaFileStreamSearchDto mediaFileSearchDto, CancellationToken ct);
     }

@@ -13,14 +13,21 @@ import { UnitStatus } from '../../../models/unit/unit-status.model';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { MediaFileStatus } from '../../../models/media-file/media-file-status.model';
 import { MockFiles } from '../mock/data.model';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
 import { PropertySummary } from '../../../models/property/property-summary.model';
 import { CreateProperty } from '../../../models/property/create-property.model';
+import { MediaFileVariant } from '../../../models/media-file/media-file-variant.model';
+import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../tokens/environement-config.token';
+import { EnvironmentConfigJsonService } from '../environement-config/environment-config-json.service';
 
 @Injectable()
 export class PropertyMockService implements PropertyService {
+  constructor(
+    @Inject(ENVIRONMENT_CONFIG_SERVICE_TOKEN) private environmentConfigService: EnvironmentConfigJsonService,
+  ) {}
+
   getPaginatedProperties(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<PropertySummary>> {
     return new Observable<PaginatedList<PropertySummary>>((observer) => {
       setTimeout(() => {
@@ -65,6 +72,9 @@ export class PropertyMockService implements PropertyService {
             }),
           );
 
+        const coverPicId =
+          data.files.filter((img) => img.propertyId === propertyId).find((img) => img.markedAsCover)?.id ?? undefined;
+
         if (!property) {
           observer.error('Property not found');
           return;
@@ -83,6 +93,7 @@ export class PropertyMockService implements PropertyService {
           mediaFiles: fileList,
           location: property.location ? { ...property.location } : undefined,
           units: unitList,
+          coverPicMetadata: { activeCoverPicId: coverPicId, requestedCoverPicId: coverPicId },
         });
         observer.complete();
       }, data.apiLatency);
@@ -190,6 +201,8 @@ export class PropertyMockService implements PropertyService {
           contentType: file.type,
           processingStatus: 'uploaded' as MediaFileStatus,
           propertyId: propertyId,
+          size: file.size,
+          uploadedDate: new Date(),
         };
 
         data.files.push(image);
@@ -200,19 +213,20 @@ export class PropertyMockService implements PropertyService {
           image.thumbnailProcessingStatus = 'processed';
         }, data.apiLatency * 6);
 
+        const variants: Partial<Record<MediaFileVariantType, MediaFileVariant>> = {};
+        if (image.thumbnailType && image.thumbnailProcessingStatus) {
+          variants['thumbnail'] = {
+            contentType: image.thumbnailType,
+            processingStatus: image.thumbnailProcessingStatus,
+          };
+        }
+
         observer.next({
           id: image.id,
           name: image.name,
           contentType: image.contentType,
           processingStatus: image.processingStatus,
-          markedAsCover: false,
-          thumbnail:
-            image.thumbnailType && image.thumbnailProcessingStatus
-              ? {
-                  contentType: image.thumbnailType,
-                  processingStatus: image.thumbnailProcessingStatus,
-                }
-              : undefined,
+          variants: variants,
         });
         observer.complete();
       }, data.apiLatency);
@@ -227,19 +241,20 @@ export class PropertyMockService implements PropertyService {
         const deletedFile = data.files[id];
         data.files.splice(id, 1);
 
+        const variants: Partial<Record<MediaFileVariantType, MediaFileVariant>> = {};
+        if (deletedFile.thumbnailType && deletedFile.thumbnailProcessingStatus) {
+          variants['thumbnail'] = {
+            contentType: deletedFile.thumbnailType,
+            processingStatus: deletedFile.thumbnailProcessingStatus,
+          };
+        }
+
         observer.next({
           id: deletedFile.id,
           name: deletedFile.name,
           contentType: deletedFile.contentType,
           processingStatus: deletedFile.processingStatus,
-          markedAsCover: false,
-          thumbnail:
-            deletedFile.thumbnailType && deletedFile.thumbnailProcessingStatus
-              ? {
-                  contentType: deletedFile.thumbnailType,
-                  processingStatus: deletedFile.thumbnailProcessingStatus,
-                }
-              : undefined,
+          variants: variants,
         });
         observer.complete();
       }, data.apiLatency);
@@ -260,19 +275,20 @@ export class PropertyMockService implements PropertyService {
         const mediaFile = data.files[id];
         mediaFile.markedAsCover = true;
 
+        const variants: Partial<Record<MediaFileVariantType, MediaFileVariant>> = {};
+        if (mediaFile.thumbnailType && mediaFile.thumbnailProcessingStatus) {
+          variants['thumbnail'] = {
+            contentType: mediaFile.thumbnailType,
+            processingStatus: mediaFile.thumbnailProcessingStatus,
+          };
+        }
+
         observer.next({
           id: mediaFile.id,
           name: mediaFile.name,
           contentType: mediaFile.contentType,
           processingStatus: mediaFile.processingStatus,
-          markedAsCover: mediaFile.markedAsCover,
-          thumbnail:
-            mediaFile.thumbnailType && mediaFile.thumbnailProcessingStatus
-              ? {
-                  contentType: mediaFile.thumbnailType,
-                  processingStatus: mediaFile.thumbnailProcessingStatus,
-                }
-              : undefined,
+          variants: variants,
         });
         observer.complete();
       }, data.apiLatency);
@@ -363,7 +379,7 @@ export class PropertyMockService implements PropertyService {
     });
   }
 
-  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType): string {
-    return './img/thumbnails/thumbnail-image.png';
+  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
+    return this.environmentConfigService.thumbnailImagePath.propertyNotFound;
   }
 }

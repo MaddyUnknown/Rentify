@@ -26,6 +26,16 @@ namespace Rentify.DataAccess.SqlServer.Data.Configurations
                 .WithMany()
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.RequestedCoverPic)
+                .WithOne()
+                .HasForeignKey<Property>(p => p.RequestedCoverPicId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            builder.HasOne(p => p.ActiveCoverPic)
+                .WithOne()
+                .HasForeignKey<Property>(p => p.ActiveCoverPicId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

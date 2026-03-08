@@ -2,6 +2,8 @@
 using Rentify.Core.Events;
 using Rentify.Event.Application.Handlers;
 using Rentify.Event.Application.Interfaces;
+using Rentify.Event.Application.Processors;
+using Rentify.Event.Application.Resolvers;
 using Rentify.Event.Application.Services;
 using Rentify.Event.Core;
 using System;
@@ -25,7 +27,13 @@ namespace Rentify.Event.Application.Extensions
             // Add Event handlers
             serviceCollection.AddTransient<IMessageHandler<MediaFileCreateEvent>, MediaFileCreateHandler>();
             serviceCollection.AddTransient<IMessageHandler<MediaFileDeleteEvent>, MediaFileDeleteHandler>();
-            serviceCollection.AddTransient<IMessageHandler<SetNewCoverImageEvent>, SetNewCoverImageHandler>();
+            serviceCollection.AddTransient<IMessageHandler<SetNewPropertyCoverPicEvent>, SetNewPropertyCoverPicHandler>();
+
+            // Add Media File processor resolver
+            serviceCollection.AddTransient<IMediaProcessorResolver, MediaProcessorResolver>();
+
+            // Add Media File processor
+            serviceCollection.AddTransient<IMediaProcessor, ImageThumbnailProcessor>();
         }
     }
 }

@@ -1,0 +1,80 @@
+<header class="app-tenant-search__header">
+  <h2>Tenants</h2>
+  <button
+    appButton
+    type="normal"
+    color="primary"
+    class="app-tenant-search__header__back-btn"
+    [input]="{ icon: ICONS.Plus, label: 'Add Tenant' }"
+    [routerLink]="tenantCreateRoute()"
+    [disabled]="loading || disableActions"
+  ></button>
+</header>
+<div class="app-tenants__container">
+  <section class="app-tenants__cards">
+    @if (loading) {
+      @for (tenant of [1, 2]; track tenant) {
+        <article class="app-tenants__card app-tenants__card--loading">
+          <header>
+            <app-skeleton-loader type="img" class="app-tenants__card__avatar"></app-skeleton-loader>
+          </header>
+          <main>
+            <app-skeleton-loader type="box" class="app-tenants__card__title"></app-skeleton-loader>
+            <app-skeleton-loader type="box" class="app-tenants__card__subtitle"></app-skeleton-loader>
+            <app-skeleton-loader type="box" class="app-tenants__card__subtitle"></app-skeleton-loader>
+            <div class="app-tenants__card__status"><app-skeleton-loader type="box"></app-skeleton-loader></div>
+          </main>
+          <footer>
+            <app-skeleton-loader type="box" class="app-tenants__card__manage-btn"></app-skeleton-loader>
+          </footer>
+        </article>
+      }
+    } @else {
+      @for (tenant of tenants?.items ?? []; track tenant.id) {
+        <article class="app-tenants__card">
+          <header>
+            <div class="app-tenants__card__avatar">
+              <img [src]="generatePropertyProfilePicUrl(tenant)" [alt]="tenant.name" />
+            </div>
+          </header>
+          <main>
+            <h3 [title]="tenant.name" class="app-tenants__card__title">{{ tenant.name }}</h3>
+            <p class="app-tenants__card__subtitle">{{ tenant.email }}</p>
+            <p class="app-tenants__card__subtitle">{{ tenant.phoneNumber }}</p>
+            <span
+              class="app-tenants__card__status"
+              [class.app-tenants__card__status--inactive]="tenant.status === 'inactive'"
+              >{{ tenant.status }}</span
+            >
+          </main>
+          <footer>
+            <button
+              appButton
+              type="normal"
+              color="primary"
+              class="app-tenants__card__manage-btn"
+              [disabled]="disableActions"
+              [input]="{ icon: ICONS.SquarePen, label: 'Manage' }"
+              [routerLink]="tenantRoute(tenant.id)"
+            ></button>
+          </footer>
+        </article>
+      } @empty {
+        <div class="app-tenants__non_found">
+          <lucide-icon [strokeWidth]="1.5" [img]="ICONS.SearchX"></lucide-icon>
+          <div>No tenant found</div>
+        </div>
+      }
+    }
+  </section>
+  @if (tenants !== undefined && tenants.totalItems > 0) {
+    <section class="app-tenants__pagination">
+      <app-pagination
+        [totalItems]="totalItems"
+        [pageSize]="ITEMS_PER_PAGE"
+        [currentPage]="currentPage"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </section>
+  }
+</div>

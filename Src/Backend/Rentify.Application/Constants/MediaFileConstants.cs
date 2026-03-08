@@ -17,12 +17,5 @@ namespace Rentify.Application.Constants
 
         public static readonly string MediaTypeNotResolved = "Unable to resolve media type";
         public static readonly string MediaTypeNotMatchingExtension = "Media type '{0}' not matching file extension '{1}'. Accepted media type extensions: {2}";
-
-
-        public static class ContentType
-        {
-            public static readonly string ImagePng = "image/png";
-            public static readonly string ImageJpg = "image/jpeg";
-        }
     }
 }

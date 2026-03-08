@@ -12,6 +12,6 @@ namespace Rentify.Application.DTOs.MediaFile
     {
         public int Id { get; set; }
         public MediaFileEntityEnum EntityType { get; set; }
-        public MediaFileVariantDTOEnum? VariantType { get; set; } 
+        public MediaFileVariantEnum? VariantType { get; set; } 
     }
 }

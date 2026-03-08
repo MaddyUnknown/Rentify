@@ -1,0 +1,33 @@
+import { Observable } from 'rxjs';
+import { PaginatedList } from '../../models/response/paginated-list.model';
+import { TenantSummary } from '../../models/tenant/tenant-summary.model';
+import { Tenant } from '../../models/tenant/tenant.model';
+import { UpdateTenantDetails } from '../../models/tenant/update-tenant-details.model';
+import { TenantDetails } from '../../models/tenant/tenant-details.model';
+import { TenantEmergencyContact } from '../../models/tenant/tenant-emergency-contact.model';
+import { UpdateTenantEmergencyContact } from '../../models/tenant/update-tenant-emergency-contact.model';
+import { MediaFile } from '../../models/media-file/media-file.model';
+import { CreateTenant } from '../../models/tenant/create-tenant.model';
+import { MediaFileVariantType } from '../../models/media-file/media-file-variant-type.model';
+
+export interface TenantService {
+  getPaginatedTenants(page: number, pageSize: number, asOfDate: Date): Observable<PaginatedList<TenantSummary>>;
+
+  createTenant(tenant: CreateTenant): Observable<Tenant>;
+
+  getTenantAggregateById(tenantId: number): Observable<Tenant>;
+  updateTenantDetails(tenantId: number, details: UpdateTenantDetails): Observable<TenantDetails>;
+  deleteTenant(tenantId: number): Observable<TenantDetails>;
+
+  updateTenantEmergencyContact(
+    tenantId: number,
+    tenanteEmergencyContactId: number,
+    contact: UpdateTenantEmergencyContact,
+  ): Observable<TenantEmergencyContact>;
+
+  updateTenantProfilePic(file: File, tenantId?: number): Observable<MediaFile>;
+  uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile>;
+  deleteTenantMedia(mediaId: number): Observable<MediaFile>;
+
+  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string;
+}

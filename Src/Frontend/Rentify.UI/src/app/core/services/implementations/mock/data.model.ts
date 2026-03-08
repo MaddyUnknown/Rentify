@@ -26,9 +26,37 @@ export type MockFiles = {
   id: number;
   name: string;
   contentType: string;
+  uploadedDate: Date;
+  size: number;
   processingStatus: MediaFileStatus;
   markedAsCover?: boolean;
+  markedAsProfilePic?: boolean;
   thumbnailType?: string;
   thumbnailProcessingStatus?: MediaFileVariantStatus;
   propertyId?: number;
+  tenantId?: number;
+};
+
+export type MockTenant = {
+  id: number;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  dob: string;
+  employment: string;
+  streetName: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  note: string;
+  profilePicFileId?: number;
+};
+
+export type MockTenantEmergencyContact = {
+  id: number;
+  tenantId: number;
+  name: string;
+  relationship: string;
+  phoneNumber: string;
+  email: string;
 };
