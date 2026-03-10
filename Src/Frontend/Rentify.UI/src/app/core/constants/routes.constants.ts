@@ -1,4 +1,6 @@
 export class RoutesConstants {
+  public static readonly Auth = 'auth';
+
   public static readonly Properties = 'properties';
   public static readonly Property = 'property';
   public static readonly PropertyCreate = 'property/create';

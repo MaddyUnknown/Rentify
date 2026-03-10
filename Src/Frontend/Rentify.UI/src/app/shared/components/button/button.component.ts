@@ -26,7 +26,7 @@ export class ButtonComponent implements OnChanges {
   type: 'normal' | 'inline' | 'none' = 'none';
 
   @Input({ required: false })
-  color: 'primary' | 'danger' | 'text' | 'none' = 'none';
+  color: 'primary' | 'danger' | 'text' | 'outline' | 'none' = 'none';
 
   @Input({ required: false })
   iconClass?: string;
@@ -55,6 +55,9 @@ export class ButtonComponent implements OnChanges {
         break;
       case 'text':
         data.colorClass = 'app-button--text';
+        break;
+      case 'outline':
+        data.colorClass = 'app-button--outline';
         break;
     }
 

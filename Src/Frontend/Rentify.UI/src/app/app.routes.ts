@@ -8,67 +8,86 @@ import { RoutesConstants } from './core/constants/routes.constants';
 import { PropertyCreateComponent } from './features/property/property-create/property-create.component';
 import { TenantMaintenanceComponent } from './features/tenant/tenant-maintenance/tenant-maintenance.component';
 import { TenantCreateComponent } from './features/tenant/tenant-create/tenant-create.component';
+import { AuthComponent } from './features/auth/auth.component';
+import { BlankLayoutComponent } from './layouts/blank/blank-layout.component';
+import { MainLayoutComponent } from './layouts/main/main-layout.component';
 
 export const routes: Routes = [
   {
+    path: RoutesConstants.Auth,
+    component: BlankLayoutComponent,
+    children: [
+      {
+        path: '',
+        component: AuthComponent,
+      },
+    ],
+  },
+  {
     path: '',
-    redirectTo: RoutesConstants.Properties,
-    pathMatch: 'full',
-  },
-  {
-    path: RoutesConstants.Properties,
-    component: PropertySearchComponent,
-    data: {
-      navName: 'properties',
-    },
-  },
-  {
-    path: RoutesConstants.PropertyCreate,
-    component: PropertyCreateComponent,
-    data: {
-      navName: 'properties',
-    },
-  },
-  {
-    path: `${RoutesConstants.Property}/:id`,
-    component: PropertyMaintenanceComponent,
-    data: {
-      navName: 'properties',
-    },
-  },
-  {
-    path: RoutesConstants.Tenants,
-    component: TenantSearchComponent,
-    data: {
-      navName: 'tenants',
-    },
-  },
-  {
-    path: RoutesConstants.TenantCreate,
-    component: TenantCreateComponent,
-    data: {
-      navName: 'tenants',
-    },
-  },
-  {
-    path: `${RoutesConstants.Tenant}/:id`,
-    component: TenantMaintenanceComponent,
-    data: {
-      navName: 'tenants',
-    },
-  },
-  {
-    path: RoutesConstants.Contracts,
-    component: ContractsComponent,
-    data: {
-      navName: 'contracts',
-    },
-  },
-  {
-    path: RoutesConstants.Billing,
-    component: BillingComponent,
-    data: {
-      navName: 'billing',
-    },
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: RoutesConstants.Properties,
+        pathMatch: 'full',
+      },
+      {
+        path: RoutesConstants.Properties,
+        component: PropertySearchComponent,
+        data: {
+          navName: 'properties',
+        },
+      },
+      {
+        path: RoutesConstants.PropertyCreate,
+        component: PropertyCreateComponent,
+        data: {
+          navName: 'properties',
+        },
+      },
+      {
+        path: `${RoutesConstants.Property}/:id`,
+        component: PropertyMaintenanceComponent,
+        data: {
+          navName: 'properties',
+        },
+      },
+      {
+        path: RoutesConstants.Tenants,
+        component: TenantSearchComponent,
+        data: {
+          navName: 'tenants',
+        },
+      },
+      {
+        path: RoutesConstants.TenantCreate,
+        component: TenantCreateComponent,
+        data: {
+          navName: 'tenants',
+        },
+      },
+      {
+        path: `${RoutesConstants.Tenant}/:id`,
+        component: TenantMaintenanceComponent,
+        data: {
+          navName: 'tenants',
+        },
+      },
+      {
+        path: RoutesConstants.Contracts,
+        component: ContractsComponent,
+        data: {
+          navName: 'contracts',
+        },
+      },
+      {
+        path: RoutesConstants.Billing,
+        component: BillingComponent,
+        data: {
+          navName: 'billing',
+        },
+      },
+    ],
   },
 ];

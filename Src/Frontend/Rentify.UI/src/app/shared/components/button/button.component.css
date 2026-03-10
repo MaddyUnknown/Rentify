@@ -53,6 +53,14 @@
   --background-color--button--disabled: var(--text-color--tint-5);
 }
 
+.app-button--outline {
+  --background-color--button: transparent;
+  --text-color--button: var(--text-color);
+  --background-color--button--hover: var(--background-color--shade-1);
+  --background-color--button--active: transparent;
+  --background-color--button--disabled: var(--background-color--shade-1);
+}
+
 .app-button.app-button--normal {
   background-color: var(--background-color--button);
   color: var(--text-color--button);
