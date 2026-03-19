@@ -23,7 +23,7 @@ namespace Rentify.API.Abstractions.Controllers
             }
             else if(ex is InvalidRefreshTokenException invalidRefreshToken)
             {
-                return Unauthorized(ResponseWrapper<object>.ErrorResponse([$""]));
+                return Unauthorized(ResponseWrapper<object>.ErrorResponse([$"Invalid refresh token"]));
             }
             else
             {
