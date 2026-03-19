@@ -22,10 +22,10 @@ namespace Rentify.Event.Application.Processors
     {
         private IRepository<MediaFileVariant> _mediaFileVariantCRUDRepository;
         private IImageThumbnailGenerator _thumbnailGenerator;
-        private IFileStorageService _fileStorage;
+        private IFileStorageManager _fileStorage;
         private Dictionary<MediaFileVariantEnum, (int width, int height)> _variantDimension;
 
-        public ImageThumbnailProcessor(IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageService fileStorageService)
+        public ImageThumbnailProcessor(IRepository<MediaFileVariant> mediaFileVariantCRUDRepository, IImageThumbnailGenerator imageThumbnailGenerator, IFileStorageManager fileStorageService)
         {
             _fileStorage = fileStorageService;
             _thumbnailGenerator = imageThumbnailGenerator;

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Core.Entities
 {
-    public class MediaFile: EntityBase, IOwnedEntity
+    public class MediaFile: EntityBase, ISubscriptionEntity
     {
         [Required]
         public string Name { get; set; } = string.Empty;
@@ -28,10 +28,10 @@ namespace Rentify.Core.Entities
 
         // Foreign keys
         [Required]
-        public int OwnerId { get; private set; }
+        public int SubscriptionId { get; private set; }
 
         // Navigation properties
-        public Owner Owner { get; private set; } = null!;
+        public Subscription Subscription { get; private set; } = null!;
 
         public ICollection<MediaFileVariant> MediaFileVariants { get; set; } = new HashSet<MediaFileVariant>();
         

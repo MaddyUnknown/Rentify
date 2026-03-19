@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Rentify.Core.Abstractions.Entities;
 using Rentify.Core.Entities;
 using Rentify.DataAccess.SqlServer.Interfaces.Interceptors;
 
@@ -18,7 +17,7 @@ public class RentifyDbContext : DbContext
     public DbSet<MediaFile> MediaFiles { get; set; }
     public DbSet<MediaFileLink> MediaFileLinks { get; set; }
     public DbSet<MediaFileVariant> MediaFileVariants { get; set; }
-    public DbSet<Owner> Owners { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<Property> Properties { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantEmergencyContact> TenantEmergencyContacts { get; set; }
@@ -30,6 +29,8 @@ public class RentifyDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(RentifyDbContext).Assembly);
     }
 

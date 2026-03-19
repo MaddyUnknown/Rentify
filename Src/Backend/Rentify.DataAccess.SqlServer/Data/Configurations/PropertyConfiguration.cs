@@ -22,9 +22,9 @@ namespace Rentify.DataAccess.SqlServer.Data.Configurations
                 location.Property(l => l.Longitude).HasPrecision(9, 6);
             });
 
-            builder.HasOne(p => p.Owner)
+            builder.HasOne(p => p.Subscription)
                 .WithMany()
-                .HasForeignKey(p => p.OwnerId)
+                .HasForeignKey(p => p.SubscriptionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(p => p.RequestedCoverPic)

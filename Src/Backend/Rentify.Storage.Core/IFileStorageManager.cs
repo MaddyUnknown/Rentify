@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Storage.Core
 {
-    public interface IFileStorageService
+    public interface IFileStorageManager
     {
         Task DeleteAsync(string key, CancellationToken ct = default);
         Task<bool> ExistsAsync(string key);

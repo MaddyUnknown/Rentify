@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Core.Entities
 {
-    public class Tenant : EntityBase, IOwnedEntity
+    public class Tenant : EntityBase, ISubscriptionEntity
     {
         [Required]
         [MaxLength(50)]
@@ -38,11 +38,11 @@ namespace Rentify.Core.Entities
 
         // Foreign Key
         [Required]
-        public int OwnerId { get; private set; }
+        public int SubscriptionId { get; private set; }
         public int? ProfilePicId { get; set; }
 
         // Navigation Property
-        public Owner Owner { get; private set; } = null!;
+        public Subscription Subscription { get; private set; } = null!;
         public MediaFile? ProfilePic { get; set; }
     }
 }

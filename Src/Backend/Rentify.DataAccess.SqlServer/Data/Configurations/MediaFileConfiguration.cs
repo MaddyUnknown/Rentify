@@ -17,9 +17,9 @@ namespace Rentify.DataAccess.SqlServer.Data.Configurations
                 .WithOne()
                 .HasForeignKey(x => x.MediaFileId);
 
-            builder.HasOne(p => p.Owner)
+            builder.HasOne(p => p.Subscription)
                 .WithMany()
-                .HasForeignKey(p => p.OwnerId)
+                .HasForeignKey(p => p.SubscriptionId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

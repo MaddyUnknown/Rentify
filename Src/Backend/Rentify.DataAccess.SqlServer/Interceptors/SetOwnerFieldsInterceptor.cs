@@ -15,12 +15,16 @@ namespace Rentify.DataAccess.SqlServer.Interceptors
         public void OnSaveChange(DbContext context)
         {
             // TO-DO: To be changed to use dynamic value
-            foreach (var entity in context.ChangeTracker.Entries<IOwnedEntity>())
+            foreach (var entity in context.ChangeTracker.Entries<ISubscriptionEntity>())
             {
-                if (entity.State == EntityState.Added)
-                {
-                    entity.Property(e => e.OwnerId).CurrentValue = 1;
-                }
+                if (entity.State != EntityState.Added) continue;
+
+                var ownerId = entity.Property(e => e.SubscriptionId).CurrentValue;
+                var ownerEntity = entity.Property(e => e.Subscription).CurrentValue;
+
+                if (ownerId != 0 || ownerEntity != null) continue;
+
+                entity.Property(e => e.SubscriptionId).CurrentValue = 1;
             }
         }
     }

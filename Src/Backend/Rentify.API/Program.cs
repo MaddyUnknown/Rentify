@@ -1,4 +1,5 @@
 using Rentify.Application.Extensions;
+using Rentify.Auth.Identity.Extensions;
 using Rentify.DataAccess.SqlServer.Extensions;
 using Rentify.FileWorkflow.Implementation.Extensions;
 using Rentify.Storage.LocalStorage.Extensions;
@@ -9,17 +10,28 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
-    });
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+});
 
 // Add data access services
 builder.Services.AddDataAccessServices(options =>
 {
     options.ConnectionString = builder.Configuration.GetConnectionString("ApplicationDBConnection");
+});
+
+// Add auth identity services
+builder.Services.AddIdentityAuthServices(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("ApplicationDBConnection");
+    options.JwtTokenIssuer = builder.Configuration.GetValue<string>("Auth:Issuer");
+    options.JwtTokenAudience = builder.Configuration.GetValue<string>("Auth:Audience");
+    options.JwtAccessTokenSigningSecret = builder.Configuration.GetValue<string>("Auth:JwtAccessTokenSigningSecret");
+    options.JwtAccessTokenDurationInMinutes = builder.Configuration.GetValue<int>("Auth:AccessTokenDurationInMinutes");
+    options.JwtRefreshTokenDurationInDays = builder.Configuration.GetValue<int>("Auth:JwtAccessTokenDurationInMinutes");
 });
 
 // Add storage services
