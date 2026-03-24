@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
+using Rentify.API.Attributes;
 using Rentify.API.DTOs;
 using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Property;
@@ -9,6 +10,7 @@ using Rentify.Application.Interfaces.Services;
 namespace Rentify.API.Controllers;
 
 [Authorize]
+[RequireSubscriptionHeader]
 [ApiController]
 [Route(BASE_ROUTE)]
 public class MediaController : ApiControllerBase

@@ -1,5 +1,6 @@
 ﻿
 using Rentify.API.Accessors;
+using Rentify.API.Attributes;
 using Rentify.API.DTOs;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Auth.Core.Abstractions.Accessors;
@@ -8,7 +9,6 @@ using Rentify.Core.Constants;
 using Rentify.Core.Entities;
 using Rentify.DataAccess.Core.Repositories;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Rentify.API.Middlewares
 {
@@ -26,8 +26,16 @@ namespace Rentify.API.Middlewares
         public async Task InvokeAsync(HttpContext context, DataScopeAccessor dataScopeAccessor, IUserContextAccessor userContextAccessor, ISubscriptionService subscriptionService)
         {
             var subscription = context.Request.Headers.ContainsKey(SUBSCRIPTION_HEADER) ? context.Request.Headers[SUBSCRIPTION_HEADER].FirstOrDefault() : string.Empty;
-                
-            if(string.IsNullOrEmpty(subscription))
+            
+            
+            if(IsSubscriptionMandatoryInContext(context) && string.IsNullOrEmpty(subscription))
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = MediaContentType.Json;
+                var json = JsonSerializer.Serialize(ResponseWrapper<object>.ErrorResponse([$"'{SUBSCRIPTION_HEADER}' is mandatory for endpoint"]));
+                await context.Response.WriteAsync(json);
+            }
+            else if(string.IsNullOrEmpty(subscription))
             {
                 dataScopeAccessor.SetSubscription(null);
                 await _next(context);
@@ -63,6 +71,13 @@ namespace Rentify.API.Middlewares
                     await _next(context);
                 }
             }
+        }
+
+        private bool IsSubscriptionMandatoryInContext(HttpContext context)
+        {
+            var endpoint = context.GetEndpoint();
+            var attr = endpoint?.Metadata.GetMetadata<RequireSubscriptionHeaderAttribute>();
+            return attr != null;
         }
     }
 }
