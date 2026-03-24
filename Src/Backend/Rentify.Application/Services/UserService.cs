@@ -53,5 +53,11 @@ namespace Rentify.Application.Services
         {
             return await _authManager.RefreshUserTokensAsync(refreshToken);
         }
+
+        public async Task<UserDto?> GetUserByIdAsync(int id)
+        {
+            var user = await _authManager.GetByIdAsync(id);
+            return user == null ? null : UserMapper.MapToUserDto(user);
+        }
     }
 }
