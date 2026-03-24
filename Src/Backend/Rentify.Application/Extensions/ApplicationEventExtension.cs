@@ -31,6 +31,7 @@ namespace Rentify.Application.Extensions
             serviceCollection.AddTransient<IUnitService, UnitService>();
             serviceCollection.AddTransient<ITenantService, TenantService>();
             serviceCollection.AddTransient<IUserService, UserService>();
+            serviceCollection.AddTransient<ISubscriptionService, SubscriptionService>();
         }
     }
 }

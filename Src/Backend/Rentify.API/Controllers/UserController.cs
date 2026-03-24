@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
 using Rentify.API.DTOs;
 using Rentify.API.DTOs.Users;
@@ -9,9 +10,11 @@ using Rentify.Application.Interfaces.Services;
 namespace Rentify.API.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route(BASE_ROUTE)]
 public class UserController : ApiControllerBase
 {
+    public const string BASE_ROUTE = "api/users";
+
     private const string REFRESH_TOKEN_COOKIE_NAME = "__secure-refresh-cookie";
     private const string REFRESH_TOKEN_PATH_NAME = "RefreshTokenPath";
 
@@ -79,12 +82,17 @@ public class UserController : ApiControllerBase
     /// <summary>
     /// Generate Token using refresh token
     /// </summary>
+    [Authorize]
     [HttpPost("auth/refresh", Name = REFRESH_TOKEN_PATH_NAME)]
     public async Task<ActionResult<ResponseWrapper<UserAccessTokenDto>>> GenerateNewUserToken()
     {
         try
         {
-            if (!Request.Cookies.TryGetValue(REFRESH_TOKEN_COOKIE_NAME, out string? value) || string.IsNullOrEmpty(value)) return Unauthorized();
+            if (!Request.Cookies.TryGetValue(REFRESH_TOKEN_COOKIE_NAME, out string? value) || string.IsNullOrEmpty(value))
+            {
+                _logger.LogError("'{cookieName}' cookie not found", REFRESH_TOKEN_PATH_NAME);
+                return Unauthorized(ResponseWrapper<object>.ErrorResponse([$"Login required"]));
+            }
 
             var token = await _userService.RefreshUserTokensAsync(value);
 

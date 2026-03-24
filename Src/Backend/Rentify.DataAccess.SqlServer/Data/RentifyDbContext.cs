@@ -1,16 +1,26 @@
 using Microsoft.EntityFrameworkCore;
+using Rentify.Core.Abstractions.Accessors;
 using Rentify.Core.Entities;
+using Rentify.DataAccess.SqlServer.Interfaces.Filters;
 using Rentify.DataAccess.SqlServer.Interfaces.Interceptors;
 
 namespace Rentify.DataAccess.SqlServer.Data;
 
 public class RentifyDbContext : DbContext
 {
-    private readonly IEnumerable<ISaveChangesInterceptor> _saveChangeInterceptor;
+    private readonly IEnumerable<ISaveChangesInterceptor> _saveChangeInterceptors;
+    private readonly IEnumerable<IGlobalFilter> _globalFilters;
+    private readonly DataScope _dataScope;
 
-    public RentifyDbContext(DbContextOptions<RentifyDbContext> options, IEnumerable<ISaveChangesInterceptor> saveChangesInterceptors) : base(options)
+    public RentifyDbContext(
+        DbContextOptions<RentifyDbContext> options, 
+        IEnumerable<ISaveChangesInterceptor> saveChangesInterceptors, 
+        IEnumerable<IGlobalFilter> globalFilters, 
+        IDataScopeAccessor dataScopeAccessor) : base(options)
     {
-        _saveChangeInterceptor = saveChangesInterceptors;
+        _saveChangeInterceptors = saveChangesInterceptors;
+        _globalFilters = globalFilters;
+        _dataScope = dataScopeAccessor.DataScope;
     }
 
     // DbSets for 'dbo' entities
@@ -25,6 +35,8 @@ public class RentifyDbContext : DbContext
 
     // DbSets for 'event' entities
     public DbSet<EventOutbox> EventOutboxEntries { get; set; }
+
+    public DataScope DataScope => _dataScope;
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,12 +44,17 @@ public class RentifyDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(RentifyDbContext).Assembly);
+
+        foreach(var filter in _globalFilters)
+        {
+            filter.OnModelCreating(modelBuilder, this);
+        }
     }
 
     public override async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
-        foreach(var interceptor in _saveChangeInterceptor)
+        foreach(var interceptor in _saveChangeInterceptors)
         {
             interceptor.OnSaveChange(this);
         }

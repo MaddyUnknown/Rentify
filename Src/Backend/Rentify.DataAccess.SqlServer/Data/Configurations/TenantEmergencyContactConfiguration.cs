@@ -9,18 +9,10 @@ using System.Threading.Tasks;
 
 namespace Rentify.DataAccess.SqlServer.Data.Configurations
 {
-    public class MediaFileConfiguration : IEntityTypeConfiguration<MediaFile>
+    public class TenantEmergencyContactConfiguration : IEntityTypeConfiguration<TenantEmergencyContact>
     {
-        public void Configure(EntityTypeBuilder<MediaFile> builder)
+        public void Configure(EntityTypeBuilder<TenantEmergencyContact> builder)
         {
-            builder.HasMany(x => x.MediaFileVariants)
-                .WithOne()
-                .HasForeignKey(x => x.MediaFileId);
-
-            builder.HasOne(x => x.MediaFileLink)
-                .WithOne()
-                .HasForeignKey<MediaFileLink>(x => x.MediaFileId);
-
             builder.HasOne(p => p.Subscription)
                 .WithMany()
                 .HasForeignKey(p => p.SubscriptionId)

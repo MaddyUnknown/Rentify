@@ -63,6 +63,8 @@ namespace Rentify.Auth.Identity.Extensions
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.MapInboundClaims = false;
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -74,6 +76,15 @@ namespace Rentify.Auth.Identity.Extensions
                     ValidIssuer = authOptions.JwtTokenIssuer,
                     ValidAudience = authOptions.JwtTokenAudience,
                     IssuerSigningKey = new SymmetricSecurityKey(signingKey)
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = ctx =>
+                    {
+                        Console.WriteLine(ctx.Exception.ToString());
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

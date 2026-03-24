@@ -1,8 +1,15 @@
+using Microsoft.Extensions.Options;
+using Rentify.API.Accessors;
+using Rentify.API.Middlewares;
+using Rentify.API.Swagger.OperationFilters;
 using Rentify.Application.Extensions;
+using Rentify.Auth.Core.Abstractions.Accessors;
 using Rentify.Auth.Identity.Extensions;
+using Rentify.Core.Abstractions.Accessors;
 using Rentify.DataAccess.SqlServer.Extensions;
 using Rentify.FileWorkflow.Implementation.Extensions;
 using Rentify.Storage.LocalStorage.Extensions;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,6 +23,14 @@ builder.Services.AddControllers()
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
 });
+
+builder.Services.AddHttpContextAccessor();
+
+// Add services for Rentify.API
+builder.Services.AddSingleton<DataScopeAccessor>();
+builder.Services.AddSingleton<IDataScopeAccessor>(provider => provider.GetRequiredService<DataScopeAccessor>());
+builder.Services.AddSingleton<UserContextAccessor>();
+builder.Services.AddSingleton<IUserContextAccessor>(provider => provider.GetRequiredService<UserContextAccessor>());
 
 // Add data access services
 builder.Services.AddDataAccessServices(options =>
@@ -49,9 +64,38 @@ builder.Services.AddApplicationServices();
 
 // Add Swagger for development
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Rentify API", Version = "v1" });
+    options.SwaggerDoc("v1", new() { Title = "Rentify API", Version = "v1" });
+
+    // Define Bearer token scheme
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter your valid token.\nExample: abc123"
+    });
+
+    // Apply globally
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+
+    options.OperationFilter<SubscriptionHeaderOperationFilter>();
 });
 
 // Add CORS policy
@@ -82,6 +126,12 @@ if(app.Environment.IsDevelopment())
 {
     app.UseCors("dev");
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMiddleware<UserContextMiddleware>();
+app.UseMiddleware<DataScopeMiddleware>();
 
 app.MapControllers();
 

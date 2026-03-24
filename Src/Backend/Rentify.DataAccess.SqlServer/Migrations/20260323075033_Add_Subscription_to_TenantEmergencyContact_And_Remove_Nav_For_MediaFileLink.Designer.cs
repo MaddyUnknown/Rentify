@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rentify.DataAccess.SqlServer.Data;
 
@@ -11,9 +12,11 @@ using Rentify.DataAccess.SqlServer.Data;
 namespace Rentify.DataAccess.SqlServer.Migrations
 {
     [DbContext(typeof(RentifyDbContext))]
-    partial class RentifyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260323075033_Add_Subscription_to_TenantEmergencyContact_And_Remove_Nav_For_MediaFileLink")]
+    partial class Add_Subscription_to_TenantEmergencyContact_And_Remove_Nav_For_MediaFileLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Rentify.Core.Abstractions.Accessors;
 using Rentify.Core.Abstractions.Entities;
+using Rentify.Core.Enums;
+using Rentify.DataAccess.SqlServer.Constants;
 using Rentify.DataAccess.SqlServer.Data;
 using Rentify.DataAccess.SqlServer.Interfaces.Interceptors;
 using System;
@@ -12,9 +15,18 @@ namespace Rentify.DataAccess.SqlServer.Interceptors
 {
     public class SetOwnerFieldsInterceptor : ISaveChangesInterceptor
     {
+        private IDataScopeAccessor _subscriptionContextAccessor;
+
+        public SetOwnerFieldsInterceptor(IDataScopeAccessor subscriptionContextAccessor)
+        {
+            _subscriptionContextAccessor = subscriptionContextAccessor;
+        }
+
         public void OnSaveChange(DbContext context)
         {
-            // TO-DO: To be changed to use dynamic value
+            // In scoped to full access then entity is not part of any subscription
+            if (_subscriptionContextAccessor.DataScope.DataScopeMode == DataScopeModeEnum.FullAccess) return;
+
             foreach (var entity in context.ChangeTracker.Entries<ISubscriptionEntity>())
             {
                 if (entity.State != EntityState.Added) continue;
@@ -24,7 +36,7 @@ namespace Rentify.DataAccess.SqlServer.Interceptors
 
                 if (ownerId != 0 || ownerEntity != null) continue;
 
-                entity.Property(e => e.SubscriptionId).CurrentValue = 1;
+                entity.Property(e => e.SubscriptionId).CurrentValue = _subscriptionContextAccessor.DataScope.SubscriptionId ?? 0;
             }
         }
     }

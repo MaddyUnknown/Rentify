@@ -141,6 +141,7 @@ namespace Rentify.Application.Services
                 };
 
                 _mediaFileCRUDRepo.Add(mediaFile);
+                await _unitOfWork.SaveChangesAsync();
 
                 if (uploadMediaDto.EntityId.HasValue)
                 {
@@ -148,7 +149,7 @@ namespace Rentify.Application.Services
                     {
                         EntityId = uploadMediaDto.EntityId.Value,
                         EntityType = uploadMediaDto.EntityType,
-                        MediaFile = mediaFile
+                        MediaFileId = mediaFile.Id
                     };
 
                     _mediaFileLinkCRUDRepo.Add(mediaFileLink);

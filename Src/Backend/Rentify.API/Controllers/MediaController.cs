@@ -1,42 +1,45 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
 using Rentify.API.DTOs;
 using Rentify.Application.DTOs.MediaFile;
 using Rentify.Application.DTOs.Property;
 using Rentify.Application.Interfaces.Services;
 
-namespace Rentify.API.Controllers
+namespace Rentify.API.Controllers;
+
+[Authorize]
+[ApiController]
+[Route(BASE_ROUTE)]
+public class MediaController : ApiControllerBase
 {
-    [ApiController]
-    [Route("api/media")]
-    public class MediaController : ApiControllerBase
+    public const string BASE_ROUTE = "api/media";
+
+    private readonly IMediaFileService _mediaFileService;
+
+    private readonly ILogger<MediaController> _logger;
+
+    public MediaController(IMediaFileService mediaFileService, ILogger<MediaController> logger)
     {
-        private readonly IMediaFileService _mediaFileService;
+        _mediaFileService = mediaFileService;
+        _logger = logger;
+    }
 
-        private readonly ILogger<MediaController> _logger;
-
-        public MediaController(IMediaFileService mediaFileService, ILogger<MediaController> logger)
+    /// <summary>
+    /// Get property by ID
+    /// </summary>
+    [HttpPost("polling")]
+    public async Task<ActionResult<ResponseWrapper<IEnumerable<MediaFileDto>>>> GetMediaFileStatus(IEnumerable<int> mediaFileIds)
+    {
+        try
         {
-            _mediaFileService = mediaFileService;
-            _logger = logger;
+            var mediaFiles = await _mediaFileService.GetMediaFileStatusAsync(mediaFileIds);
+            return Ok(ResponseWrapper<IEnumerable<MediaFileDto>>.SuccessResponse(mediaFiles));
         }
-
-        /// <summary>
-        /// Get property by ID
-        /// </summary>
-        [HttpPost("polling")]
-        public async Task<ActionResult<ResponseWrapper<IEnumerable<MediaFileDto>>>> GetMediaFileStatus(IEnumerable<int> mediaFileIds)
+        catch (Exception ex)
         {
-            try
-            {
-                var mediaFiles = await _mediaFileService.GetMediaFileStatusAsync(mediaFileIds);
-                return Ok(ResponseWrapper<IEnumerable<MediaFileDto>>.SuccessResponse(mediaFiles));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving property aggregate for mediaFileIds '{mediaFileIds}'", mediaFileIds.ToArray());
-                return HandleException(ex);
-            }
+            _logger.LogError(ex, "Error retrieving property aggregate for mediaFileIds '{mediaFileIds}'", mediaFileIds.ToArray());
+            return HandleException(ex);
         }
     }
 }
