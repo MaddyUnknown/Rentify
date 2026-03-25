@@ -1,6 +1,8 @@
+using Rentify.Core.Abstractions.Accessors;
 using Rentify.DataAccess.SqlServer.Extensions;
 using Rentify.Event.Application.Extensions;
 using Rentify.Event.Hangfire.Extensions;
+using Rentify.Event.Processor.Worker.Accessors;
 using Rentify.FileWorkflow.Implementation.Extensions;
 using Rentify.Storage.LocalStorage.Extensions;
 
@@ -11,6 +13,8 @@ namespace Rentify.Event.Processor.Worker
         public static void Main(string[] args)
         {
             var builder = Host.CreateApplicationBuilder(args);
+
+            builder.Services.AddTransient<IDataScopeAccessor, DataScopeAccessor>();
 
             // Add message handler services
             builder.Services.AddMessageHandlerServices();

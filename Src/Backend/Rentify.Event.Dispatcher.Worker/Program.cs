@@ -1,5 +1,7 @@
+using Rentify.Core.Abstractions.Accessors;
 using Rentify.DataAccess.SqlServer.Extensions;
 using Rentify.Event.Application.Extensions;
+using Rentify.Event.Dispatcher.Worker.Accessors;
 using Rentify.Event.Hangfire.Extensions;
 
 namespace Rentify.Event.Dispatcher.Worker
@@ -10,6 +12,8 @@ namespace Rentify.Event.Dispatcher.Worker
         {
             var builder = Host.CreateApplicationBuilder(args);
             builder.Services.AddHostedService<EventDispatcherWorker>();
+
+            builder.Services.AddTransient<IDataScopeAccessor, DataScopeAccessor>();
             builder.Services.AddTransient<EventDispatcherProcessor>();
 
             // Add dispatcher services
