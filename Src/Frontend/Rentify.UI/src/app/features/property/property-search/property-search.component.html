@@ -32,11 +32,11 @@
         </article>
       }
     } @else {
-      @for (property of properties?.items ?? []; track property.id) {
+      @for (property of properties ?? []; track property.id) {
         <article class="app-properties__card">
           <header>
             <div class="app-properties__card__img">
-              <img [src]="generatePropertyCoverUrl(property, 'cover_pic')" [alt]="property.name" />
+              <img [src]="property?.propertyImageUrl ?? ''" [alt]="property.name" />
             </div>
           </header>
           <main>
@@ -71,7 +71,7 @@
       }
     }
   </section>
-  @if (properties !== undefined && properties.totalItems > 0) {
+  @if (properties !== undefined && totalItems > 0) {
     <section class="app-properties__pagination">
       <app-pagination
         [totalItems]="totalItems"

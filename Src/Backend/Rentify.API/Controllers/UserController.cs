@@ -129,7 +129,6 @@ public class UserController : ApiControllerBase
 
             var userId = _userContextAccessor.UserContext.UserId.Value;
             var user = await _userService.GetUserByIdAsync(userId);
-            if (user == null) return BadRequest(ResponseWrapper<object>.ErrorResponse([$"User not found for id '{userId}'"]));
 
             return Ok(ResponseWrapper<UserDto>.SuccessResponse(user));
         }

@@ -9,5 +9,6 @@ namespace Rentify.Application.Constants
     public static class UserConstants
     {
         public static readonly string ConfirmPasswordNotMatched = "Password does not match Confirm Password";
+        public static readonly string UserNotFound = "User not found for id '{0}'";
     }
 }

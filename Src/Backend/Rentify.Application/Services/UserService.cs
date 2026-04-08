@@ -19,12 +19,14 @@ namespace Rentify.Application.Services
     public class UserService : IUserService
     {
         private IUnitOfWork _unitOfWork;
-        private IRepository<Subscription> _subscriptionRepo;
+        private IRepository<Subscription> _subscriptionCRUDRepo;
+        private ISubscriptionRepository _subscriptionRepo;
         private IAuthManager _authManager;
         
-        public UserService(IUnitOfWork unitOfWork, IRepository<Subscription> subscriptionRepository, IAuthManager authManager)
+        public UserService(IUnitOfWork unitOfWork, IRepository<Subscription> subscriptionCRUDRepository, ISubscriptionRepository subscriptionRepository, IAuthManager authManager)
         {
             _unitOfWork = unitOfWork;
+            _subscriptionCRUDRepo = subscriptionCRUDRepository;
             _subscriptionRepo = subscriptionRepository;
             _authManager = authManager;
         }
@@ -38,10 +40,10 @@ namespace Rentify.Application.Services
 
             //Create subscription
             var subscription = new Subscription { ReferenceId = Guid.NewGuid(), OwnerUserId = user.Id };
-            _subscriptionRepo.Add(subscription);
+            _subscriptionCRUDRepo.Add(subscription);
             await _unitOfWork.SaveChangesAsync();
 
-            return UserMapper.MapToUserDto(registeredUser);
+            return UserMapper.MapToUserDto(registeredUser, subscription);
         }
 
         public async Task<UserTokens> LoginAsync(UserCredentialsDto userCredentials)
@@ -54,10 +56,15 @@ namespace Rentify.Application.Services
             return await _authManager.RefreshUserTokensAsync(refreshToken);
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(int id)
+        public async Task<UserDto> GetUserByIdAsync(int id)
         {
             var user = await _authManager.GetByIdAsync(id);
-            return user == null ? null : UserMapper.MapToUserDto(user);
+            if (user == null) throw new AppValidationException(string.Format(UserConstants.UserNotFound, id));
+
+            var subscription = await _subscriptionRepo.GetByUserId(id);
+            if(subscription == null) throw new AppValidationException(string.Format(UserConstants.UserNotFound, id));
+
+            return UserMapper.MapToUserDto(user, subscription);
         }
     }
 }

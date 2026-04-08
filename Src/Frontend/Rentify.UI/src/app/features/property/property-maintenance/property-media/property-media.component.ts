@@ -21,7 +21,7 @@ import { PropertyService } from '../../../../core/services/abstractions/property
 import { PROPERTY_SERVICE_TOKEN } from '../../../../core/services/tokens/property.token';
 import { MediaFileVariantType } from '../../../../core/models/media-file/media-file-variant-type.model';
 import { ApiError } from '../../../../core/exceptions/api-error';
-import { BehaviorSubject, debounceTime, merge, startWith } from 'rxjs';
+import { BehaviorSubject, debounceTime, merge, Observable, startWith } from 'rxjs';
 import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref';
 import { patchMapWithList } from '../../../../shared/utils/patch-util';
 import { AsyncPipe } from '@angular/common';
@@ -38,7 +38,9 @@ type MediaFileRow = {
   kind: 'existing';
   data: MediaFile;
   disableActions: boolean;
+  imageUrl?: string;
   destoryPollingRef: LocalDestroyRef;
+  destroyImageRef: LocalDestroyRef;
 };
 
 @Component({
@@ -119,7 +121,10 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.images.forEach((row) => row.destoryPollingRef.destroy());
+    this.images.forEach((row) => {
+      row.destoryPollingRef.destroy();
+      row.destroyImageRef.destroy();
+    });
   }
   // #endregion
 
@@ -135,22 +140,58 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
       data: mediaFile,
       disableActions: false,
       destoryPollingRef: new LocalDestroyRef(),
+      destroyImageRef: new LocalDestroyRef(),
     };
 
-    this.setupPolling(data);
+    this.setupImageUrlAndPolling(data);
     return data;
   }
 
   private mergeImageRow(mediaFileRow: MediaFileRow, mediaFile: MediaFile): MediaFileRow {
     // Destroy previous polling if any
     mediaFileRow.destoryPollingRef.destroy();
+    mediaFileRow.destroyImageRef.destroy();
+
     mediaFileRow.data = mediaFile;
-    this.setupPolling(mediaFileRow);
+    this.setupImageUrlAndPolling(mediaFileRow);
     return mediaFileRow;
   }
 
   private deleteImageRow(mediaFileRow: MediaFileRow) {
     mediaFileRow.destoryPollingRef.destroy();
+    mediaFileRow.destroyImageRef.destroy();
+  }
+
+  private setupImageUrlAndPolling(mediaFileRow: MediaFileRow) {
+    if (mediaFileRow.data.processingStatus === 'uploading' || mediaFileRow.data.processingStatus === 'uploaded') {
+      this.setupPolling(mediaFileRow);
+    } else if (mediaFileRow.data.processingStatus === 'processed') {
+      this.setupImageUrl(mediaFileRow);
+    }
+  }
+
+  private setupImageUrl(mediaFileRow: MediaFileRow) {
+    if (
+      mediaFileRow.data.processingStatus !== 'processed' ||
+      mediaFileRow.data.variants?.['thumbnail']?.processingStatus !== 'processed'
+    )
+      return;
+
+    this.propertyService.generatePropertyMediaUrl(mediaFileRow.data.id, 'thumbnail').subscribe({
+      next: (img) => {
+        mediaFileRow.imageUrl = img.url;
+        mediaFileRow.destroyImageRef.onDestroy(() => {
+          img.destroyFun();
+        });
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
+    });
   }
 
   private setupPolling(mediaFileRow: MediaFileRow) {
@@ -164,7 +205,11 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
           this.images.delete(data.id);
         } else {
           const existingRow = this.images.get(data.id);
-          if (existingRow) existingRow.data = data;
+          if (existingRow) {
+            existingRow.destroyImageRef.destroy();
+            existingRow.data = data;
+            this.setupImageUrl(existingRow);
+          }
         }
       },
       error: (err) => {
@@ -186,10 +231,6 @@ export class PropertyMediaComponent implements OnChanges, OnInit, OnDestroy {
   private syncImageList() {
     const imageList = [...this.images.values(), ...this.newImages.values()];
     this.imageList$.next(imageList);
-  }
-
-  generatePropertyUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
-    return this.propertyService.generatePropertyMediaUrl(mediaFile.id, variant);
   }
   // #endregion
 

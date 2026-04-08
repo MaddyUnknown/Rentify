@@ -60,3 +60,11 @@ export type MockTenantEmergencyContact = {
   phoneNumber: string;
   email: string;
 };
+
+export type MockUser = {
+  id: number;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+};

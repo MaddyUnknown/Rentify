@@ -10,5 +10,6 @@ namespace Rentify.DataAccess.Core.Repositories
     public interface ISubscriptionRepository
     {
         Task<Subscription?> GetByReferenceId(Guid referenceId);
+        Task<Subscription?> GetByUserId(int userId);
     }
 }

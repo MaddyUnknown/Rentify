@@ -47,7 +47,6 @@
       <h1>Welcome to Rentify</h1>
       <p>Sign in or create a new account</p>
     </header>
-
     <div class="app-auth__tabs">
       <button
         appButton
@@ -95,6 +94,7 @@
           color="primary"
           [input]="{ icon: ICONS.LogIn, label: 'Sign In' }"
           class="app-auth__submit"
+          [disabled]="isSubmitting"
         ></button>
       </form>
     } @else {
@@ -104,8 +104,8 @@
           <input
             id="register-fullname"
             type="text"
-            formControlName="fullName"
-            [attr.invalid]="isInvalid(registerForm.controls.fullName) ? '' : null"
+            formControlName="name"
+            [attr.invalid]="isInvalid(registerForm.controls.name) ? '' : null"
           />
         </div>
         <div class="form-row">
@@ -154,6 +154,7 @@
           color="primary"
           [input]="{ icon: ICONS.UserPlus, label: 'Create Account' }"
           class="app-auth__submit"
+          [disabled]="isSubmitting"
         ></button>
       </form>
     }

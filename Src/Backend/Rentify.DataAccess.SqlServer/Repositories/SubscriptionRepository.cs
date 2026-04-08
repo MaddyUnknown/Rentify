@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Rentify.Core.Entities;
 using Rentify.DataAccess.Core.Repositories;
 using Rentify.DataAccess.SqlServer.Data;
@@ -10,9 +11,12 @@ using System.Threading.Tasks;
 
 namespace Rentify.DataAccess.SqlServer.Repositories
 {
+    // Using ADO.NET to bypass DbContext (EF core) setup as this method will be used by middleware before user context / data scope is setup
     public class SubscriptionRepository : ISubscriptionRepository
     {
         private const string GET_BY_REFERENCE = "SELECT Id, ReferenceId, OwnerUserId, CreatedDate, ModifiedDate FROM Subscriptions WHERE ReferenceId = @ReferenceId";
+        private const string GET_BY_OWNER_USER_ID = "SELECT Id, ReferenceId, OwnerUserId, CreatedDate, ModifiedDate FROM Subscriptions WHERE OwnerUserId = @OwnerUserId";
+
 
         private readonly string _connString;
 
@@ -21,7 +25,6 @@ namespace Rentify.DataAccess.SqlServer.Repositories
             _connString = connectionString;
         }
 
-        // Using ADO.NET to bypass DbContext (EF core) setup as this method will be used by middleware before user context / data scope is setup
         public async Task<Subscription?> GetByReferenceId(Guid referenceId)
         {
             using(var conn = new SqlConnection(_connString))
@@ -38,6 +41,31 @@ namespace Rentify.DataAccess.SqlServer.Repositories
                         {
                             return Fill(reader);
                         } else
+                        {
+                            return null;
+                        }
+                    }
+                }
+            }
+        }
+
+        public async Task<Subscription?> GetByUserId(int userId)
+        {
+            using (var conn = new SqlConnection(_connString))
+            {
+                using (var cmd = new SqlCommand(GET_BY_OWNER_USER_ID, conn))
+                {
+                    cmd.Parameters.AddWithValue("@OwnerUserId", userId);
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return Fill(reader);
+                        }
+                        else
                         {
                             return null;
                         }

@@ -24,6 +24,15 @@ builder.Services.AddControllers()
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
 });
 
+//Kept same as what is used in controller
+builder.Services.Configure<JsonSerializerOptions>("response-serializer-option", options =>
+{
+    options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+});
+
+
 builder.Services.AddHttpContextAccessor();
 
 // Add services for Rentify.API

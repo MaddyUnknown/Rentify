@@ -13,6 +13,6 @@ namespace Rentify.Application.Interfaces.Services
         Task<UserDto> RegisterAsync(UserRegisterDto userDto);
         Task<UserTokens> LoginAsync(UserCredentialsDto userCredentials);
         Task<UserTokens> RefreshUserTokensAsync(string refreshToken);
-        Task<UserDto?> GetUserByIdAsync(int userId);
+        Task<UserDto> GetUserByIdAsync(int userId);
     }
 }

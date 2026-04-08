@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TenantService } from '../../abstractions/tenant.service';
@@ -12,10 +12,11 @@ import { TenantEmergencyContact } from '../../../models/tenant/tenant-emergency-
 import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../tokens/environement-config.token';
 import { EnvironmentConfigJsonService } from '../environement-config/environment-config-json.service';
 import { ResponseWrapper } from '../../../models/response/response-wrapper.model';
-import { processResponse } from '../../../utils/process-response.util';
+import { unwrapReponse } from '../../../utils/unwrap-response.util';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { CreateTenant } from '../../../models/tenant/create-tenant.model';
 import { MediaFileVariantType } from '../../../models/media-file/media-file-variant-type.model';
+import { AUTH_HEADER, SUBSCRIPTION_HEADER } from '../../tokens/http-context.token';
 
 @Injectable()
 export class TenantApiService implements TenantService {
@@ -28,32 +29,40 @@ export class TenantApiService implements TenantService {
     return this.httpClient
       .get<
         ResponseWrapper<PaginatedList<TenantSummary>>
-      >(this.environmentConfigService.apiBaseURL + `tenants?page=${page}&pageSize=${pageSize}&asOfDate=${asOfDate.toISOString()}`)
-      .pipe(processResponse());
+      >(this.environmentConfigService.apiBaseURL + `tenants?page=${page}&pageSize=${pageSize}&asOfDate=${asOfDate.toISOString()}`, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   createTenant(tenant: CreateTenant): Observable<Tenant> {
     return this.httpClient
-      .post<ResponseWrapper<Tenant>>(this.environmentConfigService.apiBaseURL + `tenants`, tenant)
-      .pipe(processResponse());
+      .post<
+        ResponseWrapper<Tenant>
+      >(this.environmentConfigService.apiBaseURL + `tenants`, tenant, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   getTenantAggregateById(tenantId: number): Observable<Tenant> {
     return this.httpClient
-      .get<ResponseWrapper<Tenant>>(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/aggregate`)
-      .pipe(processResponse());
+      .get<
+        ResponseWrapper<Tenant>
+      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/aggregate`, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   updateTenantDetails(tenantId: number, details: UpdateTenantDetails): Observable<TenantDetails> {
     return this.httpClient
-      .put<ResponseWrapper<TenantDetails>>(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}`, details)
-      .pipe(processResponse());
+      .put<
+        ResponseWrapper<TenantDetails>
+      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}`, details, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   deleteTenant(tenantId: number): Observable<TenantDetails> {
     return this.httpClient
-      .delete<ResponseWrapper<TenantDetails>>(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}`)
-      .pipe(processResponse());
+      .delete<
+        ResponseWrapper<TenantDetails>
+      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}`, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   updateTenantEmergencyContact(
@@ -64,8 +73,8 @@ export class TenantApiService implements TenantService {
     return this.httpClient
       .put<
         ResponseWrapper<TenantEmergencyContact>
-      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/emergency-contact/${tenantEmergencyContactId}`, contact)
-      .pipe(processResponse());
+      >(this.environmentConfigService.apiBaseURL + `tenants/${tenantId}/emergency-contact/${tenantEmergencyContactId}`, contact, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   updateTenantProfilePic(file: File, tenantId?: number): Observable<MediaFile> {
@@ -75,8 +84,10 @@ export class TenantApiService implements TenantService {
     const requestUrl = tenantId ? `tenants/${tenantId}/profile-pic` : 'tenants/profile-pic';
 
     return this.httpClient
-      .post<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + requestUrl, formData)
-      .pipe(processResponse());
+      .post<
+        ResponseWrapper<MediaFile>
+      >(this.environmentConfigService.apiBaseURL + requestUrl, formData, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile> {
@@ -86,14 +97,18 @@ export class TenantApiService implements TenantService {
     const requestUrl = tenantId ? `tenants/${tenantId}/documents` : 'tenants/documents';
 
     return this.httpClient
-      .post<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + requestUrl, formData)
-      .pipe(processResponse());
+      .post<
+        ResponseWrapper<MediaFile>
+      >(this.environmentConfigService.apiBaseURL + requestUrl, formData, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   deleteTenantMedia(mediaFile: number): Observable<MediaFile> {
     return this.httpClient
-      .delete<ResponseWrapper<MediaFile>>(this.environmentConfigService.apiBaseURL + `tenants/media/${mediaFile}`)
-      .pipe(processResponse());
+      .delete<
+        ResponseWrapper<MediaFile>
+      >(this.environmentConfigService.apiBaseURL + `tenants/media/${mediaFile}`, { context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) })
+      .pipe(unwrapReponse());
   }
 
   generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {

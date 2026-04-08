@@ -1,5 +1,6 @@
 ﻿using Rentify.Application.DTOs.Auth;
 using Rentify.Auth.Core.DTOs;
+using Rentify.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Rentify.Application.Mappers
 {
     public static class UserMapper
     {
-        public static UserDto MapToUserDto(User user)
+        public static UserDto MapToUserDto(User user, Subscription subscription)
         {
             return new UserDto
             {
@@ -18,6 +19,7 @@ namespace Rentify.Application.Mappers
                 Name = user.Name,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                SubscriptionReferenceId = subscription.ReferenceId.ToString()
             };
         } 
 

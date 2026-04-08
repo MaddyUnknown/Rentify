@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import {
   FileText,
@@ -12,6 +13,12 @@ import {
   UserPlus,
   UsersRound,
 } from 'lucide-angular';
+import { RoutesConstants } from '../../core/constants/routes.constants';
+import { UserService } from '../../core/services/abstractions/user.service';
+import { USER_SERVICE_TOKEN } from '../../core/services/tokens/user.token';
+import { ApiError } from '../../core/exceptions/api-error';
+import { ROUTE_SERVICE_TOKEN } from '../../core/services/tokens/route.token';
+import { RouteService } from '../../core/services/abstractions/route.service';
 
 @Component({
   selector: 'app-auth',
@@ -24,11 +31,16 @@ export class AuthComponent {
   readonly ICONS = { FileText, House, KeyRound, LogIn, ShieldCheck, User, UserPlus, UsersRound };
 
   mode: 'login' | 'register' = 'login';
-
+  isSubmitting = false;
   loginForm;
   registerForm;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    @Inject(USER_SERVICE_TOKEN) private userService: UserService,
+    @Inject(ROUTE_SERVICE_TOKEN) private routeService: RouteService,
+  ) {
     this.loginForm = this.fb.group({
       email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
       password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
@@ -36,7 +48,7 @@ export class AuthComponent {
     });
 
     this.registerForm = this.fb.group({
-      fullName: this.fb.nonNullable.control('', [Validators.required]),
+      name: this.fb.nonNullable.control('', [Validators.required]),
       email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
       phoneNumber: this.fb.nonNullable.control('', [Validators.required]),
       password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
@@ -59,8 +71,25 @@ export class AuthComponent {
       return;
     }
 
-    // Placeholder: replace with auth service call
-    console.log('Login payload', this.loginForm.getRawValue());
+    this.isSubmitting = true;
+
+    const { email, password } = this.loginForm.getRawValue();
+
+    this.userService.login(email, password).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.router.navigate(this.routeService.propeties());
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        this.isSubmitting = false;
+      },
+    });
   }
 
   onRegisterSubmit(): void {
@@ -75,7 +104,23 @@ export class AuthComponent {
       return;
     }
 
-    // Placeholder: replace with auth service call
-    console.log('Register payload', this.registerForm.getRawValue());
+    this.isSubmitting = true;
+
+    this.userService.registerUser(this.registerForm.getRawValue()).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.registerForm.reset();
+        console.log('User registered successfully'); //TO-DO: Add new changes
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+
+        this.isSubmitting = false;
+      },
+    });
   }
 }

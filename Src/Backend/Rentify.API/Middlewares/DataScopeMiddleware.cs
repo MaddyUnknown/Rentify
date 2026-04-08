@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Extensions.Options;
 using Rentify.API.Accessors;
 using Rentify.API.Attributes;
 using Rentify.API.DTOs;
@@ -7,6 +8,7 @@ using Rentify.Auth.Core.Abstractions.Accessors;
 using Rentify.Core.Abstractions.Accessors;
 using Rentify.Core.Constants;
 using Rentify.Core.Entities;
+using Rentify.Core.Utils;
 using Rentify.DataAccess.Core.Repositories;
 using System.Text.Json;
 
@@ -17,10 +19,12 @@ namespace Rentify.API.Middlewares
         public const string SUBSCRIPTION_HEADER = "X-Subscription-Refence";
 
         private RequestDelegate _next;
+        private JsonSerializerOptions _responseSerializerOption;
 
-        public DataScopeMiddleware(RequestDelegate next)
+        public DataScopeMiddleware(RequestDelegate next, IOptionsMonitor<JsonSerializerOptions> optionsMonitor)
         {
             _next = next;
+            _responseSerializerOption = optionsMonitor.Get("response-serializer-option");
         }
 
         public async Task InvokeAsync(HttpContext context, DataScopeAccessor dataScopeAccessor, IUserContextAccessor userContextAccessor, ISubscriptionService subscriptionService)
@@ -32,7 +36,7 @@ namespace Rentify.API.Middlewares
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 context.Response.ContentType = MediaContentType.Json;
-                var json = JsonSerializer.Serialize(ResponseWrapper<object>.ErrorResponse([$"'{SUBSCRIPTION_HEADER}' is mandatory for endpoint"]));
+                var json = JsonSerializerHelper.Serialize(ResponseWrapper<object>.ErrorResponse([$"'{SUBSCRIPTION_HEADER}' is mandatory for endpoint"]), _responseSerializerOption);
                 await context.Response.WriteAsync(json);
             }
             else if(string.IsNullOrEmpty(subscription))
@@ -44,26 +48,26 @@ namespace Rentify.API.Middlewares
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 context.Response.ContentType = MediaContentType.Json;
-                var json = JsonSerializer.Serialize(ResponseWrapper<object>.ErrorResponse([$"Invalid data for '{SUBSCRIPTION_HEADER}' received. Expect GUID"]));
+                var json = JsonSerializerHelper.Serialize(ResponseWrapper<object>.ErrorResponse([$"Invalid data for '{SUBSCRIPTION_HEADER}' received. Expect GUID"]), _responseSerializerOption);
                 await context.Response.WriteAsync(json);
             }
             else
             {
                 var subscriptionEntity = await subscriptionService.GetByReferenceId(subscriptionReference);
-                if (subscriptionEntity == null) JsonSerializer.Serialize(ResponseWrapper<object>.ErrorResponse([$"Subscription '{subscriptionReference}' not found"]));
+                if (subscriptionEntity == null) JsonSerializerHelper.Serialize(ResponseWrapper<object>.ErrorResponse([$"Subscription '{subscriptionReference}' not found"]), _responseSerializerOption);
 
                 if (!userContextAccessor.UserContext.IsAuthenticated)
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     context.Response.ContentType = MediaContentType.Json;
-                    var json = JsonSerializer.Serialize(ResponseWrapper<object>.ErrorResponse([$"'{SUBSCRIPTION_HEADER}' can be used only when user is authenticated"]));
+                    var json = JsonSerializerHelper.Serialize(ResponseWrapper<object>.ErrorResponse([$"'{SUBSCRIPTION_HEADER}' can be used only when user is authenticated"]), _responseSerializerOption);
                     await context.Response.WriteAsync(json);
                 }
                 else if(subscriptionEntity!.OwnerUserId != userContextAccessor.UserContext.UserId)
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     context.Response.ContentType = MediaContentType.Json;
-                    var json = JsonSerializer.Serialize(ResponseWrapper<object>.ErrorResponse([$"Subscription '{subscriptionReference}' not found"]));
+                    var json = JsonSerializerHelper.Serialize(ResponseWrapper<object>.ErrorResponse([$"Subscription '{subscriptionReference}' not found"]), _responseSerializerOption);
                     await context.Response.WriteAsync(json);
                 } else
                 {
