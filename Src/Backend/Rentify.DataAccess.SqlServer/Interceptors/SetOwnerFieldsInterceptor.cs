@@ -32,9 +32,8 @@ namespace Rentify.DataAccess.SqlServer.Interceptors
                 if (entity.State != EntityState.Added) continue;
 
                 var ownerId = entity.Property(e => e.SubscriptionId).CurrentValue;
-                var ownerEntity = entity.Property(e => e.Subscription).CurrentValue;
 
-                if (ownerId != 0 || ownerEntity != null) continue;
+                if (ownerId != 0) continue;
 
                 entity.Property(e => e.SubscriptionId).CurrentValue = _subscriptionContextAccessor.DataScope.SubscriptionId ?? 0;
             }
