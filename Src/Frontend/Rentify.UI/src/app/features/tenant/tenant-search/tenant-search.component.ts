@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { LucideAngularModule, Plus, SearchX, SquarePen } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
@@ -9,11 +9,10 @@ import { RouteService } from '../../../core/services/abstractions/route.service'
 import { TenantSummary } from '../../../core/models/tenant/tenant-summary.model';
 import { TENANT_SERVICE_TOKEN } from '../../../core/services/tokens/tenant.token';
 import { TenantService } from '../../../core/services/abstractions/tenant.service';
-import { PaginatedList } from '../../../core/models/response/paginated-list.model';
 import { ApiError } from '../../../core/exceptions/api-error';
-import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
 import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
 import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
+import { LocalDestroyRef } from '../../../shared/lifecycles/local-destroy-ref';
 
 @Component({
   selector: 'app-tenant-search',
@@ -22,7 +21,7 @@ import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/
   templateUrl: './tenant-search.component.html',
   styleUrl: './tenant-search.component.css',
 })
-export class TenantSearchComponent implements OnInit {
+export class TenantSearchComponent implements OnInit, OnDestroy {
   readonly ICONS = { Plus, SquarePen, SearchX };
 
   readonly ITEMS_PER_PAGE = 12;
@@ -30,7 +29,7 @@ export class TenantSearchComponent implements OnInit {
 
   public totalItems = 1;
   public currentPage = 1;
-  public tenants?: PaginatedList<TenantSummary>;
+  public tenants?: (TenantSummary & { profilePicUrl?: string; onDestroy?: LocalDestroyRef })[];
   public loading = false;
   public disableActions = false;
   tenantNotFoundImagePath: string;
@@ -48,6 +47,14 @@ export class TenantSearchComponent implements OnInit {
     this.syncUpTenants(1, { enableLoading: true });
   }
 
+  ngOnDestroy(): void {
+    for (const tenant of this.tenants ?? []) {
+      tenant.onDestroy?.destroy();
+    }
+
+    this.tenants = undefined;
+  }
+
   onPageChange(page: number) {
     this.syncUpTenants(page, { enableActionDisable: true });
   }
@@ -60,21 +67,42 @@ export class TenantSearchComponent implements OnInit {
     return this.routeService.tenantCreate();
   }
 
-  generatePropertyProfilePicUrl(property: TenantSummary): string {
-    return property.profilePic?.variants?.['profile_pic']?.processingStatus === 'processed'
-      ? this.tenantService.generateTenantMediaUrl(property.profilePic.id, 'profile_pic')
-      : this.tenantNotFoundImagePath;
-  }
-
   private syncUpTenants(currentPage: number, { enableLoading = false, enableActionDisable = false } = {}) {
     if (enableLoading) this.loading = true;
     if (enableActionDisable) this.disableActions = true;
 
+    for (const tenant of this.tenants ?? []) {
+      tenant.onDestroy?.destroy();
+    }
+
     this.tenantService.getPaginatedTenants(currentPage, this.ITEMS_PER_PAGE, this.DATE_SNAPSHOT).subscribe({
       next: (tenants) => {
-        this.tenants = tenants;
-        this.totalItems = this.tenants.totalItems;
-        this.currentPage = this.tenants.currentPage;
+        this.tenants = tenants.items;
+
+        for (const tenant of this.tenants) {
+          if (tenant.profilePic?.variants?.['profile_pic']?.processingStatus === 'processed') {
+            tenant.onDestroy = new LocalDestroyRef();
+
+            this.tenantService.getTenantMediaUrl(tenant.profilePic.id, 'profile_pic').subscribe({
+              next: (img) => {
+                tenant.profilePicUrl = img.url;
+                tenant.onDestroy?.onDestroy(() => img.destroyFun());
+              },
+              error: (err) => {
+                if (err instanceof ApiError) {
+                  console.log('API Error', err.Errors);
+                } else {
+                  console.error(err);
+                }
+              },
+            });
+          } else {
+            tenant.profilePicUrl = this.tenantNotFoundImagePath;
+          }
+        }
+
+        this.totalItems = tenants.totalItems;
+        this.currentPage = tenants.currentPage;
 
         if (enableLoading) this.loading = false;
         if (enableActionDisable) this.disableActions = false;

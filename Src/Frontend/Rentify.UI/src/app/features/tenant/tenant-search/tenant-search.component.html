@@ -30,11 +30,11 @@
         </article>
       }
     } @else {
-      @for (tenant of tenants?.items ?? []; track tenant.id) {
+      @for (tenant of tenants ?? []; track tenant.id) {
         <article class="app-tenants__card">
           <header>
             <div class="app-tenants__card__avatar">
-              <img [src]="generatePropertyProfilePicUrl(tenant)" [alt]="tenant.name" />
+              <img [src]="tenant.profilePicUrl ?? tenantNotFoundImagePath" [alt]="tenant.name" />
             </div>
           </header>
           <main>
@@ -67,7 +67,7 @@
       }
     }
   </section>
-  @if (tenants !== undefined && tenants.totalItems > 0) {
+  @if (tenants !== undefined && totalItems > 0) {
     <section class="app-tenants__pagination">
       <app-pagination
         [totalItems]="totalItems"

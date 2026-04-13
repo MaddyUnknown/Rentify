@@ -292,7 +292,7 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
     )
       return;
 
-    this.propertyService.generatePropertyMediaUrl(mediaFileRow.data.id, 'thumbnail').subscribe({
+    this.propertyService.getPropertyMediaUrl(mediaFileRow.data.id, 'thumbnail').subscribe({
       next: (img) => {
         mediaFileRow.imageUrl = img.url;
         mediaFileRow.destroyImageRef.onDestroy(() => {

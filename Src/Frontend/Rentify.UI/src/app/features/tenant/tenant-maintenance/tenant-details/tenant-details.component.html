@@ -108,7 +108,7 @@
                 (click)="onProfilePicClick()"
               ></button>
             </div>
-            <img [src]="generateTenantMediaUrl(profilePicState.data, 'profile_pic')" alt="profile pic" />
+            <img [src]="profilePicState.imageUrl ?? tenantNotFoundImagePath" alt="profile pic" />
           }
           <input type="file" hidden #profilePicInput (change)="onProfilePicSelected()" />
         </div>

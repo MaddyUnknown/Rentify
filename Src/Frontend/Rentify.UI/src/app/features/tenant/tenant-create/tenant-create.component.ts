@@ -13,7 +13,7 @@ import { FileTypePipe } from '../../../shared/pipes/file-type.pipe';
 import { FileSizePipe } from '../../../shared/pipes/file-size.pipe';
 import { MediaFile } from '../../../core/models/media-file/media-file.model';
 import { LocalDestroyRef } from '../../../shared/lifecycles/local-destroy-ref';
-import { BehaviorSubject, debounceTime, merge, of, startWith } from 'rxjs';
+import { BehaviorSubject, debounceTime, merge, startWith } from 'rxjs';
 import { ObservableMap } from '../../../shared/models/observable-map.model';
 import { MediaStatusPollingService } from '../../../shared/services/media-status-polling.service';
 import { ApiError } from '../../../core/exceptions/api-error';
@@ -23,7 +23,6 @@ import { NewMediaFileRow, MediaFileRow } from '../models/tenant-document-row.mod
 import { TenantDetailsForm } from '../models/tenant-details-form.model';
 import { TenantEmergencyContactForm } from '../models/tenant-emergency-contact-form.model';
 import { TenantCreateForm } from '../models/tenant-create-form.model';
-import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
 import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
 import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
 
@@ -170,10 +169,6 @@ export class TenantCreateComponent implements OnInit {
   // #endregion
 
   // #region Helper methods - Documents & ProfilePic
-  generateTenantMediaUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
-    return this.tenantService.generateTenantMediaUrl(mediaFile.id, variant);
-  }
-
   private createNewMediaRow(mediaFile: MediaFile): NewMediaFileRow {
     const data: NewMediaFileRow = { kind: 'new', data: mediaFile };
     return data;
@@ -185,14 +180,16 @@ export class TenantCreateComponent implements OnInit {
       data: mediaFile,
       disableActions: false,
       destoryPollingRef: new LocalDestroyRef(),
+      destroyImageRef: new LocalDestroyRef(),
     };
 
-    mediaType === 'profile_pic' ? this.setupProfilePicPolling(data) : this.setupDocumentPolling(data);
+    mediaType === 'profile_pic' ? this.setupProfilePicState(data) : this.setupDocumentPolling(data);
     return data;
   }
 
   private deleteMediaRow(mediaFileRow: MediaFileRow) {
     mediaFileRow.destoryPollingRef.destroy();
+    mediaFileRow.destroyImageRef?.destroy();
   }
 
   private setupDocumentPolling(mediaFileRow: MediaFileRow) {
@@ -225,6 +222,39 @@ export class TenantCreateComponent implements OnInit {
     mediaFileRow.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
   }
 
+  private setupProfilePicState(mediaFileRow: MediaFileRow) {
+    if (mediaFileRow.data.processingStatus === 'uploading' || mediaFileRow.data.processingStatus === 'uploaded') {
+      this.setupProfilePicPolling(mediaFileRow);
+    } else if (mediaFileRow.data.processingStatus === 'processed') {
+      this.setupProfilePicUrl(mediaFileRow);
+    }
+  }
+
+  private setupProfilePicUrl(mediaFileRow: MediaFileRow) {
+    if (
+      mediaFileRow.data.processingStatus !== 'processed' ||
+      mediaFileRow.data.variants?.['profile_pic']?.processingStatus !== 'processed'
+    )
+      return;
+
+    mediaFileRow.destroyImageRef?.destroy();
+    mediaFileRow.destroyImageRef = new LocalDestroyRef();
+
+    this.tenantService.getTenantMediaUrl(mediaFileRow.data.id, 'profile_pic').subscribe({
+      next: (img) => {
+        mediaFileRow.imageUrl = img.url;
+        mediaFileRow.destroyImageRef?.onDestroy(() => img.destroyFun());
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
+    });
+  }
+
   private setupProfilePicPolling(mediaFileRow: MediaFileRow) {
     if (mediaFileRow.data.processingStatus !== 'uploading' && mediaFileRow.data.processingStatus !== 'uploaded') return;
 
@@ -236,6 +266,9 @@ export class TenantCreateComponent implements OnInit {
         } else {
           if (this.tenantProfilePicState.profilePic !== undefined) {
             this.tenantProfilePicState.profilePic.data = { ...this.tenantProfilePicState.profilePic.data, ...data };
+            if (this.tenantProfilePicState.profilePic.kind === 'existing') {
+              this.setupProfilePicUrl(this.tenantProfilePicState.profilePic);
+            }
           } else {
             this.tenantProfilePicState.profilePic = mediaFileRow;
           }
@@ -254,8 +287,7 @@ export class TenantCreateComponent implements OnInit {
       },
     });
 
-    if (this.tenantProfilePicState.profilePic?.kind === 'existing')
-      this.tenantProfilePicState.profilePic.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
+    mediaFileRow.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
   }
 
   private syncDocumentList() {

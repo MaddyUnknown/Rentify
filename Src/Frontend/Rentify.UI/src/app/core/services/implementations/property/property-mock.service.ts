@@ -379,7 +379,7 @@ export class PropertyMockService implements PropertyService {
     });
   }
 
-  generatePropertyMediaUrl(
+  getPropertyMediaUrl(
     mediaId: number,
     variant: MediaFileVariantType | undefined,
   ): Observable<{ url: string; destroyFun: () => void }> {

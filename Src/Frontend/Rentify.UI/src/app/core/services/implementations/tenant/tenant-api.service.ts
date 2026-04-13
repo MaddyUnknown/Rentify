@@ -1,6 +1,6 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { TenantService } from '../../abstractions/tenant.service';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
 import { TenantSummary } from '../../../models/tenant/tenant-summary.model';
@@ -111,11 +111,22 @@ export class TenantApiService implements TenantService {
       .pipe(unwrapReponse());
   }
 
-  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
-    return (
-      this.environmentConfigService.apiBaseURL +
-      `tenants/media/${mediaId}` +
-      (variant === undefined ? '' : `?variantType=${variant}`)
-    );
+  getTenantMediaUrl(
+    mediaId: number,
+    variant: MediaFileVariantType | undefined,
+  ): Observable<{ url: string; destroyFun: () => void }> {
+    return this.httpClient
+      .get(
+        this.environmentConfigService.apiBaseURL +
+          `tenants/media/${mediaId}` +
+          (variant === undefined ? '' : `?variantType=${variant}`),
+        { responseType: 'blob', context: new HttpContext().set(AUTH_HEADER, true).set(SUBSCRIPTION_HEADER, true) },
+      )
+      .pipe(
+        map((blob) => {
+          const url = URL.createObjectURL(blob);
+          return { url, destroyFun: () => URL.revokeObjectURL(url) };
+        }),
+      );
   }
 }

@@ -11,4 +11,6 @@ export type MediaFileRow = {
   data: MediaFile;
   disableActions: boolean;
   destoryPollingRef: LocalDestroyRef;
+  destroyImageRef?: LocalDestroyRef;
+  imageUrl?: string;
 };

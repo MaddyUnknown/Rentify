@@ -84,7 +84,7 @@ export class PropertySearchComponent implements OnInit, OnDestroy {
           if (property.coverPic?.variants?.['cover_pic']?.processingStatus === 'processed') {
             property.onDestroy = new LocalDestroyRef();
 
-            this.propertyService.generatePropertyMediaUrl(property.coverPic.id, 'cover_pic').subscribe({
+            this.propertyService.getPropertyMediaUrl(property.coverPic.id, 'cover_pic').subscribe({
               next: (img) => {
                 property.propertyImageUrl = img.url;
                 property.onDestroy?.onDestroy(() => {

@@ -129,7 +129,7 @@ export class PropertyApiService implements PropertyService {
       .pipe(unwrapReponse());
   }
 
-  generatePropertyMediaUrl(
+  getPropertyMediaUrl(
     mediaId: number,
     variant: MediaFileVariantType | undefined,
   ): Observable<{ url: string; destroyFun: () => void }> {
