@@ -48,7 +48,7 @@ export class PropertySearchComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    for (var property of this.properties ?? []) {
+    for (const property of this.properties ?? []) {
       property.onDestroy?.destroy();
     }
 
@@ -72,7 +72,7 @@ export class PropertySearchComponent implements OnInit, OnDestroy {
     if (enableActionDisable) this.disableActions = true;
 
     // Clean previous error
-    for (var property of this.properties ?? []) {
+    for (const property of this.properties ?? []) {
       property.onDestroy?.destroy();
     }
 
@@ -80,7 +80,7 @@ export class PropertySearchComponent implements OnInit, OnDestroy {
       next: (properties) => {
         this.properties = properties.items;
 
-        for (var property of this.properties) {
+        for (const property of this.properties) {
           if (property.coverPic?.variants?.['cover_pic']?.processingStatus === 'processed') {
             property.onDestroy = new LocalDestroyRef();
 
