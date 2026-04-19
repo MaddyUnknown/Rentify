@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -21,6 +21,8 @@ import { UserMockService } from './core/services/implementations/user/user-mock.
 import { UserApiService } from './core/services/implementations/user/user-api.service';
 import { ApiErrorHandlerInterceptor } from './core/interceptors/api-error-handler.interceptor';
 import { ApiHeaderInterceptor } from './core/interceptors/api-header.interceptor';
+import { UserService } from './core/services/abstractions/user.service';
+import { firstValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,5 +36,11 @@ export const appConfig: ApplicationConfig = {
     { provide: ROUTE_SERVICE_TOKEN, useClass: RouteImplementationService },
     { provide: HTTP_INTERCEPTORS, useClass: ApiHeaderInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ApiErrorHandlerInterceptor, multi: true },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: (userService: UserService) => () => firstValueFrom(userService.restoreSession()),
+      deps: [USER_SERVICE_TOKEN],
+    },
   ],
 };

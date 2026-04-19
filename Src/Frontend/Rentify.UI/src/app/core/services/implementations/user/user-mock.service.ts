@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { RegisterUser } from '../../../models/user/register-user.model';
 import { UserProfile } from '../../../models/user/user-profile.model';
 import { UserService } from '../../abstractions/user.service';
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 @Injectable()
 export class UserMockService implements UserService {
   private currentUserId: number | null = null;
-  private accessToken = '';
+  private _accessToken = '';
   private refreshToken = '';
 
   constructor(
@@ -21,7 +21,7 @@ export class UserMockService implements UserService {
   ) {}
 
   get isAuthenticated(): boolean {
-    return this.currentUserId !== null && this.accessToken.length > 0;
+    return this.currentUserId !== null && this._accessToken.length > 0;
   }
 
   registerUser(user: RegisterUser): Observable<UserProfile> {
@@ -64,7 +64,7 @@ export class UserMockService implements UserService {
     });
   }
 
-  login(email: string, password: string): Observable<UserProfile> {
+  login(email: string, password: string, rememberMe: boolean = false): Observable<UserProfile> {
     return new Observable<UserProfile>((observer) => {
       setTimeout(() => {
         const normalizedEmail = email.trim().toLowerCase();
@@ -81,7 +81,15 @@ export class UserMockService implements UserService {
     });
   }
 
-  getUserData(): UserProfile | null {
+  restoreSession(): Observable<boolean> {
+    if (!this.refreshToken) {
+      return of(false);
+    }
+
+    return this.refreshAccessToken().pipe(switchMap(() => of(true)));
+  }
+
+  get userData(): UserProfile | null {
     const user = this.getCurrentUser();
 
     return user
@@ -95,15 +103,15 @@ export class UserMockService implements UserService {
       : null;
   }
 
-  getAccessToken(): AccessToken | null {
+  get accessToken(): AccessToken | null {
     return {
-      token: this.accessToken,
+      token: this._accessToken,
       expiresAt: new Date(Date.now() + 3600000),
     };
   }
 
-  refreshAccessToken(): Observable<void> {
-    return new Observable<void>((observer) => {
+  refreshAccessToken(): Observable<boolean> {
+    return new Observable<boolean>((observer) => {
       setTimeout(() => {
         const user = this.getCurrentUser();
 
@@ -112,23 +120,23 @@ export class UserMockService implements UserService {
           return;
         }
 
-        this.accessToken = this.generateToken('access', user.id);
-        observer.next();
+        this._accessToken = this.generateToken('access', user.id);
+        observer.next(true);
         observer.complete();
       }, data.apiLatency);
     });
   }
 
-  logout(): Observable<void> {
-    return new Observable<void>((observer) => {
+  logout(): Observable<boolean> {
+    return new Observable<boolean>((observer) => {
       setTimeout(() => {
         this.router.navigate(this.routeService.auth());
 
         this.currentUserId = null;
-        this.accessToken = '';
+        this._accessToken = '';
         this.refreshToken = '';
 
-        observer.next();
+        observer.next(true);
         observer.complete();
       }, data.apiLatency);
     });
@@ -136,7 +144,7 @@ export class UserMockService implements UserService {
 
   private startSession(userId: number): UserProfile {
     this.currentUserId = userId;
-    this.accessToken = this.generateToken('access', userId);
+    this._accessToken = this.generateToken('access', userId);
     this.refreshToken = this.generateToken('refresh', userId);
 
     const user = this.getCurrentUser();

@@ -1,0 +1,60 @@
+<section class="app-profile-controls">
+  <button
+    type="button"
+    class="app-profile-controls__trigger"
+    [class.app-profile-controls__trigger--expanded]="expanded"
+    (click)="onToggle()"
+    [attr.aria-expanded]="expanded"
+    [attr.aria-controls]="panelId"
+  >
+    <span class="app-profile-controls__identity">
+      <span class="app-profile-controls__avatar" aria-hidden="true">
+        {{ userInitial }}
+      </span>
+      <span class="app-profile-controls__details">
+        <span class="app-profile-controls__name">{{ userService.userData?.name }}</span>
+      </span>
+    </span>
+    <lucide-icon
+      [img]="ICONS.ChevronDown"
+      class="app-profile-controls__chevron app-panel__icon"
+      [class.app-profile-controls__chevron--expanded]="expanded"
+    ></lucide-icon>
+  </button>
+
+  @if (expanded) {
+    <div [id]="panelId" class="app-profile-controls__panel">
+      <div class="app-profile-controls__meta">
+        <div>
+          <span class="app-profile-controls__meta__label">Email</span>
+          <span class="app-profile-controls__meta__value">{{ userService.userData?.email }}</span>
+        </div>
+        <div>
+          <span class="app-profile-controls__meta__label">Phone</span>
+          <span class="app-profile-controls__meta__value">{{ userService.userData?.phoneNumber }}</span>
+        </div>
+        <!-- <div>
+          <span class="app-profile-controls__meta__label">Subscription</span>
+          <span class="app-profile-controls__meta__value">{{ userService.userData?.subscriptionReferenceId }}</span>
+        </div> -->
+      </div>
+
+      <div class="app-profile-controls__actions">
+        <!-- <button
+          appButton
+          type="normal"
+          color="outline"
+          [input]="{ icon: ICONS.PencilLine, label: 'Edit profile' }"
+          (click)="onEdit()"
+        ></button> -->
+        <button
+          appButton
+          type="normal"
+          color="danger"
+          [input]="{ icon: ICONS.LogOut, label: 'Logout' }"
+          (click)="onLogout()"
+        ></button>
+      </div>
+    </div>
+  }
+</section>

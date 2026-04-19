@@ -5,10 +5,11 @@ import { AccessToken } from '../../models/user/access-token.model';
 
 export interface UserService {
   registerUser(user: RegisterUser): Observable<UserProfile>;
-  login(email: string, password: string): Observable<UserProfile>;
+  login(email: string, password: string, rememberMe: boolean): Observable<UserProfile>;
+  restoreSession(): Observable<boolean>;
   readonly isAuthenticated: boolean;
-  getAccessToken(): AccessToken | null;
-  getUserData(): UserProfile | null;
-  refreshAccessToken(): Observable<void>;
-  logout(): Observable<void>;
+  readonly accessToken: AccessToken | null;
+  readonly userData: UserProfile | null;
+  refreshAccessToken(): Observable<boolean>;
+  logout(): Observable<boolean>;
 }

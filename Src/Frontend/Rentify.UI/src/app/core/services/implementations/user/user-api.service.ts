@@ -9,7 +9,7 @@ import { Inject, Injectable } from '@angular/core';
 import { ResponseWrapper } from '../../../models/response/response-wrapper.model';
 import { unwrapReponse } from '../../../utils/unwrap-response.util';
 import { AccessToken } from '../../../models/user/access-token.model';
-import { AUTH_HEADER, SUBSCRIPTION_HEADER } from '../../tokens/http-context.token';
+import { AUTH_HEADER, SKIP_ACCESS_TOKEN_REFRESH, SUBSCRIPTION_HEADER } from '../../tokens/http-context.token';
 import { ROUTE_SERVICE_TOKEN } from '../../tokens/route.token';
 import { RouteService } from '../../abstractions/route.service';
 import { Router } from '@angular/router';
@@ -32,9 +32,15 @@ export class UserApiService implements UserService {
       .pipe(unwrapReponse());
   }
 
-  login(email: string, password: string): Observable<UserProfile> {
+  login(email: string, password: string, rememberMe: boolean = false): Observable<UserProfile> {
     return this.httpClient
-      .post<ResponseWrapper<AccessToken>>(this.environmentConfigService.apiBaseURL + `users/auth`, { email, password })
+      .post<ResponseWrapper<AccessToken>>(
+        this.environmentConfigService.apiBaseURL + `users/auth`,
+        { email, password, rememberMe },
+        {
+          withCredentials: true,
+        },
+      )
       .pipe(
         unwrapReponse(),
         tap((token) => {
@@ -48,6 +54,20 @@ export class UserApiService implements UserService {
           return throwError(() => error);
         }),
       );
+  }
+
+  restoreSession(): Observable<boolean> {
+    if (this.isAuthenticated) {
+      return of(true);
+    }
+
+    return this.refreshAccessToken().pipe(
+      switchMap(() => of(true)),
+      catchError(() => {
+        this.clearSession();
+        return of(false);
+      }),
+    );
   }
 
   private loadUserData(): Observable<UserProfile> {
@@ -66,21 +86,33 @@ export class UserApiService implements UserService {
     return this.userProfile !== null && this.authToken !== null;
   }
 
-  getAccessToken(): AccessToken | null {
+  get accessToken(): AccessToken | null {
     return this.authToken;
   }
 
-  getUserData(): UserProfile | null {
+  get userData(): UserProfile | null {
     return this.userProfile;
   }
 
-  refreshAccessToken(): Observable<void> {
+  refreshAccessToken(): Observable<boolean> {
     return this.httpClient
-      .post<ResponseWrapper<AccessToken>>(this.environmentConfigService.apiBaseURL + `users/auth/refresh`, {})
+      .post<ResponseWrapper<AccessToken>>(
+        this.environmentConfigService.apiBaseURL + `users/auth/refresh`,
+        {},
+        {
+          context: new HttpContext().set(SKIP_ACCESS_TOKEN_REFRESH, true),
+          withCredentials: true,
+        },
+      )
       .pipe(
         unwrapReponse(),
-        tap((token) => (this.authToken = token)),
-        switchMap(() => of()),
+        tap((token) => {
+          this.authToken = token;
+          this.userProfile = null;
+        }),
+        switchMap(() => this.loadUserData()),
+        tap((user) => (this.userProfile = user)),
+        switchMap(() => of(true)),
         catchError((error) => {
           this.clearSession();
           return throwError(() => error);
@@ -88,12 +120,35 @@ export class UserApiService implements UserService {
       );
   }
 
-  logout(): Observable<void> {
-    this.clearSession();
-    this.router.navigate(this.routeService.auth());
-    return of();
+  logout(): Observable<boolean> {
+    return this.httpClient
+      .post<ResponseWrapper<any>>(
+        this.environmentConfigService.apiBaseURL + `users/auth/logout`,
+        {},
+        {
+          context: new HttpContext().set(SKIP_ACCESS_TOKEN_REFRESH, true),
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        unwrapReponse(),
+        switchMap(() => {
+          this.clearSession();
+          this.router.navigate(this.routeService.auth());
+          return of(true);
+        }),
+        catchError((error) => {
+          this.clearSession();
+          return throwError(() => error);
+        }),
+      );
   }
 
+  /*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Clears the current user session data
+   */
+  /*******  4bb6c04b-f29a-4705-9408-aa2e3e3d12b1  *******/
   private clearSession(): void {
     this.authToken = null;
     this.userProfile = null;

@@ -8,8 +8,19 @@ function redirectToAuth(): UrlTree {
   return router.createUrlTree([`/${RoutesConstants.Auth}`]);
 }
 
+function redirectToProperties(): UrlTree {
+  const router = inject(Router);
+  return router.createUrlTree([`/${RoutesConstants.Properties}`]);
+}
+
 export const authGuard: CanActivateFn = () => {
   const userService = inject(USER_SERVICE_TOKEN);
 
   return userService.isAuthenticated ? true : redirectToAuth();
+};
+
+export const authCompleteGuard: CanActivateFn = () => {
+  const userService = inject(USER_SERVICE_TOKEN);
+
+  return !userService.isAuthenticated ? true : redirectToProperties();
 };

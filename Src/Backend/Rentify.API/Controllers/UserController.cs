@@ -7,6 +7,7 @@ using Rentify.Application.DTOs.Auth;
 using Rentify.Application.DTOs.Tenant;
 using Rentify.Application.Interfaces.Services;
 using Rentify.Auth.Core.Abstractions.Accessors;
+using Rentify.Core.Utils;
 
 namespace Rentify.API.Controllers;
 
@@ -16,7 +17,7 @@ public class UserController : ApiControllerBase
 {
     public const string BASE_ROUTE = "api/users";
 
-    private const string REFRESH_TOKEN_COOKIE_NAME = "__secure-refresh-cookie";
+    private const string REFRESH_TOKEN_COOKIE_NAME = "__refresh-cookie";
     private const string REFRESH_TOKEN_PATH_NAME = "RefreshTokenPath";
 
     private readonly IUserService _userService;
@@ -31,6 +32,7 @@ public class UserController : ApiControllerBase
         _userContextAccessor = userContextAccessor;
         _linkGenerator = linkGenerator;
         _logger = logger;
+
     }
 
     /// <summary>
@@ -60,17 +62,17 @@ public class UserController : ApiControllerBase
         try
         {
             var token = await _userService.LoginAsync(userCredentials);
-
             var accessToken = new UserAccessTokenDto { Token = token.AccessToken, ExpiresAt = token.AccessTokenExpiresAt };
+            var refreshToken = new UserRefreshTokenDto { Token = token.RefreshToken, RememberMe = userCredentials.RememberMe };
 
-            // attach refresh token as cookie for refresh token
-            Response.Cookies.Append(REFRESH_TOKEN_COOKIE_NAME, token.RefreshToken, new CookieOptions
+            // Attach refresh token as cookie for refresh token
+            Response.Cookies.Append(REFRESH_TOKEN_COOKIE_NAME, JsonSerializerHelper.Serialize(refreshToken), new CookieOptions
             {
                 Secure = true,
                 HttpOnly = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Path = _linkGenerator.GetPathByName(REFRESH_TOKEN_PATH_NAME),
-                Expires = token.RefreshTokenExpiresAt
+                Expires = userCredentials.RememberMe ? token.RefreshTokenExpiresAt : null,
             });
 
             return Ok(ResponseWrapper<UserAccessTokenDto>.SuccessResponse(accessToken));
@@ -85,7 +87,6 @@ public class UserController : ApiControllerBase
     /// <summary>
     /// Generate Token using refresh token
     /// </summary>
-    [Authorize]
     [HttpPost("auth/refresh", Name = REFRESH_TOKEN_PATH_NAME)]
     public async Task<ActionResult<ResponseWrapper<UserAccessTokenDto>>> GenerateNewUserToken()
     {
@@ -93,18 +94,21 @@ public class UserController : ApiControllerBase
         {
             if (!Request.Cookies.TryGetValue(REFRESH_TOKEN_COOKIE_NAME, out string? value) || string.IsNullOrEmpty(value)) return Unauthorized(ResponseWrapper<object>.ErrorResponse([$"Login required"]));
 
-            var token = await _userService.RefreshUserTokensAsync(value);
+            var refreshToken = JsonSerializerHelper.Deserialize<UserRefreshTokenDto>(value);
+            if(refreshToken == null) return Unauthorized(ResponseWrapper<object>.ErrorResponse([$"Login required"]));
 
+            var token = await _userService.RefreshUserTokensAsync(refreshToken.Token);
             var accessToken = new UserAccessTokenDto { Token = token.AccessToken, ExpiresAt = token.AccessTokenExpiresAt };
+            refreshToken.Token = token.RefreshToken;
 
             // attach refresh token as cookie for refresh token
-            Response.Cookies.Append(REFRESH_TOKEN_COOKIE_NAME, token.RefreshToken, new CookieOptions
+            Response.Cookies.Append(REFRESH_TOKEN_COOKIE_NAME, JsonSerializerHelper.Serialize(refreshToken), new CookieOptions
             {
                 Secure = true,
                 HttpOnly = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Path = _linkGenerator.GetPathByName(REFRESH_TOKEN_PATH_NAME),
-                Expires = token.RefreshTokenExpiresAt
+                Expires = refreshToken.RememberMe ? token.RefreshTokenExpiresAt : null
             });
 
             return Ok(ResponseWrapper<UserAccessTokenDto>.SuccessResponse(accessToken));
@@ -112,6 +116,33 @@ public class UserController : ApiControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating token for user");
+            return HandleException(ex);
+        }
+    }
+
+    /// <summary>
+    /// Logout user
+    /// </summary>
+    [HttpPost("auth/logout")]
+    public ActionResult<ResponseWrapper<object?>> Logout()
+    {
+        try
+        {
+            // attach refresh token as cookie for refresh token
+            Response.Cookies.Append(REFRESH_TOKEN_COOKIE_NAME, string.Empty, new CookieOptions
+            {
+                Secure = true,
+                HttpOnly = true,
+                SameSite = SameSiteMode.None,
+                Path = _linkGenerator.GetPathByName(REFRESH_TOKEN_PATH_NAME),
+                Expires = DateTime.UtcNow.AddDays(-1)
+            });
+
+            return Ok(ResponseWrapper<object?>.SuccessResponse(null));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loggin out user");
             return HandleException(ex);
         }
     }

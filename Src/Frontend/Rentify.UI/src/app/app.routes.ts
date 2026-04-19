@@ -9,7 +9,7 @@ import { PropertyCreateComponent } from './features/property/property-create/pro
 import { TenantMaintenanceComponent } from './features/tenant/tenant-maintenance/tenant-maintenance.component';
 import { TenantCreateComponent } from './features/tenant/tenant-create/tenant-create.component';
 import { AuthComponent } from './features/auth/auth.component';
-import { authGuard } from './core/guards/auth.guard';
+import { authCompleteGuard, authGuard } from './core/guards/auth.guard';
 import { BlankLayoutComponent } from './layouts/blank/blank-layout.component';
 import { MainLayoutComponent } from './layouts/main/main-layout.component';
 
@@ -21,6 +21,7 @@ export const routes: Routes = [
       {
         path: '',
         component: AuthComponent,
+        canActivate: [authCompleteGuard],
       },
     ],
   },

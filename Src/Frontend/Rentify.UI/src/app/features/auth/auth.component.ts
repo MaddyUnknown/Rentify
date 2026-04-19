@@ -73,9 +73,9 @@ export class AuthComponent {
 
     this.isSubmitting = true;
 
-    const { email, password } = this.loginForm.getRawValue();
+    const { email, password, rememberMe } = this.loginForm.getRawValue();
 
-    this.userService.login(email, password).subscribe({
+    this.userService.login(email, password, rememberMe).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.router.navigate(this.routeService.propeties());

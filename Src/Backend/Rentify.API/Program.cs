@@ -110,11 +110,13 @@ builder.Services.AddSwaggerGen(options =>
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("dev", policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    options.AddPolicy("dev", policy => policy.WithOrigins("http://localhost:4200").AllowCredentials().AllowAnyMethod().AllowAnyHeader());
 
 });
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -126,8 +128,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; // Make Swagger the default page
     });
 }
-
-app.UseHttpsRedirection();
 
 app.UseRouting();
 

@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Inject,
+  QueryList,
+  Renderer2,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import {
   LucideAngularModule,
@@ -11,11 +20,12 @@ import {
   Building2,
 } from 'lucide-angular';
 import { filter, map } from 'rxjs';
+import { ProfileControlsComponent } from '../profile-controls/profile-controls.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, ProfileControlsComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
