@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { PropertySummary } from '../../../core/models/property/property-summary.model';
 import { LucideAngularModule, Plus, SearchX, SquarePen } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
@@ -6,14 +6,13 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 import { PROPERTY_SERVICE_TOKEN } from '../../../core/services/tokens/property.token';
 import { PropertyService } from '../../../core/services/abstractions/property.service';
 import { ApiError } from '../../../core/exceptions/api-error';
-import { PaginatedList } from '../../../core/models/response/paginated-list.model';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader';
 import { RouterLink } from '@angular/router';
 import { ROUTE_SERVICE_TOKEN } from '../../../core/services/tokens/route.token';
 import { RouteService } from '../../../core/services/abstractions/route.service';
-import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
 import { EnvironmentConfigService } from '../../../core/services/abstractions/environment-config.service';
 import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/environement-config.token';
+import { LocalDestroyRef } from '../../../shared/lifecycles/local-destroy-ref';
 
 @Component({
   selector: 'app-property-search',
@@ -22,7 +21,7 @@ import { ENVIRONMENT_CONFIG_SERVICE_TOKEN } from '../../../core/services/tokens/
   templateUrl: './property-search.component.html',
   styleUrl: './property-search.component.css',
 })
-export class PropertySearchComponent implements OnInit {
+export class PropertySearchComponent implements OnInit, OnDestroy {
   readonly ICONS = { Plus, SquarePen, SearchX };
 
   readonly ITEMS_PER_PAGE = 12;
@@ -30,7 +29,7 @@ export class PropertySearchComponent implements OnInit {
 
   public totalItems = 1;
   public currentPage = 1;
-  public properties?: PaginatedList<PropertySummary>;
+  public properties?: (PropertySummary & { propertyImageUrl?: string; onDestroy?: LocalDestroyRef })[];
   public loading = false;
   public disableActions = false;
   propertyNotFoundImagePath: string;
@@ -48,6 +47,14 @@ export class PropertySearchComponent implements OnInit {
     this.syncUpProperties(1, { enableLoading: true });
   }
 
+  ngOnDestroy(): void {
+    for (const property of this.properties ?? []) {
+      property.onDestroy?.destroy();
+    }
+
+    this.properties = undefined;
+  }
+
   onPageChange(page: number) {
     this.syncUpProperties(page, { enableActionDisable: true });
   }
@@ -60,21 +67,45 @@ export class PropertySearchComponent implements OnInit {
     return this.routeService.propertyCreate();
   }
 
-  generatePropertyCoverUrl(property: PropertySummary, variant: MediaFileVariantType): string {
-    return property.coverPic?.variants?.['cover_pic']?.processingStatus === 'processed'
-      ? this.propertyService.generatePropertyMediaUrl(property.coverPic.id, variant)
-      : this.propertyNotFoundImagePath;
-  }
-
   private syncUpProperties(currentPage: number, { enableLoading = false, enableActionDisable = false } = {}) {
     if (enableLoading) this.loading = true;
     if (enableActionDisable) this.disableActions = true;
 
+    // Clean previous error
+    for (const property of this.properties ?? []) {
+      property.onDestroy?.destroy();
+    }
+
     this.propertyService.getPaginatedProperties(currentPage, this.ITEMS_PER_PAGE, this.DATE_SNAPSHOT).subscribe({
       next: (properties) => {
-        this.properties = properties;
-        this.totalItems = this.properties.totalItems;
-        this.currentPage = this.properties.currentPage;
+        this.properties = properties.items;
+
+        for (const property of this.properties) {
+          if (property.coverPic?.variants?.['cover_pic']?.processingStatus === 'processed') {
+            property.onDestroy = new LocalDestroyRef();
+
+            this.propertyService.getPropertyMediaUrl(property.coverPic.id, 'cover_pic').subscribe({
+              next: (img) => {
+                property.propertyImageUrl = img.url;
+                property.onDestroy?.onDestroy(() => {
+                  img.destroyFun();
+                });
+              },
+              error: (err) => {
+                if (err instanceof ApiError) {
+                  console.log('API Error', err.Errors);
+                } else {
+                  console.error(err);
+                }
+              },
+            });
+          } else {
+            property.propertyImageUrl = this.propertyNotFoundImagePath;
+          }
+        }
+
+        this.totalItems = properties.totalItems;
+        this.currentPage = properties.currentPage;
 
         if (enableLoading) this.loading = false;
         if (enableActionDisable) this.disableActions = false;

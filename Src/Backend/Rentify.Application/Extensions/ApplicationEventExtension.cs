@@ -26,10 +26,12 @@ namespace Rentify.Application.Extensions
             serviceCollection.AddTransient<IMediaFileValidatorResolver, MediaFileValidatorResolver>();
 
             // Add Service
-            serviceCollection.AddScoped<IMediaFileService, MediaFileService>();
-            serviceCollection.AddScoped<IPropertyService, PropertyService>();
-            serviceCollection.AddScoped<IUnitService, UnitService>();
+            serviceCollection.AddTransient<IMediaFileService, MediaFileService>();
+            serviceCollection.AddTransient<IPropertyService, PropertyService>();
+            serviceCollection.AddTransient<IUnitService, UnitService>();
             serviceCollection.AddTransient<ITenantService, TenantService>();
+            serviceCollection.AddTransient<IUserService, UserService>();
+            serviceCollection.AddTransient<ISubscriptionService, SubscriptionService>();
         }
     }
 }

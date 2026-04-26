@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.API.Abstractions.Controllers;
+using Rentify.API.Attributes;
 using Rentify.API.DTOs;
 using Rentify.API.Enums;
 using Rentify.Application.DTOs;
@@ -14,10 +16,14 @@ using System.IO;
 
 namespace Rentify.API.Controllers;
 
+[Authorize]
+[RequireSubscriptionHeader]
 [ApiController]
-[Route("api/properties")]
+[Route(BASE_ROUTE)]
 public class PropertiesController : ApiControllerBase
 {
+    public const string BASE_ROUTE = "api/properties";
+
     private readonly IPropertyService _propertyService;
     private readonly IMediaFileService _mediaFileService;
     private readonly IUnitService _unitService;

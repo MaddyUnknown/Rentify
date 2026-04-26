@@ -5,6 +5,7 @@ import {
   Inject,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
   ViewChild,
@@ -25,7 +26,6 @@ import { ApiError } from '../../../../core/exceptions/api-error';
 import { TenantDetailsForm } from '../../models/tenant-details-form.model';
 import { MediaFile } from '../../../../core/models/media-file/media-file.model';
 import { MediaFileRow, NewMediaFileRow } from '../../models/tenant-document-row.model';
-import { MediaFileVariantType } from '../../../../core/models/media-file/media-file-variant-type.model';
 import { LocalDestroyRef } from '../../../../shared/lifecycles/local-destroy-ref';
 import { MediaStatusPollingService } from '../../../../shared/services/media-status-polling.service';
 import { SpinnerLoaderComponent } from '../../../../shared/components/spinner-loader/spinner-loader.component';
@@ -39,7 +39,7 @@ import { EnvironmentConfigService } from '../../../../core/services/abstractions
   standalone: true,
   imports: [PanelComponent, ButtonComponent, SkeletonLoaderComponent, ReactiveFormsModule, SpinnerLoaderComponent],
 })
-export class TenantDetailsComponent implements OnInit, OnChanges {
+export class TenantDetailsComponent implements OnInit, OnChanges, OnDestroy {
   readonly ICONS = { Camera, CircleX, InfoIcon, Save, SquarePen, Trash2 };
 
   mode = EditMode.from('view');
@@ -96,6 +96,10 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }
 
+  ngOnDestroy(): void {
+    if (this.profilePicState?.kind == 'existing') this.deleteMediaRow(this.profilePicState);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['details']) {
       const value = changes['details'].currentValue;
@@ -114,10 +118,6 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
   //#endregion
 
   //#region Helper methods
-  generateTenantMediaUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
-    return this.tenantService.generateTenantMediaUrl(mediaFile.id, variant);
-  }
-
   private createNewMediaRow(mediaFile: MediaFile): NewMediaFileRow {
     const data: NewMediaFileRow = { kind: 'new', data: mediaFile };
     return data;
@@ -129,14 +129,49 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
       data: mediaFile,
       disableActions: false,
       destoryPollingRef: new LocalDestroyRef(),
+      destroyImageRef: new LocalDestroyRef(),
     };
 
-    this.setupProfilePicPolling(data);
+    this.setupProfilePicState(data);
     return data;
   }
 
   private deleteMediaRow(mediaFileRow: MediaFileRow) {
     mediaFileRow.destoryPollingRef.destroy();
+    mediaFileRow.destroyImageRef?.destroy();
+  }
+
+  private setupProfilePicState(mediaFileRow: MediaFileRow) {
+    if (mediaFileRow.data.processingStatus === 'uploading' || mediaFileRow.data.processingStatus === 'uploaded') {
+      this.setupProfilePicPolling(mediaFileRow);
+    } else if (mediaFileRow.data.processingStatus === 'processed') {
+      this.setupProfilePicUrl(mediaFileRow);
+    }
+  }
+
+  private setupProfilePicUrl(mediaFileRow: MediaFileRow) {
+    if (
+      mediaFileRow.data.processingStatus !== 'processed' ||
+      mediaFileRow.data.variants?.['profile_pic']?.processingStatus !== 'processed'
+    )
+      return;
+
+    mediaFileRow.destroyImageRef?.destroy();
+    mediaFileRow.destroyImageRef = new LocalDestroyRef();
+
+    this.tenantService.getTenantMediaUrl(mediaFileRow.data.id, 'profile_pic').subscribe({
+      next: (img) => {
+        mediaFileRow.imageUrl = img.url;
+        mediaFileRow.destroyImageRef?.onDestroy(() => img.destroyFun());
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
+    });
   }
 
   private setupProfilePicPolling(mediaFileRow: MediaFileRow) {
@@ -149,6 +184,9 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
         } else {
           if (this.profilePicState !== undefined) {
             this.profilePicState.data = { ...this.profilePicState.data, ...data };
+            if (this.profilePicState.kind === 'existing') {
+              this.setupProfilePicUrl(this.profilePicState);
+            }
           } else {
             this.profilePicState = mediaFileRow;
           }
@@ -166,8 +204,7 @@ export class TenantDetailsComponent implements OnInit, OnChanges {
       },
     });
 
-    if (this.profilePicState?.kind === 'existing')
-      this.profilePicState.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
+    mediaFileRow.destoryPollingRef.onDestroy(() => subscription.unsubscribe());
   }
   //#endregion
 

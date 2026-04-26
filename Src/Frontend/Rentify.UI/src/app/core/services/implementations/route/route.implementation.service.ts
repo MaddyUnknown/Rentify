@@ -3,6 +3,10 @@ import { RouteService } from '../../abstractions/route.service';
 import { RoutesConstants } from '../../../constants/routes.constants';
 
 export class RouteImplementationService implements RouteService {
+  auth(): any[] {
+    return [`/${RoutesConstants.Auth}`];
+  }
+
   propeties(): any[] {
     return [`/${RoutesConstants.Properties}`];
   }

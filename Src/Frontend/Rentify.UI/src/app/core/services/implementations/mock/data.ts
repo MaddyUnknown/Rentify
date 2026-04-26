@@ -2,7 +2,7 @@ import { MediaFileStatus } from '../../../models/media-file/media-file-status.mo
 import { MediaFileVariantStatus } from '../../../models/media-file/media-file-variant-status.model';
 import { MediaFile } from '../../../models/media-file/media-file.model';
 import { UnitStatus } from '../../../models/unit/unit-status.model';
-import { MockFiles, MockProperty, MockTenant, MockTenantEmergencyContact, MockUnit } from './data.model';
+import { MockFiles, MockProperty, MockTenant, MockTenantEmergencyContact, MockUnit, MockUser } from './data.model';
 
 export const data: {
   apiLatency: number;
@@ -11,6 +11,7 @@ export const data: {
   files: MockFiles[];
   tenants: MockTenant[];
   tenantEmergencyContacts: MockTenantEmergencyContact[];
+  users: MockUser[];
 } = {
   apiLatency: 2000,
   properties: [
@@ -298,6 +299,22 @@ export const data: {
       relationship: 'Parent',
       phoneNumber: '+1 305 555 7799',
       email: 'nina.ortiz@example.com',
+    },
+  ],
+  users: [
+    {
+      id: 1,
+      name: 'Alex Morgan',
+      email: 'alex@rentify.io',
+      phoneNumber: '+1 415 555 1001',
+      password: 'password123',
+    },
+    {
+      id: 2,
+      name: 'Taylor Brooks',
+      email: 'taylor@rentify.io',
+      phoneNumber: '+1 206 555 2048',
+      password: 'password123',
     },
   ],
 };

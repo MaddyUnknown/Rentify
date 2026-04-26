@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Rentify.Storage.LocalStorage
 {
-    public class LocalFileStorageService : IFileStorageService
+    public class LocalFileStorageManager : IFileStorageManager
     {
         private string _rootPath;
         private int _bufferSize;
 
-        public LocalFileStorageService(string rootPath, int bufferSize = 81920)
+        public LocalFileStorageManager(string rootPath, int bufferSize = 81920)
         {
             _rootPath = Path.GetFullPath(rootPath);
             _bufferSize = bufferSize;

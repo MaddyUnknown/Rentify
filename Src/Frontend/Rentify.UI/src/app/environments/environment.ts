@@ -3,7 +3,7 @@ export const environement = {
     latitude: 22.564561413017202,
     longitude: 88.34333896636964,
   },
-  apiBaseURL: 'http://localhost:5062/api/',
+  apiBaseURL: 'https://localhost:5062/api/',
   thumbnailImagePath: {
     propertyMediaProcessing: '/img/thumbnails/placeholder-house-light.jpg',
     propertyNotFound: '/img/thumbnails/property_placeholder.jpg',

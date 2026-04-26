@@ -142,7 +142,7 @@
                   (click)="onImageRemoveClick(file)"
                 ></button>
               </div>
-              <img [src]="generatePropertyUrl(file.data, 'thumbnail')" [alt]="file.data.name" />
+              <img [src]="file.imageUrl" [alt]="file.data.name" />
             </div>
           }
         }

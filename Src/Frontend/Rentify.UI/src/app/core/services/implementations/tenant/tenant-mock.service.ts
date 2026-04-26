@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TenantService } from '../../abstractions/tenant.service';
 import { PaginatedList } from '../../../models/response/paginated-list.model';
 import { TenantSummary } from '../../../models/tenant/tenant-summary.model';
@@ -376,7 +376,10 @@ export class TenantMockService implements TenantService {
     });
   }
 
-  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
-    return this.environmentConfigService.thumbnailImagePath.tenantNotFound;
+  getTenantMediaUrl(
+    mediaId: number,
+    variant: MediaFileVariantType | undefined,
+  ): Observable<{ url: string; destroyFun: () => void }> {
+    return of({ url: this.environmentConfigService.thumbnailImagePath.tenantNotFound, destroyFun: () => {} });
   }
 }

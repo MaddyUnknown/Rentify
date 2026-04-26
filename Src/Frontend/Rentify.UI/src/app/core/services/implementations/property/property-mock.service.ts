@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { data } from '../mock/data';
 import { PropertyService } from '../../abstractions/property.service';
 import { Property } from '../../../models/property/property.model';
@@ -379,7 +379,10 @@ export class PropertyMockService implements PropertyService {
     });
   }
 
-  generatePropertyMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string {
-    return this.environmentConfigService.thumbnailImagePath.propertyNotFound;
+  getPropertyMediaUrl(
+    mediaId: number,
+    variant: MediaFileVariantType | undefined,
+  ): Observable<{ url: string; destroyFun: () => void }> {
+    return of({ url: this.environmentConfigService.thumbnailImagePath.propertyNotFound, destroyFun: () => {} });
   }
 }

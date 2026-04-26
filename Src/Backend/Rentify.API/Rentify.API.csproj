@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rentify.Application\Rentify.Application.csproj" />
+    <ProjectReference Include="..\Rentify.Auth.Identity\Rentify.Auth.Identity.csproj" />
     <ProjectReference Include="..\Rentify.DataAccess.SqlServer\Rentify.DataAccess.SqlServer.csproj" />
     <ProjectReference Include="..\Rentify.FileWorkflow.Implementation\Rentify.FileWorkflow.Implementation.csproj" />
     <ProjectReference Include="..\Rentify.Storage.LocalStorage\Rentify.Storage.LocalStorage.csproj" />

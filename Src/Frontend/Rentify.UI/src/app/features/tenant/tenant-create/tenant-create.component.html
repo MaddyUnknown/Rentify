@@ -58,7 +58,7 @@
                 ></button>
               </div>
               <img
-                [src]="generateTenantMediaUrl(tenantProfilePicState.profilePic.data, 'profile_pic')"
+                [src]="tenantProfilePicState.profilePic.imageUrl ?? tenantNotFoundImagePath"
                 alt="profile pic"
               />
             }

@@ -20,8 +20,5 @@ namespace Rentify.Core.Entities
         // Foreign keys
         [Required]
         public int MediaFileId { get; set; }
-
-        // Navigation properties
-        public MediaFile MediaFile { get; set; } = null!;
     }
 }

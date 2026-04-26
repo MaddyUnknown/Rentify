@@ -10,11 +10,11 @@ namespace Rentify.Core.Abstractions.Entities
     public abstract class EntityBase
     {
         [Required]
-        public int Id { get; private set; }
+        public int Id { get; protected set; }
 
         [Required]
-        public DateTime CreatedDate { get; private set; }
+        public DateTime CreatedDate { get; protected set; }
 
-        public DateTime? ModifiedDate { get; private set; }
+        public DateTime? ModifiedDate { get; protected set; }
     }
 }

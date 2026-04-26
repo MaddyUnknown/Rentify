@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Rentify.Core.Entities;
 
-public class Unit : EntityBase, IOwnedEntity
+public class Unit : EntityBase, ISubscriptionEntity
 {
     [Required]
     [MaxLength(100)]
@@ -22,10 +22,10 @@ public class Unit : EntityBase, IOwnedEntity
     public int PropertyId { get; set; }
 
     [Required]
-    public int OwnerId { get; private set; }
+    public int SubscriptionId { get; private set; }
 
     // Navigation properties
     public Property Property { get; set; } = null!;
 
-    public Owner Owner { get; private set; } = null!;
+    public Subscription Subscription { get; private set; } = null!;
 }

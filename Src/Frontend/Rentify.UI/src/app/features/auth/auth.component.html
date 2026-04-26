@@ -1,0 +1,162 @@
+<section class="app-auth__promo">
+  <header>
+    <h1 class="app-auth__brand">
+      <img class="app-auth__brand__icon" src="img/rentify-logo.svg" alt="Rentify Icon" />
+      <div class="app-auth__brand__text">
+        <div class="app-auth__brand__title">Rentify</div>
+        <div class="app-auth__brand__alt">Rent & Utility Manager</div>
+      </div>
+    </h1>
+  </header>
+  <div class="app_auto__promo__main">
+    <span class="app-auth__promo__tag">
+      <lucide-icon class="app-button__icon" [img]="ICONS.ShieldCheck"></lucide-icon>
+      <span>Property operations for owners and managers</span>
+    </span>
+    <h2 class="app-auth__promo__header">Manage properties, tenants, contracts and billing in one place.</h2>
+    <p class="app-auth_promo__sub-header">
+      Secure access for landlords and property managers with a clean workspace built for daily operations.
+    </p>
+    <ul class="app-auth__promo__features">
+      <li>
+        <lucide-icon [img]="ICONS.House"></lucide-icon>
+        <h3>Property overview</h3>
+        <p>Track buildings, unit counts, occupancy, media, and location details.</p>
+      </li>
+
+      <li>
+        <lucide-icon [img]="ICONS.UsersRound"></lucide-icon>
+        <h3>Tenant records</h3>
+        <p>Store contact metadata, emergency details, and supporting documents.</p>
+      </li>
+
+      <li>
+        <lucide-icon [img]="ICONS.FileText"></lucide-icon>
+        <h3>Contracts and billing</h3>
+        <p>Review lease documents and manage monthly bills and payments.</p>
+      </li>
+    </ul>
+  </div>
+  <footer>
+    <small>Trusted workspace for modern rental operations</small>
+  </footer>
+</section>
+<section class="app-auth">
+  <div class="app-auth__card">
+    <header class="app-auth__header">
+      <h1>Welcome to Rentify</h1>
+      <p>Sign in or create a new account</p>
+    </header>
+    <div class="app-auth__tabs">
+      <button
+        appButton
+        type="normal"
+        [color]="mode === 'login' ? 'primary' : 'outline'"
+        [input]="{ icon: ICONS.KeyRound, label: 'Login' }"
+        (click)="setMode('login')"
+      ></button>
+      <button
+        appButton
+        type="normal"
+        [color]="mode === 'register' ? 'primary' : 'outline'"
+        [input]="{ icon: ICONS.User, label: 'Register' }"
+        (click)="setMode('register')"
+      ></button>
+    </div>
+
+    @if (mode === 'login') {
+      <form [formGroup]="loginForm" class="app-form app-auth__form" (ngSubmit)="onLoginSubmit()">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input
+            id="login-email"
+            type="email"
+            formControlName="email"
+            [attr.invalid]="isInvalid(loginForm.controls.email) ? '' : null"
+          />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            formControlName="password"
+            [attr.invalid]="isInvalid(loginForm.controls.password) ? '' : null"
+          />
+        </div>
+        <label class="app-auth__checkbox">
+          <input type="checkbox" formControlName="rememberMe" />
+          <span>Keep me signed in</span>
+        </label>
+        <button
+          appButton
+          type="normal"
+          color="primary"
+          [input]="{ icon: ICONS.LogIn, label: 'Sign In' }"
+          class="app-auth__submit"
+          [disabled]="isSubmitting"
+        ></button>
+      </form>
+    } @else {
+      <form [formGroup]="registerForm" class="app-form app-auth__form" (ngSubmit)="onRegisterSubmit()">
+        <div class="form-group">
+          <label for="register-fullname">Full Name</label>
+          <input
+            id="register-fullname"
+            type="text"
+            formControlName="name"
+            [attr.invalid]="isInvalid(registerForm.controls.name) ? '' : null"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="register-email">Email</label>
+            <input
+              id="register-email"
+              type="email"
+              formControlName="email"
+              [attr.invalid]="isInvalid(registerForm.controls.email) ? '' : null"
+            />
+          </div>
+          <div class="form-group">
+            <label for="register-phone">Phone</label>
+            <input
+              id="register-phone"
+              type="text"
+              formControlName="phoneNumber"
+              [attr.invalid]="isInvalid(registerForm.controls.phoneNumber) ? '' : null"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="register-password">Password</label>
+            <input
+              id="register-password"
+              type="password"
+              formControlName="password"
+              [attr.invalid]="isInvalid(registerForm.controls.password) ? '' : null"
+            />
+          </div>
+          <div class="form-group">
+            <label for="register-confirm-password">Confirm Password</label>
+            <input
+              id="register-confirm-password"
+              type="password"
+              formControlName="confirmPassword"
+              [attr.invalid]="isInvalid(registerForm.controls.confirmPassword) ? '' : null"
+            />
+          </div>
+        </div>
+        <button
+          appButton
+          type="normal"
+          color="primary"
+          [input]="{ icon: ICONS.UserPlus, label: 'Create Account' }"
+          class="app-auth__submit"
+          [disabled]="isSubmitting"
+        ></button>
+      </form>
+    }
+  </div>
+</section>

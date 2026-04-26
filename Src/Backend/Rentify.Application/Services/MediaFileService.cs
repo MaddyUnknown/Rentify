@@ -35,7 +35,7 @@ namespace Rentify.Application.Services
         private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
         private readonly IMediaFileRepository _mediaFileRepo;
         private readonly IFileInspector _fileInspector;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly IFileStorageManager _fileStorageService;
 
         public MediaFileService(
         IUnitOfWork unitOfWork,
@@ -46,7 +46,7 @@ namespace Rentify.Application.Services
         IRepository<EventOutbox> eventOutboxCRUDRepo,
         IMediaFileRepository mediaFileRepo,
         IFileInspector fileInspector,
-        IFileStorageService fileStorageService)
+        IFileStorageManager fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _mediaFileValidatorResolver = mediaFileValidatorResolver;
@@ -141,6 +141,7 @@ namespace Rentify.Application.Services
                 };
 
                 _mediaFileCRUDRepo.Add(mediaFile);
+                await _unitOfWork.SaveChangesAsync();
 
                 if (uploadMediaDto.EntityId.HasValue)
                 {
@@ -148,7 +149,7 @@ namespace Rentify.Application.Services
                     {
                         EntityId = uploadMediaDto.EntityId.Value,
                         EntityType = uploadMediaDto.EntityType,
-                        MediaFile = mediaFile
+                        MediaFileId = mediaFile.Id
                     };
 
                     _mediaFileLinkCRUDRepo.Add(mediaFileLink);

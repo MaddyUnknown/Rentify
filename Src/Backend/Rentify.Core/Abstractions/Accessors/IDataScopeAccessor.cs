@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rentify.Core.Abstractions.Entities
+namespace Rentify.Core.Abstractions.Accessors
 {
-    public interface IOwnedEntity
+    public interface IDataScopeAccessor
     {
-        int OwnerId { get; }
+        DataScope DataScope { get; }
     }
 }

@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Inject,
+  QueryList,
+  Renderer2,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import {
   LucideAngularModule,
@@ -11,11 +20,12 @@ import {
   Building2,
 } from 'lucide-angular';
 import { filter, map } from 'rxjs';
+import { ProfileControlsComponent } from '../profile-controls/profile-controls.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, ProfileControlsComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
@@ -36,29 +46,29 @@ export class HeaderComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
+    this.updateNavHighlight();
     this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        map(() => {
-          let route = this.activeRoute.snapshot;
-          while (route.firstChild) route = route.firstChild;
-          return route.data[this.NAV_DATA_ATTR];
-        }),
-      )
-      .subscribe((navName) => {
-        if (navName !== this.currentNav) {
-          const element = this.navItems
-            .toArray()
-            .filter((item) => item.nativeElement.dataset[this.NAV_DATA_ATTR] === navName);
-          if (element.length === 0) return;
-
-          this.currentNav = navName;
-          this.onNavChange(element[0]);
-        }
-      });
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => this.updateNavHighlight());
   }
 
-  onNavChange(currentElement: ElementRef<HTMLLIElement>): void {
+  private updateNavHighlight() {
+    let route = this.activeRoute.snapshot;
+    while (route.firstChild) route = route.firstChild;
+
+    const navName = route.data[this.NAV_DATA_ATTR];
+    if (navName !== this.currentNav) {
+      const element = this.navItems
+        .toArray()
+        .filter((item) => item.nativeElement.dataset[this.NAV_DATA_ATTR] === navName);
+      if (element.length === 0) return;
+
+      this.currentNav = navName;
+      this.onNavChange(element[0]);
+    }
+  }
+
+  private onNavChange(currentElement: ElementRef<HTMLLIElement>): void {
     let firstElement: HTMLLIElement = this.navItems.first.nativeElement;
     let selectedElement: HTMLLIElement = currentElement.nativeElement;
 

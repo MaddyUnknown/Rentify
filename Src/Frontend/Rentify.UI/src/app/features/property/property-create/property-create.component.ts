@@ -33,7 +33,7 @@ import { SpinnerLoaderComponent } from '../../../shared/components/spinner-loade
 import { MediaFile } from '../../../core/models/media-file/media-file.model';
 import { LocalDestroyRef } from '../../../shared/lifecycles/local-destroy-ref';
 import { MediaFileVariantType } from '../../../core/models/media-file/media-file-variant-type.model';
-import { BehaviorSubject, debounceTime, merge, startWith } from 'rxjs';
+import { BehaviorSubject, debounceTime, merge, Observable, startWith } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { ObservableMap } from '../../../shared/models/observable-map.model';
 import { MediaStatusPollingService } from '../../../shared/services/media-status-polling.service';
@@ -77,8 +77,10 @@ type NewMediaFileRow = {
 type MediaFileRow = {
   kind: 'existing';
   data: MediaFile;
+  imageUrl?: string;
   disableActions: boolean;
   destoryPollingRef: LocalDestroyRef;
+  destroyImageRef: LocalDestroyRef;
 };
 
 @Component({
@@ -214,10 +216,6 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
   propertiesRoute() {
     return this.routeService.propeties();
   }
-
-  generatePropertyUrl(mediaFile: MediaFile, variant: MediaFileVariantType): string {
-    return this.propertyService.generatePropertyMediaUrl(mediaFile.id, variant);
-  }
   // #endregion
 
   // #region Event handlers
@@ -267,14 +265,48 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
       data: mediaFile,
       disableActions: false,
       destoryPollingRef: new LocalDestroyRef(),
+      destroyImageRef: new LocalDestroyRef(),
     };
 
-    this.setupImagePolling(data);
+    this.setupImageUrlAndPolling(data);
     return data;
   }
 
   private deleteImageRow(mediaFileRow: MediaFileRow) {
     mediaFileRow.destoryPollingRef.destroy();
+    mediaFileRow.destroyImageRef.destroy();
+  }
+
+  private setupImageUrlAndPolling(mediaFileRow: MediaFileRow) {
+    if (mediaFileRow.data.processingStatus === 'uploading' || mediaFileRow.data.processingStatus === 'uploaded') {
+      this.setupImagePolling(mediaFileRow);
+    } else if (mediaFileRow.data.processingStatus === 'processed') {
+      this.setupImageUrl(mediaFileRow);
+    }
+  }
+
+  private setupImageUrl(mediaFileRow: MediaFileRow) {
+    if (
+      mediaFileRow.data.processingStatus !== 'processed' ||
+      mediaFileRow.data.variants?.['thumbnail']?.processingStatus !== 'processed'
+    )
+      return;
+
+    this.propertyService.getPropertyMediaUrl(mediaFileRow.data.id, 'thumbnail').subscribe({
+      next: (img) => {
+        mediaFileRow.imageUrl = img.url;
+        mediaFileRow.destroyImageRef.onDestroy(() => {
+          img.destroyFun();
+        });
+      },
+      error: (err) => {
+        if (err instanceof ApiError) {
+          console.log('API Error', err.Errors);
+        } else {
+          console.error(err);
+        }
+      },
+    });
   }
 
   private setupImagePolling(mediaFileRow: MediaFileRow) {
@@ -288,7 +320,11 @@ export class PropertyCreateComponent implements OnInit, AfterViewInit {
           this.propertyImageState.images.delete(data.id);
         } else {
           const existingRow = this.propertyImageState.images.get(data.id);
-          if (existingRow) existingRow.data = data;
+          if (existingRow) {
+            existingRow.destroyImageRef.destroy();
+            existingRow.data = data;
+            this.setupImageUrl(existingRow);
+          }
         }
       },
       error: (err) => {

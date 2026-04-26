@@ -12,5 +12,7 @@ namespace Rentify.DataAccess.SqlServer.Constants
         public static readonly string TransactionInProgressStarted = "A transaction is already in progress.";
         public static readonly string TransactionNotActive = "No active transaction found.";
 
+        public static readonly string SubscriptionIdNull = "Subscription id of null is not accepted for data access mode : {0}";
+        public static readonly string MethodNotFound = "Method not found for class name '{0}' and method name '{1}'";
     }
 }

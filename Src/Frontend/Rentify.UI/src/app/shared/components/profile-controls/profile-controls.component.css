@@ -1,0 +1,136 @@
+:host {
+  display: block;
+}
+
+.app-profile-controls {
+  border-radius: 0.4rem;
+  background: var(--background-color--muted);
+  overflow: hidden;
+}
+
+.app-profile-controls__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+  width: 100%;
+  padding: 1.2rem 1.2rem;
+
+  background: var(--bacground-color--sidebar);
+  border: none;
+  cursor: pointer;
+
+  font-family: var(--font-family);
+  font-size: 1.6rem;
+  font-weight: 500;
+
+  transition: background-color var(--base-animation-time) ease-in;
+}
+
+.app-profile-controls__trigger:hover,
+.app-profile-controls__trigger--expanded {
+  background: var(--background-color--muted);
+}
+
+.app-profile-controls__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.app-profile-controls__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999rem;
+  background: var(--primary-color);
+  color: var(--background-color);
+  flex-shrink: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.app-profile-controls__details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.app-profile-controls__name,
+.app-profile-controls__email,
+.app-profile-controls__meta__label,
+.app-profile-controls__meta__value {
+  display: block;
+}
+
+.app-profile-controls__name {
+  /* font-weight: 400; */
+  color: var(--text-color);
+}
+
+.app-profile-controls__email {
+  max-width: 100%;
+  color: var(--text-color--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-profile-controls__chevron {
+  color: var(--text-color--muted);
+  transition: transform var(--base-animation-time) ease-in;
+}
+
+.app-profile-controls__chevron--expanded {
+  transform: rotate(180deg);
+}
+
+.app-profile-controls__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  padding: 0 1.6rem 1.6rem;
+  border-top: 0.1rem solid var(--border-color);
+}
+
+.app-profile-controls__meta {
+  display: flex;
+  flex-direction: column;
+  /* grid-template-columns: repeat(2, minmax(0, 1fr)); */
+  gap: 1.2rem;
+  padding-top: 1.6rem;
+}
+
+.app-profile-controls__meta__label {
+  margin-bottom: 0.4rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+  color: var(--text-color--muted);
+}
+
+.app-profile-controls__meta__value {
+  font-size: 1.4rem;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+.app-profile-controls__actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-profile-controls__actions button[appButton] {
+  flex: 1 1 18rem;
+}
+
+@media (max-width: 640px) {
+  .app-profile-controls__meta {
+    grid-template-columns: 1fr;
+  }
+}

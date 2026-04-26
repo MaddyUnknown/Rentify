@@ -40,7 +40,7 @@ namespace Rentify.Application.Services
         private readonly IRepository<EventOutbox> _eventOutboxCRUDRepo;
         private readonly IFileInspector _fileInspector;
         private readonly IMediaFileValidatorResolver _mediaFileValidatorResolver;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly IFileStorageManager _fileStorageService;
         private readonly IRepository<MediaFile> _mediaFileCRUDRepo;
 
         public TenantService(
@@ -54,7 +54,7 @@ namespace Rentify.Application.Services
             IRepository<EventOutbox> eventOutboxCRUDRepo,
             IFileInspector fileInspector,
             IMediaFileValidatorResolver mediaFileValidatorResolver,
-            IFileStorageService fileStorageService,
+            IFileStorageManager fileStorageService,
             IRepository<MediaFile> mediaFileCRUDRepo)
         {
             _unitOfWork = unitOfWork;
@@ -327,7 +327,7 @@ namespace Rentify.Application.Services
                     {
                         EntityId = updateTenantProfilePic.TenantId.Value,
                         EntityType = MediaFileEntityEnum.Tenant,
-                        MediaFile = mediaFile,
+                        MediaFileId = mediaFile.Id,
                     };
 
                     _mediaFileLinkCRUDRepo.Add(mediaFileLink);

@@ -25,11 +25,8 @@ namespace Rentify.DataAccess.SqlServer.Repositories
         {
             options ??= MediaFileFilterOption.Empty;
 
-            return await _context.MediaFileLinks
-                .Where(l => l.EntityType == entityType && l.EntityId == entityId && (options.FilterDeletedRecords == false || l.MediaFile.Status != MediaFileStatusEnum.Deleted))
-                .Include(l => l.MediaFile).ThenInclude(f => f.MediaFileLink)
-                .Include(l => l.MediaFile).ThenInclude(f => f.MediaFileVariants)
-                .Select(l => l.MediaFile)
+            return await _context.MediaFiles.Include(f => f.MediaFileLink).Include(f => f.MediaFileVariants)
+                .Where(f => f.MediaFileLink.EntityType == entityType && f.MediaFileLink.EntityId == entityId && (options.FilterDeletedRecords == false || f.Status != MediaFileStatusEnum.Deleted))
                 .ToListAsync();
         }
 

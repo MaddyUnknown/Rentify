@@ -19,10 +19,10 @@ namespace Rentify.Storage.LocalStorage.Extensions
 
             if (storageOptions.RootFolder == null) throw new ArgumentNullException(nameof(storageOptions.RootFolder), FileStorageConstant.RootPathNotConfigurated);
 
-            serviceCollection.AddTransient<IFileStorageService>((provider) => 
+            serviceCollection.AddTransient<IFileStorageManager>((provider) => 
                 storageOptions.StreamBufferSize.HasValue 
-                ? new LocalFileStorageService(storageOptions.RootFolder, storageOptions.StreamBufferSize.Value) 
-                : new LocalFileStorageService(storageOptions.RootFolder)
+                ? new LocalFileStorageManager(storageOptions.RootFolder, storageOptions.StreamBufferSize.Value) 
+                : new LocalFileStorageManager(storageOptions.RootFolder)
              );
         }
     }

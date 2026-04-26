@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using Rentify.DataAccess.SqlServer.Interceptors;
 using Rentify.DataAccess.SqlServer.Interfaces.Interceptors;
 using Rentify.DataAccess.SqlServer.Constants;
+using Rentify.DataAccess.SqlServer.Interfaces.Filters;
+using Rentify.DataAccess.SqlServer.Filters;
 
 namespace Rentify.DataAccess.SqlServer.Extensions
 {
@@ -33,8 +35,11 @@ namespace Rentify.DataAccess.SqlServer.Extensions
             });
 
             // Add Save Changes Interceptor
-            serviceCollection.AddTransient<ISaveChangesInterceptor, SetAuditFieldsInterceptor>();
-            serviceCollection.AddTransient<ISaveChangesInterceptor, SetOwnerFieldsInterceptor>();
+            serviceCollection.AddSingleton<ISaveChangesInterceptor, SetAuditFieldsInterceptor>();
+            serviceCollection.AddSingleton<ISaveChangesInterceptor, SetOwnerFieldsInterceptor>();
+
+            // Add Global Filter
+            serviceCollection.AddSingleton<IGlobalFilter, GlobalSubscriptionFilter>();
 
             // Add Repository
             serviceCollection.AddTransient(typeof(IRepository<>), typeof(Repository<>));
@@ -42,8 +47,10 @@ namespace Rentify.DataAccess.SqlServer.Extensions
             serviceCollection.AddTransient<IMediaFileVariantRepository, MediaFileVariantRepository>();
             serviceCollection.AddTransient<IUnitRepository, UnitRepository>();
             serviceCollection.AddTransient<IPropertyRepository, PropertyRepository>();
+            serviceCollection.AddTransient<ISubscriptionRepository>(provider => new SubscriptionRepository(dataAccessOptions.ConnectionString));
             serviceCollection.AddTransient<ITenantEmergencyContactRepository, TenantEmergencyContactRepository>();
             serviceCollection.AddTransient<ITenantRepository, TenantRepository>();
+
 
             // Add unit of work
             serviceCollection.AddTransient<IUnitOfWork, UOW.UnitOfWork>();

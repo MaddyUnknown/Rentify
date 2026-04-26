@@ -29,5 +29,8 @@ export interface TenantService {
   uploadTenantDocument(file: File, tenantId?: number): Observable<MediaFile>;
   deleteTenantMedia(mediaId: number): Observable<MediaFile>;
 
-  generateTenantMediaUrl(mediaId: number, variant: MediaFileVariantType | undefined): string;
+  getTenantMediaUrl(
+    mediaId: number,
+    variant: MediaFileVariantType | undefined,
+  ): Observable<{ url: string; destroyFun: () => void }>;
 }

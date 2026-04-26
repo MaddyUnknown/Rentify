@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Rentify.Auth.Core\Rentify.Auth.Core.csproj" />
     <ProjectReference Include="..\Rentify.Core\Rentify.Core.csproj" />
     <ProjectReference Include="..\Rentify.DataAccess.Core\Rentify.DataAccess.Core.csproj" />
     <ProjectReference Include="..\Rentify.FileWorkflow.Core\Rentify.FileWorkflow.Core.csproj" />

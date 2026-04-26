@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rentify.Core.Entities
 {
-    public class TenantEmergencyContact : EntityBase
+    public class TenantEmergencyContact : EntityBase, ISubscriptionEntity
     {
         [Required]
         [MaxLength(50)]
@@ -30,10 +30,10 @@ namespace Rentify.Core.Entities
         //Foreign Key
         [Required]
         public int TenantId { get; set; }
+        public int SubscriptionId { get; private set; }
 
         //Navigation Key
         public Tenant Tenant { get; set; } = null!;
-
-
+        public Subscription Subscription { get; private set; } = null!;
     }
 }

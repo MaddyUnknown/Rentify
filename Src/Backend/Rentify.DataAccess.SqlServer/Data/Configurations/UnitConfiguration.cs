@@ -13,9 +13,9 @@ namespace Rentify.DataAccess.SqlServer.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Unit> builder)
         {
-            builder.HasOne(u => u.Owner)
+            builder.HasOne(u => u.Subscription)
                 .WithMany()
-                .HasForeignKey(u => u.OwnerId)
+                .HasForeignKey(u => u.SubscriptionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(u => u.Property)
