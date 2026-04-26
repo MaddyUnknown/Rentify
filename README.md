@@ -8,6 +8,7 @@ It provides a streamlined way to manage **properties, tenants, contracts, utilit
 ## ✨ Features
 
 ### 🔑 Core Modules
+
 - **Properties & Units**
   - CRUD operations for properties and rental units
 - **Tenants**
@@ -16,20 +17,24 @@ It provides a streamlined way to manage **properties, tenants, contracts, utilit
   - CRUD operations for utilities associated with properties/units
 
 ### 📜 Contracts
+
 - Create, cancel, or amend rental contracts
 - Support for contract amendments (implemented as cancel + create)
 - Add contract components (e.g., recurring charges, utilities) for billing
 
 ### 💳 Billing
+
 - Generate bills (recurring & one-time)
 - Review, cancel, or amend bills
 - Support for cycle-based billing
 
 ### ⚡ Utility Bills
+
 - Create and cancel utility bills
 - Associate with tenants/contracts for accurate settlement
 
 ### 💵 Payments
+
 - Record incoming payments
 - Cancel / adjust payment entries
 - Support reconciliation with bills
@@ -75,10 +80,12 @@ Rentify is built with modular components to support scalability and flexibility:
 
 ## 📌 Roadmap
 
-- [ ] Property & Tenant CRUD  
-- [ ] Contract Management (create, cancel, amend)  
-- [ ] Billing engine (generate, cancel, amend)  
-- [ ] Utility Bill handling  
-- [ ] Payment recording & reconciliation  
-- [ ] Role-based access control (landlord, tenant, admin)  
-- [ ] Reports & dashboards 
+- &#x2714; Property & Tenant CRUD
+- &#x2714; User Authentication
+- [ ] Contract management (create, cancel, amend)
+- [ ] Billing engine (generate, cancel, amend)
+- [ ] Manual Payment recording
+- [ ] Utility Bill handling
+- [ ] Payment recording & reconciliation
+- [ ] Role-based access control (landlord, tenant, admin)
+- [ ] Reports & dashboards
