@@ -80,8 +80,8 @@ Rentify is built with modular components to support scalability and flexibility:
 
 ## 📌 Roadmap
 
-- &#x2714; Property & Tenant CRUD
-- &#x2714; User Authentication
+- [x] Property & Tenant CRUD
+- [x] User Authentication
 - [ ] Contract management (create, cancel, amend)
 - [ ] Billing engine (generate, cancel, amend)
 - [ ] Manual Payment recording
